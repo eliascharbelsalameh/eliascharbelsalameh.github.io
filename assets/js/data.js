@@ -48,10 +48,10 @@ window.PORTFOLIO = {
   /* ------------------------------------------------------------------ */
   profile: {
     name: "Elias Charbel Salameh",
-    initials: "EC",                       // shown if no photo is provided
+    initials: "ecs",                       // shown if no photo is provided
     photo: "assets/images/profile.jpg",   // optional — drop a file here to show it
     role: "Robotics, Automation & AI Engineer",
-    tagline: "Building learning-based control for autonomous systems.",
+    tagline: "Combining Learning and Model-Based Methods for autonomous systems.",
     summary:
       "M2 student in Automation & Robotics of Intelligent Systems at UTC Compiègne, " +
       "in a double-degree program with USEK (Lebanon). Hands-on across control systems, " +
@@ -98,10 +98,29 @@ window.PORTFOLIO = {
 
     /* ---- Current / 2026 ------------------------------------------- */
     {
+      title: "IEEE Young Professionals R8 LEAD 2.0 Program",
+      org: "IEEE Region 8",
+      location: "Bordeaux, France",
+      start: "2026-05", end: "present",
+      kind: "leadership",
+      categories: ["leadership", "volunteering", "community"],
+      featured: false,
+      summary:
+        "Leadership development and networking program for IEEE Young Professionals in Region 8.",
+      highlights: [
+        "IEEE R8 YP Member Activities.", 
+        "IEEE MGA YP Opportunities.",
+        "IEEE vTools","IEEE Collabratec.",
+        "IEEE Volunteer Ethics.",
+        "Leadership sessions."        
+      ],
+      tags: ["Leadership", "Community", "Partnerships", "Events"]
+    }
+    ,{
       title: "R&D Intern — Robotics & Intelligent Systems",
       org: "OpenLab Stellantis–IMS–SANPSY",
       location: "Bordeaux, France",
-      start: "2026-02", end: "2026-07",
+      start: "2026-02", end: "present",
       kind: "experience",
       categories: ["research", "technical"],
       featured: true,
@@ -120,7 +139,7 @@ window.PORTFOLIO = {
       title: "Cooperative Control of 6 Robots in Rendezvous",
       org: "UTC — Control of Autonomous Cooperative Robots",
       location: "Compiègne, France",
-      start: "2026-01", end: "2026-06",
+      start: "2025-11", end: "2026-01",
       kind: "project",
       categories: ["research", "technical", "academic"],
       summary: "Designed a distributed control scheme driving six robots to a common rendezvous.",
@@ -135,9 +154,10 @@ window.PORTFOLIO = {
       org: "RISE",
       location: "Remote",
       start: "2026-04",
+      end: "2026-05",
       kind: "certification",
       categories: ["research"],
-      summary: "Selected for the RISE for Collaboration research program."
+      summary: "Completed for the RISE for Collaboration research program."
     },
 
     /* ---- 2025 ------------------------------------------------------ */
@@ -145,7 +165,7 @@ window.PORTFOLIO = {
       title: "M.Sc. — Complex Systems Eng.: Automation & Robotics of Intelligent Systems",
       org: "Université de Technologie de Compiègne (UTC)",
       location: "Compiègne, France",
-      start: "2025-09", end: "2026-07",
+      start: "2025-09", end: "present",
       kind: "education",
       categories: ["academic", "research"],
       featured: true,
@@ -238,8 +258,8 @@ window.PORTFOLIO = {
       summary: "Hands-on ROS2 training at the IC2AI'25 workshop."
     },
     {
-      title: "AI for Research and Insights",
-      org: "LinkedIn Learning",
+      title: "AI for Research and Insights - Gemini",
+      org: "Coursera",
       location: "Online",
       start: "2025",            // approximate date — set the real month in data.js if you have it
       kind: "certification",
@@ -247,8 +267,8 @@ window.PORTFOLIO = {
       summary: "Applying AI to research workflows and insight generation."
     },
     {
-      title: "AI Fundamentals",
-      org: "LinkedIn Learning",
+      title: "AI Fundamentals - Gemini",
+      org: "Coursera",
       location: "Online",
       start: "2025",            // approximate date — set the real month in data.js if you have it
       kind: "certification",
@@ -297,7 +317,7 @@ window.PORTFOLIO = {
       title: "AI Bootcamp",
       org: "ZAKA AI",
       location: "Lebanon",
-      start: "2024-07",
+      start: "2024-06",end: "2024-07",
       kind: "certification",
       categories: ["technical"],
       summary: "Intensive bootcamp in AI, machine learning and deep learning.",
@@ -391,6 +411,21 @@ window.PORTFOLIO = {
         { label: "Breast Cancer", url: "https://github.com/eliascharbelsalameh/WISC_BCancer_diagnonsis_AI" },
         { label: "Function Approx.", url: "https://github.com/eliascharbelsalameh/Function_Approximation-AI" }
       ]
+    },{
+      title: "Chair — IEEE USEK Student Branch",
+      org: "IEEE",
+      location: "Jounieh, Lebanon",
+      start: "2024-12", end: "2025-07",
+      kind: "leadership",
+      categories: ["leadership", "volunteering", "community"],
+      featured: true,
+      summary: "Led the branch to an IEEE Regional Exemplary Student Branch Awards (2025).",
+      highlights: [
+        "Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.",
+        "Branch won the IEEE Regional Exemplary Student Branch Award three years running (2023, 2024, 2025).",
+        "Technical Ambassador at Zaka AI, delivering AI sessions."
+      ],
+      tags: ["Leadership", "Community", "Partnerships", "Events"]
     },
 
     /* ---- 2023 ------------------------------------------------------ */
@@ -437,29 +472,47 @@ window.PORTFOLIO = {
       title: "Level Up Leadership Program 2023",
       org: "Level Up",
       location: "Lebanon",
-      start: "2023",
+      start: "2023-10", end: "2023-12",
       kind: "certification",
       categories: ["leadership", "community"],
       summary: "Completed a structured leadership-development program."
     },
-
-    /* ---- 2022 ------------------------------------------------------ */
     {
-      title: "Chair — IEEE USEK Student Branch",
+      title: "Vice Chair — IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
-      start: "2022-12", end: "2025-08",
+      start: "2023-12", end: "2024-12",
       kind: "leadership",
       categories: ["leadership", "volunteering", "community"],
-      featured: true,
-      summary: "Led the branch to two IEEE Regional Exemplary Student Branch Awards (2023, 2024).",
+      featured: false,
+      summary: "Participated in the organization of the IEEE Student Branch.",
       highlights: [
-        "Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.",
-        "Branch won the IEEE Regional Exemplary Student Branch Award three years running (2023, 2024, 2025).",
+        "Co-Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.",
+        "Branch the IEEE Regional Exemplary Student Branch Award of 2024.",
         "Ambassador for IEEE Day 2024 and IEEEXtreme 17.0 — coordinated 50 students and a $745 budget across a two-day event.",
         "Technical Ambassador at Zaka AI, delivering AI sessions."
       ],
       tags: ["Leadership", "Community", "Partnerships", "Events"]
+    },
+
+    /* ---- 2022 ------------------------------------------------------ */
+    {
+      title: "Treasurer — IEEE USEK Student Branch",
+      org: "IEEE",
+      location: "Jounieh, Lebanon",
+      start: "2022-12", end: "2023-12",
+      kind: "leadership",
+      categories: ["leadership", "volunteering", "community"],
+      featured: false,
+      summary: "Helped the branch to the IEEE Regional Exemplary Student Branch Awards of 2023.",
+      highlights: [
+        "Branch won the IEEE Regional Exemplary Student Branch Award of 2023.",
+        "Kept the books for the IEEE USEK SB.",
+        "Developed a new method to register members to the IEEE Membership, making their experience smoother and more efficient.",
+        "Increased the membership of the branch by 74% in one year.",
+        "IEEE SYPLC'23 Treasury Team Member."
+      ],
+      tags: ["Leadership", "Community", "Partnerships", "Events","Reporting","Treasury Management"]
     },
 
     /* ---- 2021 ------------------------------------------------------ */
