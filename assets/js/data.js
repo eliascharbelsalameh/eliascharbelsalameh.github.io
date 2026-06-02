@@ -180,7 +180,7 @@ window.PORTFOLIO = {
       title: "Hyperdimensional Computing for Neuromorphic Vision",
       org: "UTC — Research Project (lead)",
       location: "Compiègne, France",
-      start: "2025-09", end: "present",
+      start: "2025-09", end: "2026-01",
       kind: "research",
       categories: ["research", "academic"],
       featured: true,
