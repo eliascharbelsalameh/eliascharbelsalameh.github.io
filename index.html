@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elias Charbel Salameh — Robotics, Automation & AI</title>
+  <meta name="description" content="Interactive timeline portfolio of Elias Charbel Salameh — robotics, automation & AI engineer. Filter by research, technical, academic, leadership, volunteering and more." />
+  <meta name="author" content="Elias Charbel Salameh" />
+  <meta name="color-scheme" content="light dark" />
+
+  <!-- Open Graph / link preview (shows when shared with recruiters) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Elias Charbel Salameh — Robotics, Automation & AI" />
+  <meta property="og:description" content="An interactive, filterable timeline of research, engineering, leadership and academic work." />
+  <meta property="og:image" content="assets/images/og-cover.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Inline SVG favicon (no external file needed) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b2a4a'/%3E%3Ctext x='50' y='68' font-family='Arial,sans-serif' font-size='52' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E" />
+
+  <!-- Fonts (degrade gracefully to system fonts if offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <!-- Set saved theme before first paint to avoid a flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#timeline">Skip to timeline</a>
+
+  <!-- ============================= HEADER ============================= -->
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true">EC</span>
+        <span class="brand-name">Elias&nbsp;Charbel&nbsp;Salameh</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark / light">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8" stroke-linecap="round"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================= HERO ============================= -->
+    <section class="hero" id="about">
+      <div class="wrap hero-inner">
+        <div class="hero-text">
+          <div class="hero-avatar" id="hero-avatar" aria-hidden="true"></div>
+          <p class="hero-eyebrow" id="hero-role"></p>
+          <h1 class="hero-name" id="hero-name"></h1>
+          <p class="hero-tagline" id="hero-tagline"></p>
+          <p class="hero-summary" id="hero-summary"></p>
+          <div class="hero-cta" id="hero-cta"></div>
+        </div>
+        <ul class="hero-stats" id="hero-stats" aria-label="Highlights"></ul>
+      </div>
+    </section>
+
+    <!-- =========================== TIMELINE =========================== -->
+    <section class="timeline-section" id="timeline">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Timeline of efforts</h2>
+          <p class="section-sub">Every role, project, award and contribution — filter the view to whatever you care about.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls" role="region" aria-label="Filter the timeline">
+          <div class="controls-row">
+            <label class="search" for="search">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+              <input type="search" id="search" placeholder="Search roles, tech, organisations…" autocomplete="off" />
+            </label>
+            <div class="controls-meta">
+              <span id="result-count" class="result-count" aria-live="polite"></span>
+              <button class="link-btn" id="select-all" type="button">All</button>
+              <button class="link-btn" id="clear-all" type="button">None</button>
+              <button class="link-btn" id="reset" type="button">Reset</button>
+            </div>
+          </div>
+          <div class="filters" id="filters" role="group" aria-label="Categories"></div>
+        </div>
+
+        <!-- Timeline renders here -->
+        <div class="timeline" id="timeline-list"></div>
+        <p class="empty-state" id="empty-state" hidden>No entries match your filters. <button class="link-btn" id="empty-reset" type="button">Reset filters</button></p>
+      </div>
+    </section>
+
+    <!-- ============================ SKILLS ============================ -->
+    <section class="skills-section" id="skills">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Skills &amp; toolbox</h2>
+          <p class="section-sub">Technologies and methods used across the work above.</p>
+        </div>
+        <div class="skills-grid" id="skills-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="site-footer" id="contact">
+    <div class="wrap footer-inner">
+      <div class="footer-cta">
+        <h2>Let's talk</h2>
+        <p class="section-sub">Open to research-driven robotics, control &amp; AI roles — and a CIFRE industrial PhD.</p>
+        <div class="footer-links" id="footer-links"></div>
+      </div>
+      <p class="footer-note">
+        <span id="footer-copy"></span> · Built as a living timeline — last updated <span id="footer-date"></span>.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Data first, then the app that renders it -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>

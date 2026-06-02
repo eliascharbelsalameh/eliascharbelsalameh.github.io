@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------------------
+# Keep your PRIVATE source documents OUT of the public website.
+# These sit in the project folder for convenience but should NOT be published
+# (cover letters, the LinkedIn export, multiple CV drafts, etc.).
+#
+# Only loose PDF/Word files in the project ROOT are ignored; anything inside
+# subfolders (e.g. assets/) is still published normally.
+# ---------------------------------------------------------------------------
+
+# All PDFs / Word docs sitting in the project root (not in subfolders)
+/*.pdf
+/*.docx
+/*.doc
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+.vscode/
