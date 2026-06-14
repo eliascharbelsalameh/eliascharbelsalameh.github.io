@@ -382,7 +382,7 @@ window.PORTFOLIO = {
       title: "Emotion Analysis — NLP Classifier",
       org: "Personal Project",
       location: "Lebanon",
-      start: "2024-07",
+      start: "2025-03",
       kind: "project",
       categories: ["technical"],
       summary: "Built an NLP classifier for categorical emotion prediction.",
@@ -391,9 +391,9 @@ window.PORTFOLIO = {
     },
     {
       title: "AI Model Portfolio — Vision & Regression",
-      org: "Personal Projects (ZAKA AI track)",
+      org: "Personal Projects (ZAKA AI track & inmind.ai academy ML track)",
       location: "Lebanon",
-      start: "2024-07",
+      start: "2024-06", end: "2025-03",
       kind: "project",
       categories: ["technical"],
       summary: "A set of from-scratch ML models: image classification, regression and medical diagnosis.",
@@ -423,7 +423,7 @@ window.PORTFOLIO = {
       summary: "Led the branch to an IEEE Regional Exemplary Student Branch Awards (2025).",
       highlights: [
         "Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.",
-        "Branch won the IEEE Regional Exemplary Student Branch Award three years running (2023, 2024, 2025).",
+        "Branch won the IEEE Regional Exemplary Student Branch Award for the third consecutive year (2025).",
         "Technical Ambassador at Zaka AI, delivering AI sessions."
       ],
       tags: ["Leadership", "Community", "Partnerships", "Events"]
