@@ -244,7 +244,8 @@ window.PORTFOLIO = {
       highlights: [
         "Designed an end-to-end CV pipeline for BMW assembly-line item detection with YOLOv5 (mAP[0.5–0.95] = 98.4%).",
         "Across the track, worked the modern AI stack — Transformers/BERT, RAG, CNNs, point clouds and Vision Transformers.",
-        "Stack: PyTorch, Python, Docker / Docker-Compose, Git, NVIDIA Omniverse; synthetic data, CI/CD, FastAPI, containerization."
+        "Stack: PyTorch, Python, Docker / Docker-Compose, Git, NVIDIA Omniverse; synthetic data, CI/CD, FastAPI, containerization.",
+        "Got offered an interview with the BMW technical team based on the program performance, but decided to proceed with a Robotics/Control Systems Specialization in UTC since they had conflicting timelines."
       ],
       tags: ["YOLOv5", "Computer Vision", "PyTorch", "Transformers / BERT", "RAG", "Vision Transformers", "Docker", "Synthetic Data", "FastAPI"],
       links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/ComputerVision_Project_inmind" }]
