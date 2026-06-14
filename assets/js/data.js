@@ -88,7 +88,8 @@ window.PORTFOLIO = {
     { id: "leadership",          label: "Leadership",      color: "#d97706" },
     { id: "volunteering",        label: "Volunteering",    color: "#16a34a" },
     { id: "community",           label: "Community",       color: "#ea580c" },
-    { id: "award",               label: "Awards & Honors", color: "#ca8a04" }
+    { id: "award",               label: "Awards & Honors", color: "#ca8a04" },
+    { id: "personal",            label: "Personal",        color: "#e11d48" }
   ],
 
   /* ------------------------------------------------------------------ */
@@ -541,6 +542,80 @@ window.PORTFOLIO = {
       kind: "education",
       categories: ["academic"],
       summary: "AEFE double baccalaureate in general sciences — 16.23/20, highest honors."
+    },
+
+    /* ---- Personal / Athletics (dates below are PLACEHOLDERS — set the real ones) ---- */
+    {
+      title: "Back Squat — 166 kg (1-rep-max PR)",
+      org: "Strength training",
+      start: "2023-11",            // PLACEHOLDER — set the real date
+      kind: "fitness",
+      categories: ["personal"],
+      summary: "Hit a 166 kg back-squat — a one-rep-max personal record.",
+      tags: ["Strength", "Powerlifting", "166 kg"]
+    },
+    {
+      title: "Back Squat — 140 kg x 5",
+      org: "Strength training",
+      start: "2024-02",            // PLACEHOLDER — set the real date
+      kind: "fitness",
+      categories: ["personal"],
+      summary: "Hit a 140 kg back-squat — a five-rep-max personal record.",
+      tags: ["Strength", "Powerlifting", "140 kg"]
+    },
+    {
+      title: "Deadlift — 180 kg (1-rep-max PR)",
+      org: "Strength training",
+      start: "2025-06",            // PLACEHOLDER — set the real date
+      kind: "fitness",
+      categories: ["personal"],
+      summary: "Hit a 180 kg deadlift — a one-rep-max personal record.",
+      tags: ["Strength", "Powerlifting", "180 kg"]
+    },
+    {
+      title: "Bench Press — 120 kg × 2",
+      org: "Strength training",
+      start: "2023-09",            // PLACEHOLDER — set the real date
+      kind: "fitness",
+      categories: ["personal"],
+      summary: "Benched 120 kg for 2 reps.",
+      tags: ["Strength", "Bench Press", "120 kg"]
+    },
+    {
+      title: "Completed an 8K run",
+      org: "Running",
+      start: "2021-11",            // PLACEHOLDER — set the real date
+      kind: "fitness",
+      categories: ["personal"],
+      summary: "Finished an 8K road run — endurance goal completed.",
+      tags: ["Running", "Endurance", "8K"]
+    },
+    {
+      title: "Reading — \"Rich Dad Poor Dad\" by Robert Kiyosaki",
+      org: "Reading",
+      start: "2026-03",end: "2026-04",
+      kind: "education",
+      categories: ["personal"],
+      summary: "Finished reading Rich Dad Poor Dad — personal finance and investing mindset.",
+      tags: ["Reading", "Personal Finance"]
+    },
+    {
+      title: "Reading — \"Mastery\" by Robert Greene",
+      org: "Reading",
+      start: "2026-04", end: "present",
+      kind: "education",
+      categories: ["personal"],
+      summary: "Currently reading Mastery — on the path from apprenticeship to expertise.",
+      tags: ["Reading", "Self-development"]
+    },
+    {
+      title: "Started playing chess",
+      org: "Chess",
+      start: "2025-06",
+      kind: "project",
+      categories: ["personal"],
+      summary: "Took up chess — strategy, pattern recognition and endgame practice.",
+      tags: ["Chess", "Strategy"]
     }
   ],
 
