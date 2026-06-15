@@ -101,7 +101,7 @@ window.PORTFOLIO = {
     {
       title: "IEEE Young Professionals R8 LEAD 2.0 Program",
       org: "IEEE Region 8",
-      location: "Bordeaux, France",
+      location: "Remote",
       start: "2026-05", end: "present",
       kind: "leadership",
       categories: ["leadership", "volunteering", "community"],
@@ -134,7 +134,8 @@ window.PORTFOLIO = {
         "Developing a mixed Safe-RL ACC with Control Barrier Functions (SFRL-ACC + CBF).",
         "Validating each approach in simulation on common speed profiles."
       ],
-      tags: ["MPC", "Reinforcement Learning", "Control Barrier Functions", "ADAS", "SCANeR studio", "MATLAB/Simulink"]
+      tags: ["MPC", "Reinforcement Learning", "Control Barrier Functions", "ADAS", "SCANeR studio", "MATLAB/Simulink"],
+      links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/Stage_IA_Autom" }]
     },
     {
       title: "Cooperative Control of 6 Robots in Rendezvous",
@@ -392,12 +393,12 @@ window.PORTFOLIO = {
     },
     {
       title: "AI Model Portfolio — Vision & Regression",
-      org: "Personal Projects (ZAKA AI track & inmind.ai academy ML track)",
+      org: "Academic USEK Projects",
       location: "Lebanon",
-      start: "2024-06", end: "2025-03",
+      start: "2024-09", end: "2025-05",
       kind: "project",
       categories: ["technical"],
-      summary: "A set of from-scratch ML models: image classification, regression and medical diagnosis.",
+      summary: "A set of from-scratch ML models: image classification, regression and medical diagnosis. All the below projects are part of my Machine Learning and Deep Learning coursework at USEK, where I implemented each model from scratch (no pre-trained weights or transfer learning) to deepen my understanding of the underlying algorithms and architectures. The datasets are either public or in the github repositories.",
       highlights: [
         "Fashion-MNIST — MLP/CNN/ANN implemented from scratch (99.61%).",
         "Animals-10 — multi-class image classifier (92%).",
@@ -606,7 +607,16 @@ window.PORTFOLIO = {
       start: "2026-04", end: "present",
       kind: "education",
       categories: ["personal"],
-      summary: "Currently reading Mastery — on the path from apprenticeship to expertise.",
+      summary: "Better understanding the level of \"Mastery\" — on the path from apprenticeship to expertise.",
+      tags: ["Reading", "Self-development"]
+    },
+    {
+      title: "Reading — \"The Prince\" by Nicolo Machiavelli",
+      org: "Reading",
+      start: "2026-06", end: "present",
+      kind: "education",
+      categories: ["personal"],
+      summary: "The Prince by Machiavelli — classic on power, strategy and leadership.",
       tags: ["Reading", "Self-development"]
     },
     {
