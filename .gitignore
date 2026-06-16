@@ -12,7 +12,25 @@
 /*.docx
 /*.doc
 
+# Claude Code / AI tooling — local config, agent notes, never publish
+.claude/
+CLAUDE.md
+.cursor/
+.aider*
+.continue/
+
+# Dependencies / build output (in case tooling is added later)
+node_modules/
+dist/
+build/
+
+# Environment / secrets
+.env
+.env.*
+
 # OS / editor noise
 Thumbs.db
 .DS_Store
 .vscode/
+.idea/
+*.log
