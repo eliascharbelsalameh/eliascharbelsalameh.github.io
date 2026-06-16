@@ -121,7 +121,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 .brand-mark {
   display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px;
   background: var(--primary); color: var(--primary-ink);
-  font-family: var(--font-display); font-weight: 700; font-size: .9rem; letter-spacing: .02em;
+  font-family: var(--font-display); font-weight: 700; font-size: .8rem; letter-spacing: .01em;
 }
 .brand-name { font-family: var(--font-display); font-size: 1rem; }
 .site-nav { display: flex; gap: 1.4rem; margin-left: auto; }
@@ -135,6 +135,13 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 }
 .theme-toggle:hover { background: var(--surface-2); }
 .theme-toggle .icon-moon { display: none; }
+
+.lang-toggle {
+  display: grid; place-items: center; height: 38px; min-width: 38px; padding: 0 .7rem; border-radius: 999px;
+  background: var(--surface); border: 1.5px solid var(--border-strong); color: var(--text); cursor: pointer;
+  font-family: var(--font-display); font-weight: 600; font-size: .82rem; letter-spacing: .03em;
+}
+.lang-toggle:hover { background: var(--surface-2); }
 html[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
 html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
@@ -360,7 +367,7 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
 /* ------------------------------- Print ------------------------------------ */
 @media print {
-  .site-header, .controls, .theme-toggle, .hero-cta, .footer-links, .skip-link { display: none !important; }
+  .site-header, .controls, .theme-toggle, .lang-toggle, .hero-cta, .footer-links, .skip-link { display: none !important; }
   body { background: #fff; color: #000; }
   .tl-card, .skill-group, .hero-stats li { box-shadow: none; border-color: #bbb; }
   .tl-item[hidden] { display: grid !important; }

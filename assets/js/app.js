@@ -8,6 +8,55 @@
   var DATA = window.PORTFOLIO;
   if (!DATA) { console.error("PORTFOLIO data not found — check assets/js/data.js"); return; }
 
+  /* ------------------------------- i18n ----------------------------------- */
+  /* UI strings. Content (timeline / profile / skills) is translated in data.js
+     via parallel `*_fr` fields — see tf() below. */
+  var I18N = {
+    en: {
+      nav_about: "About", nav_timeline: "Timeline", nav_skills: "Skills", nav_contact: "Contact",
+      timeline_h: "Timeline of efforts",
+      timeline_sub: "Every role, project, award and contribution — filter the view to whatever you care about.",
+      search_ph: "Search roles, tech, organisations…",
+      all: "All", none: "None", reset: "Reset",
+      skills_h: "Skills & toolbox",
+      skills_sub: "Technologies and methods used across the work above.",
+      contact_h: "Contact",
+      explore: "Explore the timeline",
+      empty: "No entries match your filters.", empty_reset: "Reset filters",
+      present: "Present", now: "Now",
+      footer_built: "Built as a living timeline — last updated",
+      months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      shown: function (a, b) { return a + " of " + b + " shown"; }
+    },
+    fr: {
+      nav_about: "Profil", nav_timeline: "Parcours", nav_skills: "Compétences", nav_contact: "Contact",
+      timeline_h: "Parcours et réalisations",
+      timeline_sub: "Chaque poste, projet, distinction et contribution — filtrez l'affichage selon vos intérêts.",
+      search_ph: "Rechercher postes, technologies, organisations…",
+      all: "Tout", none: "Aucun", reset: "Réinitialiser",
+      skills_h: "Compétences & outils",
+      skills_sub: "Technologies et méthodes utilisées dans les travaux ci-dessus.",
+      contact_h: "Contact",
+      explore: "Explorer le parcours",
+      empty: "Aucune entrée ne correspond à vos filtres.", empty_reset: "Réinitialiser les filtres",
+      present: "Présent", now: "En cours",
+      footer_built: "Conçu comme une frise vivante — dernière mise à jour",
+      months: ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
+      shown: function (a, b) { return a + " sur " + b + " affichées"; }
+    }
+  };
+  var LANG = (function () {
+    try { return localStorage.getItem("lang") === "fr" ? "fr" : "en"; } catch (e) { return "en"; }
+  })();
+  var T = I18N[LANG];
+
+  /* Return a content field, preferring its French variant when LANG === "fr". */
+  function tf(obj, field) {
+    if (!obj) return "";
+    if (LANG === "fr" && obj[field + "_fr"] != null) return obj[field + "_fr"];
+    return obj[field];
+  }
+
   /* ----------------------------- tiny helpers ----------------------------- */
   function h(tag, attrs) {
     var e = document.createElement(tag), i, k, v;
@@ -32,10 +81,10 @@
   }
   function $(sel) { return document.querySelector(sel); }
 
-  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var MONTHS = T.months;
   function fmt(d) {
     if (!d) return "";
-    if (d === "present") return "Present";
+    if (d === "present") return T.present;
     var p = String(d).split("-");
     return p[1] ? MONTHS[+p[1] - 1] + " " + p[0] : p[0];
   }
@@ -52,7 +101,7 @@
   var CATS = {};
   (DATA.categories || []).forEach(function (c) { CATS[c.id] = c; });
   function catColor(id) { return (CATS[id] && CATS[id].color) || "#64748b"; }
-  function catLabel(id) { return (CATS[id] && CATS[id].label) || id; }
+  function catLabel(id) { return CATS[id] ? tf(CATS[id], "label") : id; }
 
   /* kind → inline SVG icon */
   var ICONS = {
@@ -91,13 +140,37 @@
     });
   }
 
+  /* ------------------------------ LANGUAGE -------------------------------- */
+  function initLang() {
+    document.documentElement.setAttribute("lang", LANG);
+    // static UI strings (data-i18n = textContent, data-i18n-ph = placeholder)
+    var nodes = document.querySelectorAll("[data-i18n]");
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute("data-i18n");
+      if (T[k] != null) nodes[i].textContent = T[k];
+    }
+    var phs = document.querySelectorAll("[data-i18n-ph]");
+    for (var j = 0; j < phs.length; j++) {
+      var pk = phs[j].getAttribute("data-i18n-ph");
+      if (T[pk] != null) phs[j].setAttribute("placeholder", T[pk]);
+    }
+    // the button shows the language you'd switch TO
+    var label = $("#lang-label");
+    if (label) label.textContent = LANG === "fr" ? "EN" : "FR";
+    var btn = $("#lang-toggle");
+    if (btn) btn.addEventListener("click", function () {
+      try { localStorage.setItem("lang", LANG === "fr" ? "en" : "fr"); } catch (e) {}
+      location.reload();
+    });
+  }
+
   /* ------------------------------- HERO ----------------------------------- */
   function renderHero() {
     var p = DATA.profile || {};
-    $("#hero-role").textContent = p.role || "";
+    $("#hero-role").textContent = tf(p, "role") || "";
     $("#hero-name").textContent = p.name || "";
-    $("#hero-tagline").textContent = p.tagline || "";
-    $("#hero-summary").textContent = p.summary || "";
+    $("#hero-tagline").textContent = tf(p, "tagline") || "";
+    $("#hero-summary").textContent = tf(p, "summary") || "";
 
     // avatar: initials, swapped for the photo if it loads
     var av = $("#hero-avatar");
@@ -110,13 +183,13 @@
 
     // hero CTA
     var cta = $("#hero-cta");
-    cta.appendChild(h("a", { class: "btn btn-primary", href: "#timeline", html: "Explore the timeline " + SOCIAL.arrow }));
+    cta.appendChild(h("a", { class: "btn btn-primary", href: "#timeline", html: T.explore + " " + SOCIAL.arrow }));
     if (p.github) cta.appendChild(h("a", { class: "btn btn-ghost", href: p.github, target: "_blank", rel: "noopener", html: SOCIAL.github + "<span>GitHub</span>" }));
 
     // stats
     var stats = $("#hero-stats");
     (p.stats || []).forEach(function (s) {
-      stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, s.value), h("span", { class: "stat-label" }, s.label)));
+      stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, s.value), h("span", { class: "stat-label" }, tf(s, "label"))));
     });
 
     // footer
@@ -128,6 +201,7 @@
 
     var now = new Date();
     $("#footer-copy").textContent = "© " + now.getFullYear() + " " + (p.name || "");
+    $("#footer-built").textContent = T.footer_built;
     $("#footer-date").textContent = MONTHS[now.getMonth()] + " " + now.getFullYear();
   }
 
@@ -142,7 +216,7 @@
           this.setAttribute("aria-pressed", this.getAttribute("aria-pressed") === "true" ? "false" : "true");
           applyFilters();
         }
-      }, h("span", { class: "dot" }), h("span", { class: "label" }, c.label)));
+      }, h("span", { class: "dot" }), h("span", { class: "label" }, tf(c, "label"))));
     });
   }
 
@@ -151,8 +225,8 @@
   var groupEls = [];  // { section, items:[el,...] }
 
   function searchText(it) {
-    var parts = [it.title, it.org, it.location, it.summary]
-      .concat(it.highlights || []).concat(it.tags || [])
+    var parts = [tf(it, "title"), tf(it, "org"), tf(it, "location"), tf(it, "summary")]
+      .concat(tf(it, "highlights") || []).concat(tf(it, "tags") || [])
       .concat((it.categories || []).map(catLabel));
     return parts.join(" ").toLowerCase();
   }
@@ -161,32 +235,37 @@
     var color = catColor((it.categories || [])[0]);
     var ongoing = it.end === "present";
 
+    var loc = tf(it, "location");
+    var summary = tf(it, "summary");
+    var highlights = tf(it, "highlights");
+    var tags = tf(it, "tags");
+
     var head = h("div", {},
-      h("span", { class: "tl-date" }, dateRange(it), ongoing ? h("span", { class: "tl-now" }, "Now") : null),
+      h("span", { class: "tl-date" }, dateRange(it), ongoing ? h("span", { class: "tl-now" }, T.now) : null),
       h("h3", { class: "tl-title" },
-        it.title,
+        tf(it, "title"),
         it.featured ? h("span", { class: "tl-star", title: "Highlight" }, "★") : null),
       h("div", { class: "tl-org" },
-        it.org || "",
-        it.location ? [h("span", { class: "sep" }, " · "), h("span", { class: "tl-loc" }, it.location)] : null)
+        tf(it, "org") || "",
+        loc ? [h("span", { class: "sep" }, " · "), h("span", { class: "tl-loc" }, loc)] : null)
     );
 
     var card = h("div", { class: "tl-card" }, head);
 
-    if (it.summary) card.appendChild(h("p", { class: "tl-summary" }, it.summary));
+    if (summary) card.appendChild(h("p", { class: "tl-summary" }, summary));
 
-    if (it.highlights && it.highlights.length) {
-      card.appendChild(h("ul", { class: "tl-highlights" }, it.highlights.map(function (x) { return h("li", {}, x); })));
+    if (highlights && highlights.length) {
+      card.appendChild(h("ul", { class: "tl-highlights" }, highlights.map(function (x) { return h("li", {}, x); })));
     }
 
     if (it.image) {
-      var im = h("img", { class: "tl-img", src: it.image, alt: it.title || "", loading: "lazy" });
+      var im = h("img", { class: "tl-img", src: it.image, alt: tf(it, "title") || "", loading: "lazy" });
       im.addEventListener("error", function () { im.remove(); }); // missing image → just hide it
       card.appendChild(im);
     }
 
-    if (it.tags && it.tags.length) {
-      card.appendChild(h("div", { class: "tl-tags" }, it.tags.map(function (t) { return h("span", { class: "tl-tag" }, t); })));
+    if (tags && tags.length) {
+      card.appendChild(h("div", { class: "tl-tags" }, tags.map(function (t) { return h("span", { class: "tl-tag" }, t); })));
     }
 
     if (it.categories && it.categories.length) {
@@ -259,7 +338,7 @@
       var any = groupEls[i].items.some(function (el) { return !el.hidden; });
       groupEls[i].section.hidden = !any;
     }
-    $("#result-count").textContent = shown + " of " + records.length + " shown";
+    $("#result-count").textContent = T.shown(shown, records.length);
     $("#empty-state").hidden = shown !== 0;
   }
   function setAllChips(on) {
@@ -279,8 +358,8 @@
     var grid = $("#skills-grid");
     (DATA.skills || []).forEach(function (g) {
       grid.appendChild(h("div", { class: "skill-group reveal" },
-        h("h3", {}, g.group),
-        h("ul", {}, (g.items || []).map(function (s) { return h("li", {}, s); }))));
+        h("h3", {}, tf(g, "group")),
+        h("ul", {}, (tf(g, "items") || []).map(function (s) { return h("li", {}, s); }))));
     });
   }
 
@@ -299,6 +378,7 @@
 
   /* -------------------------------- INIT ---------------------------------- */
   initTheme();
+  initLang();
   renderHero();
   renderFilters();
   renderTimeline();
