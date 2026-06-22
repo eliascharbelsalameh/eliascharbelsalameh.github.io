@@ -62,23 +62,23 @@ window.PORTFOLIO = {
     initials: "ecs",                       // shown if no photo is provided
     photo: "assets/images/profile.jpg",   // optional — drop a file here to show it
     role: "Robotics, Automation & AI Engineer",
-    role_fr: "Ingénieur en robotique, automatique & IA",
-    tagline: "Combining Learning and Model-Based Methods for autonomous systems.",
-    tagline_fr: "Allier apprentissage et méthodes à base de modèles pour les systèmes autonomes.",
+    role_fr: "Ingénieur éléctrique, spécialisé en robotique, automatique & intelligence artificielle",
+    tagline: "Developing smarter autonomous systems using the newest technologies.",
+    tagline_fr: "Développement de systèmes autonomes plus intelligents en utilisant les technologies les plus récentes.",
     summary:
-      "M2 student in Automation & Robotics of Intelligent Systems at UTC Compiègne, " +
-      "in a double-degree program with USEK (Lebanon). Hands-on across control systems, " +
-      "computer vision, SLAM and deep learning — currently an R&D intern at OpenLab " +
+      "M2 graduate in Automation & Robotics of Intelligent Systems at UTC Compiègne, " +
+      "in a double-degree program with USEK (Lebanon). Hands-on experience across control systems, " +
+      "computer vision, SLAM and deep learning." + "Currently an R&D intern at OpenLab " +
       "Stellantis–IMS–SANPSY improving Adaptive Cruise Control with mixed AI/control " +
-      "methods. Seeking a CIFRE industrial PhD at the intersection of control and " +
-      "learning-based methods for autonomous systems.",
+      "methods. Seeking deeper research opportunities applied to the industry to contribute to the autonomous systems field."+
+      "Preference for an automotive application, but open to other domains as well, such as quadrupeds, rovers, drones, etc.",
     summary_fr:
-      "Étudiant en M2 Automatique & Robotique des Systèmes Intelligents à l'UTC Compiègne, " +
+      "Ingénieur éléctrique, spécialisé en robotique, automatique et intelligence artificielle en M2 à l'UTC Compiègne, " +
       "en double diplôme avec l'USEK (Liban). Compétences pratiques en commande, vision par " +
-      "ordinateur, SLAM et apprentissage profond — actuellement stagiaire R&D à l'OpenLab " +
+      "ordinateur, SLAM et apprentissage profond. Actuellement stagiaire R&D à l'OpenLab " +
       "Stellantis–IMS–SANPSY, où j'améliore le régulateur de vitesse adaptatif (ACC) par des " +
-      "méthodes mixtes IA/commande. À la recherche d'une thèse CIFRE à l'intersection de la " +
-      "commande et des méthodes par apprentissage pour les systèmes autonomes.",
+      "méthodes mixtes IA/commande. À la recherche d'une opportunité de recherche appliquée dans une entreprise pour contribuer au domaine des systèmes autonomes."+
+      "Préférence pour une application automobile, mais ouvert à d'autres domaines également, tels que les quadruped, rovers, drones, etc.",
     location: "Bordeaux, France",
     // Contacts — edit freely. Set any to "" to hide it.
     email: "eliascharbel.salameh@gmail.com",
@@ -87,12 +87,14 @@ window.PORTFOLIO = {
     linkedin: "https://www.linkedin.com/in/eliascharbelsalameh",
     // Punchy numbers shown in the hero band. Add / remove freely.
     stats: [
-      { value: "5.0/5.0", label: "UTC M2 GPA — highest honors", label_fr: "Moyenne M2 UTC — félicitations du jury" },
-      { value: "98.4%",   label: "mAP — BMW vision model", label_fr: "mAP — modèle de vision BMW" },
+      { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" },
+      { value: "5.0/5.0", label: "UTC M2 GPA — Très Bien", label_fr: "Moyenne M2 UTC — Très Bien" },
+      { value: "98.4%",   label: "Object Detection mean Average Precision in the BMW vision model", label_fr: "Précision moyenne pondérée de détection d'objets dans le modèle de vision BMW" },
       { value: "42",      label: "judges led — WRO 2025", label_fr: "juges encadrés — WRO 2025" },
       { value: "3×",      label: "IEEE Regional Exemplary Awards", label_fr: "prix régionaux d'excellence IEEE" },
       { value: "$1.5K",   label: "startup grant — Byssus", label_fr: "subvention startup — Byssus" },
-      { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" }
+      { value: "3rd",      label: "Huawei ICT Innovation Competition — MECA region", label_fr: "Concours d'innovation Huawei ICT — région MECA" },  
+      { value: "166 kgs",    label: "Squat 1-rep Personal Record", label_fr: "record personnel squat 1-rep" }
     ]
   },
 
