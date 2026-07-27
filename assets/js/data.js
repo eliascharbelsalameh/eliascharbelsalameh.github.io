@@ -80,6 +80,7 @@ window.PORTFOLIO = {
       "méthodes mixtes IA/commande. À la recherche d'une opportunité de recherche appliquée dans une entreprise pour contribuer au domaine des systèmes autonomes."+
       "Préférence pour une application automobile, mais ouvert à d'autres domaines également, tels que les quadruped, rovers, drones, etc.",
     location: "Bordeaux, France",
+    updated: "2026-07-27",   // "last updated on" date shown in the footer — bump this when you edit the site
     // Contacts — edit freely. Set any to "" to hide it.
     email: "eliascharbel.salameh@gmail.com",
     phone: "+33 7 83 75 76 69",

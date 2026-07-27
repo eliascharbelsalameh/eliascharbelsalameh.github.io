@@ -102,6 +102,21 @@
               <button class="link-btn" id="reset" type="button" data-i18n="reset">Reset</button>
             </div>
           </div>
+          <div class="quick-filters" role="group" aria-label="Quick filters">
+            <button class="qbtn" id="only-featured" type="button" aria-pressed="false" style="--qc:#ca8a04">
+              <span class="qbtn-ico" aria-hidden="true">★</span>
+              <span data-i18n="featured_only">Featured</span>
+            </button>
+            <button class="qbtn" id="only-present" type="button" aria-pressed="false" style="--qc:#16a34a">
+              <span class="qbtn-dot" aria-hidden="true"></span>
+              <span data-i18n="present_only">Ongoing</span>
+            </button>
+          </div>
+          <div class="filters-hint">
+            <span class="filters-hint-line" aria-hidden="true"></span>
+            <span data-i18n="filters_hint">Click a category to show or hide it</span>
+            <span class="filters-hint-line" aria-hidden="true"></span>
+          </div>
           <div class="filters" id="filters" role="group" aria-label="Categories"></div>
         </div>
 

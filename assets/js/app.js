@@ -18,13 +18,15 @@
       timeline_sub: "Every role, project, award and contribution — filter the view to whatever you care about.",
       search_ph: "Search roles, tech, organisations…",
       all: "All", none: "None", reset: "Reset",
+      featured_only: "Featured", present_only: "Ongoing",
+      filters_hint: "Click a category to show or hide it",
       skills_h: "Skills & toolbox",
       skills_sub: "Technologies and methods used across the work above.",
       contact_h: "Contact",
       explore: "Explore the timeline",
       empty: "No entries match your filters.", empty_reset: "Reset filters",
       present: "Present", now: "Now",
-      footer_built: "Built as a living timeline — last updated",
+      footer_built: "Built as a living timeline — last updated on",
       months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
       shown: function (a, b) { return a + " of " + b + " shown"; }
     },
@@ -34,13 +36,15 @@
       timeline_sub: "Chaque poste, projet, distinction et contribution — filtrez l'affichage selon vos intérêts.",
       search_ph: "Rechercher postes, technologies, organisations…",
       all: "Tout", none: "Aucun", reset: "Réinitialiser",
+      featured_only: "En vedette", present_only: "En cours",
+      filters_hint: "Cliquez sur une catégorie pour l'afficher ou la masquer",
       skills_h: "Compétences & outils",
       skills_sub: "Technologies et méthodes utilisées dans les travaux ci-dessus.",
       contact_h: "Contact",
       explore: "Explorer le parcours",
       empty: "Aucune entrée ne correspond à vos filtres.", empty_reset: "Réinitialiser les filtres",
       present: "Présent", now: "En cours",
-      footer_built: "Conçu comme une frise vivante — dernière mise à jour",
+      footer_built: "Conçu comme une frise vivante — dernière mise à jour le",
       months: ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
       shown: function (a, b) { return a + " sur " + b + " affichées"; }
     }
@@ -200,9 +204,13 @@
     if (p.phone)   fl.appendChild(h("a", { class: "btn btn-ghost", href: "tel:" + p.phone.replace(/\s+/g, ""), html: SOCIAL.phone + "<span>" + p.phone + "</span>" }));
 
     var now = new Date();
+    function pad2(n) { return (n < 10 ? "0" : "") + n; }
+    var updated = p.updated
+      ? String(p.updated).replace(/-/g, "/")
+      : now.getFullYear() + "/" + pad2(now.getMonth() + 1) + "/" + pad2(now.getDate());
     $("#footer-copy").textContent = "© " + now.getFullYear() + " " + (p.name || "");
     $("#footer-built").textContent = T.footer_built;
-    $("#footer-date").textContent = MONTHS[now.getMonth()] + " " + now.getFullYear();
+    $("#footer-date").textContent = updated;
   }
 
   /* ------------------------------ FILTERS --------------------------------- */
@@ -307,7 +315,7 @@
       var row = buildCard(it);
       itemsWrap.appendChild(row);
       groupItems.push(row);
-      records.push({ el: row, cats: it.categories || [], text: searchText(it) });
+      records.push({ el: row, cats: it.categories || [], text: searchText(it), featured: !!it.featured, present: it.end === "present" });
       // mark the year pill "ongoing" if this group has a present item
       if (it.end === "present") groupEls[groupEls.length - 1].pill.classList.add("ongoing");
     });
@@ -322,15 +330,20 @@
     }
     return s;
   }
+  function pressed(sel) { var b = $(sel); return b && b.getAttribute("aria-pressed") === "true"; }
   function applyFilters() {
     var active = activeSet();
     var q = ($("#search").value || "").trim().toLowerCase();
+    var onlyFeatured = pressed("#only-featured");
+    var onlyPresent = pressed("#only-present");
     var shown = 0, i, r;
     for (i = 0; i < records.length; i++) {
       r = records[i];
       var okCat = r.cats.some(function (c) { return active[c]; });
       var okQ = !q || r.text.indexOf(q) !== -1;
-      var vis = okCat && okQ;
+      var okFeatured = !onlyFeatured || r.featured;
+      var okPresent = !onlyPresent || r.present;
+      var vis = okCat && okQ && okFeatured && okPresent;
       r.el.hidden = !vis;
       if (vis) shown++;
     }
@@ -345,12 +358,27 @@
     var chips = $("#filters").querySelectorAll(".chip");
     for (var i = 0; i < chips.length; i++) chips[i].setAttribute("aria-pressed", on ? "true" : "false");
   }
+  function wireToggle(sel) {
+    var b = $(sel);
+    if (b) b.addEventListener("click", function () {
+      this.setAttribute("aria-pressed", this.getAttribute("aria-pressed") === "true" ? "false" : "true");
+      applyFilters();
+    });
+  }
+  function clearToggles() {
+    var b1 = $("#only-featured"), b2 = $("#only-present");
+    if (b1) b1.setAttribute("aria-pressed", "false");
+    if (b2) b2.setAttribute("aria-pressed", "false");
+  }
+  function resetAll() { setAllChips(true); clearToggles(); $("#search").value = ""; applyFilters(); }
   function wireControls() {
     $("#search").addEventListener("input", applyFilters);
     $("#select-all").addEventListener("click", function () { setAllChips(true); applyFilters(); });
     $("#clear-all").addEventListener("click", function () { setAllChips(false); applyFilters(); });
-    $("#reset").addEventListener("click", function () { setAllChips(true); $("#search").value = ""; applyFilters(); });
-    $("#empty-reset").addEventListener("click", function () { setAllChips(true); $("#search").value = ""; applyFilters(); });
+    $("#reset").addEventListener("click", resetAll);
+    $("#empty-reset").addEventListener("click", resetAll);
+    wireToggle("#only-featured");
+    wireToggle("#only-present");
   }
 
   /* ------------------------------- SKILLS --------------------------------- */
