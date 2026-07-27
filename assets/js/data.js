@@ -127,7 +127,7 @@ window.PORTFOLIO = {
       org_fr: "IEEE Région 8",
       location: "Remote",
       location_fr: "À distance",
-      start: "2026-05", end: "present",
+      start: "2026-05", end: "2026-07",
       kind: "leadership",
       categories: ["leadership", "volunteering", "community"],
       featured: false,
@@ -157,21 +157,21 @@ window.PORTFOLIO = {
       title_fr: "Stagiaire R&D — Robotique & systèmes intelligents",
       org: "OpenLab Stellantis–IMS–SANPSY",
       location: "Bordeaux, France",
-      start: "2026-02", end: "present",
+      start: "2026-02", end: "2026-07",
       kind: "experience",
-      categories: ["research", "technical"],
+      categories: ["research", "technical","academic"],
       featured: true,
       summary:
-        "Improving Adaptive Cruise Control (ACC) under uncertainty for connected " +
+        "Improvement of Adaptive Cruise Control (ACC) under uncertainty for connected " +
         "automated vehicles, blending robust control with learning.",
       summary_fr:
         "Amélioration du régulateur de vitesse adaptatif (ACC) sous incertitude pour les " +
         "véhicules connectés et automatisés, en combinant commande robuste et apprentissage.",
       highlights: [
-        "Researching a mixed control approach for ACC under uncertainty within ADAS for connected automated vehicles (CAV).",
-        "Implementing and benchmarking robust MPC, soft-constrained MPC and reinforcement learning across varied speed profiles (MATLAB/Simulink, Python, SCANeR studio, C).",
-        "Developing a mixed Safe-RL ACC with Control Barrier Functions (SFRL-ACC + CBF).",
-        "Validating each approach in simulation on common speed profiles."
+        "Research of a mixed control approach between AI and modeling methods for ACC under uncertainty within ADAS for connected automated vehicles (CAV).",
+        "Implemented and benchmarked robust MPC, soft-constrained MPC and reinforcement learning across varied speed profiles (MATLAB/Simulink, Python, SCANeR studio, C).",
+        "Developed a mixed Safe-RL ACC with Control Barrier Functions (SFRL-ACC + CBF).",
+        "Validated each approach in simulation on common speed profiles with cruise speeds, speed changes in wide ranges, and sudden braking."
       ],
       highlights_fr: [
         "Recherche d'une approche de commande mixte pour l'ACC sous incertitude dans les ADAS des véhicules connectés et automatisés (CAV).",
@@ -225,7 +225,7 @@ window.PORTFOLIO = {
       title_fr: "M2 — Ingénierie des systèmes complexes : Automatique & Robotique des Systèmes Intelligents",
       org: "Université de Technologie de Compiègne (UTC)",
       location: "Compiègne, France",
-      start: "2025-09", end: "present",
+      start: "2025-09", end: "2026-09",
       kind: "education",
       categories: ["academic", "research"],
       featured: true,
@@ -251,7 +251,7 @@ window.PORTFOLIO = {
       start: "2025-09", end: "2026-01",
       kind: "research",
       categories: ["research", "academic"],
-      featured: true,
+      featured: false,
       summary: "Leading research into hyperdimensional computing applied to event-based / neuromorphic vision.",
       summary_fr: "Pilotage d'une recherche sur le calcul hyperdimensionnel appliqué à la vision évènementielle / neuromorphique.",
       highlights: [
@@ -595,7 +595,7 @@ window.PORTFOLIO = {
       ]
     },{
       title: "Chair — IEEE USEK Student Branch",
-      title_fr: "Président — Antenne étudiante IEEE USEK",
+      title_fr: "Président — IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
@@ -695,7 +695,7 @@ window.PORTFOLIO = {
     },
     {
       title: "Vice Chair — IEEE USEK Student Branch",
-      title_fr: "Vice-président — Antenne étudiante IEEE USEK",
+      title_fr: "Vice-président — IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
@@ -724,7 +724,7 @@ window.PORTFOLIO = {
     /* ---- 2022 ------------------------------------------------------ */
     {
       title: "Treasurer — IEEE USEK Student Branch",
-      title_fr: "Trésorier — Antenne étudiante IEEE USEK",
+      title_fr: "Trésorier — IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
@@ -759,7 +759,8 @@ window.PORTFOLIO = {
       org: "Holy Spirit University of Kaslik (USEK)",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
-      start: "2021-09", end: "2026-06",
+      start: "2021-09", end: "2026-08",
+      featured: true,
       kind: "education",
       categories: ["academic"],
       summary: "Bachelor of Engineering, double-degree with UTC — GPA 93.34/100, High Distinction.",
