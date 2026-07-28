@@ -122,6 +122,24 @@ window.PORTFOLIO = {
 
     /* ---- Current / 2026 ------------------------------------------- */
     {
+      title: "IEEE RAS IAB Startups & Entrepreneurship -- volunteer",
+      title_fr: "IEEE RAS IAB Startups & Entrepreneurship -- volontariat",
+      org: "IEEE Robotics and Automation Society",
+      org_fr: "IEEE Robotics and Automation Society",
+      location: "Remote",
+      location_fr: "À distance",
+      start: "2026-07", end: "present",
+      kind: "leadership",
+      categories: ["leadership", "project-management", "volunteering", "community"],
+      featured: true,
+      summary:
+        "The Industrial Activities board is responsible for all industrial related matters and the growth of the industrial community within RAS, both by promoting the participation of industrial partners in current activities and thus creating more links with academics, and by proposing new actions beneficial to this community.",
+      summary_fr:
+        "Le comité des Activités Industrielles est responsable de toutes les questions liées à l'industrie et du développement de la communauté industrielle au sein de RAS, à la fois en favorisant la participation des partenaires industriels aux activités en cours, créant ainsi davantage de liens avec les académiques, et en proposant de nouvelles actions bénéfiques pour cette communauté.",
+      tags: ["Leadership", "Entrepreneurship", "Partnerships", "Events"],
+      tags_fr: ["Leadership", "Entrepreneuriat", "Partenariats", "Événements"]
+    },
+    {
       title: "IEEE Young Professionals R8 LEAD 2.0 Program",
       title_fr: "Programme IEEE Young Professionals R8 LEAD 2.0",
       org: "IEEE Region 8",
