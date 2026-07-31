@@ -12,12 +12,28 @@
 /*.docx
 /*.doc
 
-# Claude Code / AI tooling — local config, agent notes, never publish
+# AI tooling — local config, agent notes, instructions, never publish
 .claude/
 CLAUDE.md
+.claude.json
+.mcp.json
 .cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
 .aider*
 .continue/
+.clinerules/
+.roo/
+.roorules
+GEMINI.md
+.gemini/
+AGENTS.md
+copilot-instructions.md
+.github/copilot-instructions.md
+.codeium/
+.zed/
 
 # Dependencies / build output (in case tooling is added later)
 node_modules/
@@ -33,4 +49,12 @@ Thumbs.db
 .DS_Store
 .vscode/
 .idea/
+.vs/
 *.log
+*.bak
+*.tmp
+*.swp
+*.swo
+*~
+.directory
+desktop.ini
