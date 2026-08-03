@@ -7,13 +7,31 @@
   <meta name="description" content="Interactive timeline portfolio of Elias Charbel Salameh — robotics, automation & AI engineer. Filter by research, technical, academic, leadership, volunteering and more." />
   <meta name="author" content="Elias Charbel Salameh" />
   <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" id="meta-theme-color" content="#f5f6f9" />
+  <link rel="canonical" href="https://eliascharbelsalameh.github.io/" />
+  <link rel="alternate" hreflang="en" href="https://eliascharbelsalameh.github.io/" />
+  <link rel="alternate" hreflang="fr" href="https://eliascharbelsalameh.github.io/?lang=fr" />
+  <link rel="alternate" hreflang="x-default" href="https://eliascharbelsalameh.github.io/" />
 
-  <!-- Open Graph / link preview (shows when shared with recruiters) -->
-  <meta property="og:type" content="website" />
+  <!-- Open Graph / link preview (shows when shared with recruiters).
+       og:image must be an ABSOLUTE url — crawlers don't resolve relative paths.
+       To upgrade to a wide banner card: drop a 1200x630 assets/images/og-cover.png
+       in, point og:image at it, and switch twitter:card to summary_large_image. -->
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Elias Charbel Salameh" />
+  <meta property="og:url" content="https://eliascharbelsalameh.github.io/" />
   <meta property="og:title" content="Elias Charbel Salameh — Robotics, Automation & AI" />
   <meta property="og:description" content="An interactive, filterable timeline of research, engineering, leadership and academic work." />
-  <meta property="og:image" content="assets/images/og-cover.png" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="og:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
+  <meta property="og:image:width" content="525" />
+  <meta property="og:image:height" content="525" />
+  <meta property="og:image:alt" content="Portrait of Elias Charbel Salameh" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="fr_FR" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Elias Charbel Salameh — Robotics, Automation & AI" />
+  <meta name="twitter:description" content="An interactive, filterable timeline of research, engineering, leadership and academic work." />
+  <meta name="twitter:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
 
   <!-- Inline SVG favicon (no external file needed) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b2a4a'/%3E%3Ctext x='50' y='68' font-family='Arial,sans-serif' font-size='52' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E" />
@@ -32,6 +50,8 @@
         var t = localStorage.getItem("theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
         document.documentElement.setAttribute("data-theme", t);
+        var m = document.getElementById("meta-theme-color");
+        if (m) m.setAttribute("content", t === "dark" ? "#0d1220" : "#f5f6f9");
       } catch (e) {}
     })();
   </script>
@@ -56,7 +76,7 @@
         <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Switch language" title="English / Français">
           <span id="lang-label">FR</span>
         </button>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark / light">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark / light" data-i18n-aria="theme_toggle" data-i18n-title="theme_toggle">
           <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8" stroke-linecap="round"/></svg>
           <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
         </button>
@@ -72,6 +92,7 @@
           <div class="hero-avatar" id="hero-avatar" aria-hidden="true"></div>
           <p class="hero-eyebrow" id="hero-role"></p>
           <h1 class="hero-name" id="hero-name"></h1>
+          <p class="hero-loc" id="hero-loc" hidden></p>
           <p class="hero-tagline" id="hero-tagline"></p>
           <p class="hero-summary" id="hero-summary"></p>
           <div class="hero-cta" id="hero-cta"></div>
@@ -94,6 +115,7 @@
             <label class="search" for="search">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
               <input type="search" id="search" placeholder="Search roles, tech, organisations…" data-i18n-ph="search_ph" autocomplete="off" />
+              <kbd class="search-kbd" aria-hidden="true">/</kbd>
             </label>
             <div class="controls-meta">
               <span id="result-count" class="result-count" aria-live="polite"></span>
@@ -151,6 +173,11 @@
       </p>
     </div>
   </footer>
+
+  <!-- Back to top — revealed by app.js once you've scrolled past the hero -->
+  <button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top" data-i18n-aria="to_top" data-i18n-title="to_top" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
 
   <!-- Data first, then the app that renders it -->
   <script src="assets/js/data.js"></script>

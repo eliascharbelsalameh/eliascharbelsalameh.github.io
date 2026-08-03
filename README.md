@@ -54,11 +54,17 @@ Drop a square photo at **`assets/images/profile.jpg`** — it appears automatica
 in the hero. (Until then your initials show.) To use a different path, edit
 `profile.photo` in `data.js`.
 
-### CV download (removed)
-The "Download CV" buttons were removed — the timeline itself is the showcase. To add a
-downloadable CV back later: drop a PDF in `assets/cv/`, add `cv: "assets/cv/yourfile.pdf"`
-to the `profile` block in `data.js`, then re-add the small CV `<a>` snippets in
-`assets/js/app.js` (hero CTA + footer).
+### CV download (off by default)
+The timeline itself is the showcase, so there is no "Download CV" button unless you ask
+for one. To turn it on: drop a PDF anywhere in `assets/`, then set `cv` in the `profile`
+block of `data.js`:
+
+```js
+cv: "assets/cv-elias-charbel-salameh.pdf",
+```
+
+A **Download CV** button then appears in the hero and the footer (translated
+automatically). Set it back to `""` to remove them again — no HTML/JS edits either way.
 
 ---
 
@@ -130,6 +136,26 @@ Link the URL with a short label, e.g.
 **Portfolio: eliascharbelsalameh.github.io**. Because the page has Open Graph
 tags, sharing the link also shows a clean title + description preview.
 
+### Share a *filtered* view
+The filter bar writes itself into the address bar, so whatever you're looking at is
+already a shareable link. Handy when you want a recruiter to land on the relevant
+subset instead of the whole timeline:
+
+| Link | Shows |
+| --- | --- |
+| `…github.io/?cat=research` | research entries only |
+| `…github.io/?cat=research,technical&featured=1` | starred research + technical work |
+| `…github.io/?present=1` | only what's ongoing |
+| `…github.io/?q=SLAM` | everything matching "SLAM" |
+| `…github.io/?lang=fr` | opens in French |
+
+Params combine freely. Opening the plain URL always shows everything.
+
+### Visitor shortcuts
+- **`/`** — jump to the search box; **`Esc`** — clear it.
+- **⌘/Ctrl-click a category chip** — isolate that one category instead of toggling it.
+- Search ignores accents, so `compiegne` finds *Compiègne*.
+
 ---
 
 ## File map
@@ -143,6 +169,12 @@ portfolio/
 │   │   ├── data.js         # ← YOUR CONTENT lives here
 │   │   └── app.js          # renders + filters (rarely edited)
 │   └── images/             # entry images + profile.jpg
+├── robots.txt              # lets crawlers in, points at the sitemap
+├── sitemap.xml             # one URL + its EN/FR alternates
 ├── .nojekyll               # tells GitHub Pages to serve files as-is
 └── README.md               # this file
 ```
+
+> `robots.txt`, `sitemap.xml` and the `<link rel="canonical">` / `og:` tags in
+> `index.html` hard-code `https://eliascharbelsalameh.github.io/`. If the site ever
+> moves to a custom domain, update the URL in those three places.

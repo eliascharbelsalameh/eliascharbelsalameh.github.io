@@ -41,6 +41,7 @@
      org    / org_fr          highlights / highlights_fr   (array)
      role   / role_fr         tags / tags_fr               (array)
      label  / label_fr        items / items_fr             (array)
+     location / location_fr
    If a `*_fr` field is missing, the site simply falls back to the English text,
    so nothing breaks if you only translate part of an entry.
 
@@ -86,6 +87,9 @@ window.PORTFOLIO = {
     phone: "+33 7 83 75 76 69",
     github: "https://github.com/eliascharbelsalameh",
     linkedin: "https://www.linkedin.com/in/eliascharbelsalameh",
+    // CV / résumé. Drop the PDF in assets/ and point here (e.g. "assets/cv-elias-charbel-salameh.pdf")
+    // to get a "Download CV" button in the hero and the footer. Leave "" to hide it.
+    cv: "",
     // Punchy numbers shown in the hero band. Add / remove freely.
     stats: [
       { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" },
