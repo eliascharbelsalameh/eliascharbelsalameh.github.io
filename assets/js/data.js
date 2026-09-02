@@ -69,19 +69,19 @@ window.PORTFOLIO = {
     summary:
       "M2 graduate in Automation & Robotics of Intelligent Systems at UTC Compiègne, " +
       "in a double-degree program with USEK (Lebanon). Hands-on experience across control systems, " +
-      "computer vision, SLAM and deep learning." + "Currently an R&D intern at OpenLab " +
-      "Stellantis–IMS–SANPSY improving Adaptive Cruise Control with mixed AI/control " +
-      "methods. Seeking deeper research opportunities applied to the industry to contribute to the autonomous systems field."+
+      "computer vision, SLAM and deep learning. " + "Currently an R&D engineer at ADERA, " +
+      "working on mixed AI/control approaches for low-consumption, certifiable embedded " +
+      "smart automotive algorithms. Seeking deeper research opportunities applied to the industry to contribute to the autonomous systems field. " +
       "Preference for an automotive application, but open to other domains as well, such as quadrupeds, rovers, drones, etc.",
     summary_fr:
       "Ingénieur éléctrique, spécialisé en robotique, automatique et intelligence artificielle en M2 à l'UTC Compiègne, " +
       "en double diplôme avec l'USEK (Liban). Compétences pratiques en commande, vision par " +
-      "ordinateur, SLAM et apprentissage profond. Actuellement stagiaire R&D à l'OpenLab " +
-      "Stellantis–IMS–SANPSY, où j'améliore le régulateur de vitesse adaptatif (ACC) par des " +
-      "méthodes mixtes IA/commande. À la recherche d'une opportunité de recherche appliquée dans une entreprise pour contribuer au domaine des systèmes autonomes."+
+      "ordinateur, SLAM et apprentissage profond. Actuellement ingénieur R&D chez ADERA, " +
+      "où je travaille sur des approches hybrides IA/automatique pour des algorithmes embarqués " +
+      "intelligents, certifiables et à faible consommation pour l'automobile. À la recherche d'une opportunité de recherche appliquée dans une entreprise pour contribuer au domaine des systèmes autonomes. " +
       "Préférence pour une application automobile, mais ouvert à d'autres domaines également, tels que les quadruped, rovers, drones, etc.",
     location: "Bordeaux, France",
-    updated: "2026-07-27",   // "last updated on" date shown in the footer — bump this when you edit the site
+    updated: "2026-09-02",   // "last updated on" date shown in the footer — bump this when you edit the site
     // Contacts — edit freely. Set any to "" to hide it.
     email: "eliascharbel.salameh@gmail.com",
     phone: "+33 7 83 75 76 69",
@@ -174,6 +174,24 @@ window.PORTFOLIO = {
       ],
       tags: ["Leadership", "Community", "Partnerships", "Events"],
       tags_fr: ["Leadership", "Communauté", "Partenariats", "Événements"]
+    }
+    ,{
+      title: "R&D Engineer — Embedded AI & Control (CDD)",
+      title_fr: "Ingénieur R&D — IA embarquée & automatique (CDD)",
+      org: "ADERA",
+      location: "Talence, France",
+      start: "2026-09", end: "present",
+      kind: "experience",
+      categories: ["research", "technical"],
+      featured: true,
+      summary:
+        "Mixed AI / model-based approaches for low-consumption, certifiable embedded " +
+        "smart automotive algorithms.",
+      summary_fr:
+        "Approches hybrides IA / automatique pour la synthèse d'algorithmes embarqués " +
+        "intelligents, certifiables et à faible consommation pour l'automobile.",
+      tags: ["Embedded AI", "Certifiability", "Automotive", "Energy Efficiency", "Control Systems"],
+      tags_fr: ["IA embarquée", "Certifiabilité", "Automobile", "Efficacité énergétique", "Automatique"]
     }
     ,{
       title: "R&D Intern — Robotics & Intelligent Systems",
