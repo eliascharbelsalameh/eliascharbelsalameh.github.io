@@ -62,26 +62,22 @@ window.PORTFOLIO = {
     name: "Elias Charbel SALAMEH",
     initials: "ecs",                       // shown if no photo is provided
     photo: "assets/images/profile.jpg",   // optional — drop a file here to show it
-    role: "Robotics, Automation & AI Engineer",
-    role_fr: "Ingénieur éléctrique, spécialisé en robotique, automatique & intelligence artificielle",
-    tagline: "Developing smarter autonomous systems using the newest technologies.",
-    tagline_fr: "Développement de systèmes autonomes plus intelligents en utilisant les technologies les plus récentes.",
+    role: "R&D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS",
+    role_fr: "Ingénieur R&D chez ADERA · Futur doctorant CIFRE chez Stellantis / IMS",
+    tagline: "Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.",
+    tagline_fr: "Alliant commande basée modèle et solutions pilotées par les données pour des algorithmes automobiles intelligents, certifiables et à faible consommation.",
     summary:
-      "M2 graduate in Automation & Robotics of Intelligent Systems at UTC Compiègne, " +
-      "in a double-degree program with USEK (Lebanon). Hands-on experience across control systems, " +
-      "computer vision, SLAM and deep learning. " + "Currently an R&D engineer at ADERA, " +
-      "working on mixed AI/control approaches for low-consumption, certifiable embedded " +
-      "smart automotive algorithms. Seeking deeper research opportunities applied to the industry to contribute to the autonomous systems field. " +
-      "Preference for an automotive application, but open to other domains as well, such as quadrupeds, rovers, drones, etc.",
+      "R&D engineer at ADERA and incoming CIFRE PhD candidate with Stellantis and the " +
+      "IMS laboratory, developing mixed AI/control approaches for low-consumption, " +
+      "certifiable embedded smart automotive algorithms. Hands-on experience across " +
+      "control systems, computer vision, SLAM and deep learning.",
     summary_fr:
-      "Ingénieur éléctrique, spécialisé en robotique, automatique et intelligence artificielle en M2 à l'UTC Compiègne, " +
-      "en double diplôme avec l'USEK (Liban). Compétences pratiques en commande, vision par " +
-      "ordinateur, SLAM et apprentissage profond. Actuellement ingénieur R&D chez ADERA, " +
-      "où je travaille sur des approches hybrides IA/automatique pour des algorithmes embarqués " +
-      "intelligents, certifiables et à faible consommation pour l'automobile. À la recherche d'une opportunité de recherche appliquée dans une entreprise pour contribuer au domaine des systèmes autonomes. " +
-      "Préférence pour une application automobile, mais ouvert à d'autres domaines également, tels que les quadruped, rovers, drones, etc.",
+      "Ingénieur R&D chez ADERA et futur doctorant CIFRE avec Stellantis et le laboratoire " +
+      "IMS, où je développe des approches hybrides IA/automatique pour des algorithmes " +
+      "embarqués intelligents, certifiables et à faible consommation pour l'automobile. " +
+      "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
     location: "Bordeaux, France",
-    updated: "2026-09-02",   // "last updated on" date shown in the footer — bump this when you edit the site
+    updated: "2026-09-04",   // "last updated on" date shown in the footer — bump this when you edit the site
     // Contacts — edit freely. Set any to "" to hide it.
     email: "eliascharbel.salameh@gmail.com",
     phone: "+33 7 83 75 76 69",
@@ -93,7 +89,7 @@ window.PORTFOLIO = {
     // Punchy numbers shown in the hero band. Add / remove freely.
     stats: [
       { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" },
-      { value: "5.0/5.0", label: "UTC M2 GPA — Très Bien", label_fr: "Moyenne M2 UTC — Très Bien" },
+      { value: "5.0/5.0", label: "Masters GPA — Excellent", label_fr: "Moyenne master — Excellent" },
       { value: "98.4%",   label: "Object Detection mean Average Precision in the BMW vision model", label_fr: "Précision moyenne pondérée de détection d'objets dans le modèle de vision BMW" },
       { value: "42",      label: "judges led — WRO 2025", label_fr: "juges encadrés — WRO 2025" },
       { value: "3×",      label: "IEEE Regional Exemplary Awards", label_fr: "prix régionaux d'excellence IEEE" },
@@ -176,10 +172,38 @@ window.PORTFOLIO = {
       tags_fr: ["Leadership", "Communauté", "Partenariats", "Événements"]
     }
     ,{
+      title: "CIFRE PhD — Mixed AI / Control for Embedded Automotive Algorithms",
+      title_fr: "Doctorat CIFRE — Approches hybrides IA / automatique pour l'automobile embarquée",
+      org: "Stellantis / IMS Bordeaux",
+      location: "Talence, France",
+      start: "upcoming",
+      kind: "research",
+      categories: ["research", "academic", "technical"],
+      featured: true,
+      summary:
+        "Industry-funded (CIFRE) doctorate with Stellantis and the IMS laboratory, on mixed " +
+        "AI / model-based approaches for low-consumption, certifiable embedded smart " +
+        "automotive algorithms.",
+      summary_fr:
+        "Doctorat CIFRE avec Stellantis et le laboratoire IMS, portant sur des approches " +
+        "hybrides IA / automatique pour des algorithmes embarqués intelligents, certifiables " +
+        "et à faible consommation pour l'automobile.",
+      tags: ["CIFRE", "Embedded AI", "Certifiability", "Automotive", "Control Systems"],
+      tags_fr: ["CIFRE", "IA embarquée", "Certifiabilité", "Automobile", "Automatique"],
+      links: [
+        { label: "IMS — integration lab (CNRS / Univ. Bordeaux / Bordeaux INP)",
+          label_fr: "IMS — laboratoire de l'Intégration du Matériau au Système (CNRS / Univ. Bordeaux / Bordeaux INP)",
+          url: "https://www.ims-bordeaux.fr/" },
+        { label: "Stellantis — global automotive manufacturer",
+          label_fr: "Stellantis — constructeur automobile mondial",
+          url: "https://www.stellantis.com/" }
+      ]
+    }
+    ,{
       title: "R&D Engineer — Embedded AI & Control (CDD)",
       title_fr: "Ingénieur R&D — IA embarquée & automatique (CDD)",
       org: "ADERA",
-      location: "Talence, France",
+      location: "Bordeaux, France",
       start: "2026-09", end: "present",
       kind: "experience",
       categories: ["research", "technical"],
@@ -190,6 +214,12 @@ window.PORTFOLIO = {
       summary_fr:
         "Approches hybrides IA / automatique pour la synthèse d'algorithmes embarqués " +
         "intelligents, certifiables et à faible consommation pour l'automobile.",
+      highlights: [
+        "Same supervisors and same research project as the upcoming CIFRE doctorate with Stellantis and IMS — the thesis work, started ahead of time."
+      ],
+      highlights_fr: [
+        "Mêmes encadrants et même projet de recherche que le doctorat CIFRE à venir avec Stellantis et l'IMS — les travaux de thèse, engagés en amont."
+      ],
       tags: ["Embedded AI", "Certifiability", "Automotive", "Energy Efficiency", "Control Systems"],
       tags_fr: ["IA embarquée", "Certifiabilité", "Automobile", "Efficacité énergétique", "Automatique"]
     }

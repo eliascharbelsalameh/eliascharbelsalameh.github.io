@@ -287,6 +287,11 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
   padding: .25rem .8rem; border-radius: 999px; box-shadow: var(--shadow-sm);
 }
 .tl-year .pill.ongoing { background: var(--accent); color: var(--accent-ink); }
+/* a not-yet-started group reads as an outline, not a solid year badge */
+.tl-year .pill.upcoming {
+  background: transparent; color: var(--accent); box-shadow: none;
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+}
 
 .tl-item {
   position: relative;

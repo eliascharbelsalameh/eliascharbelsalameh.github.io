@@ -27,6 +27,7 @@
       cv: "Download CV",
       empty: "No entries match your filters.", empty_reset: "Reset filters",
       present: "Present", now: "Now",
+      upcoming: "Upcoming",
       to_top: "Back to top",
       theme_toggle: "Toggle dark / light",
       footer_built: "Built as a living timeline — last updated on",
@@ -48,6 +49,7 @@
       cv: "Télécharger le CV",
       empty: "Aucune entrée ne correspond à vos filtres.", empty_reset: "Réinitialiser les filtres",
       present: "Présent", now: "En cours",
+      upcoming: "À venir",
       to_top: "Haut de page",
       theme_toggle: "Basculer clair / sombre",
       footer_built: "Conçu comme une frise vivante — dernière mise à jour le",
@@ -117,17 +119,23 @@
 
   function fmt(d) {
     if (!d) return "";
+    if (d === "upcoming") return T.upcoming;
     if (d === "present") return T.present;
     var p = String(d).split("-");
     return p[1] ? T.months[+p[1] - 1] + " " + p[0] : p[0];
   }
   function key(d) {
+    if (d === "upcoming") return 1000000;   // sorts above "present"
     if (d === "present") return 999999;
     if (!d) return 0;
     var p = String(d).split("-");
     return (+p[0]) * 12 + (p[1] ? +p[1] : 6);
   }
-  function startYear(it) { return parseInt(String(it.start || "0").split("-")[0], 10); }
+  /* Group key for the year heading — "upcoming" gets its own group instead of a year. */
+  function startYear(it) {
+    if (it.start === "upcoming") return "upcoming";
+    return parseInt(String(it.start || "0").split("-")[0], 10);
+  }
   function dateRange(it) { return it.end ? fmt(it.start) + " – " + fmt(it.end) : fmt(it.start); }
 
   /* category lookup */
@@ -417,7 +425,8 @@
         curYear = y;
         var ongoing = false;
         groupItems = [];
-        var pill = h("span", { class: "pill" }, String(y));
+        var pill = h("span", { class: y === "upcoming" ? "pill upcoming" : "pill" },
+                     y === "upcoming" ? T.upcoming : String(y));
         section = h("div", { class: "tl-group" }, h("div", { class: "tl-year" }, pill));
         itemsWrap = section;
         groupEls.push({ section: section, items: groupItems, pill: pill });
