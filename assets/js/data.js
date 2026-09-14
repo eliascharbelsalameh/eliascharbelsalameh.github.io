@@ -79,7 +79,7 @@ window.PORTFOLIO = {
     location: "Bordeaux, France",
     updated: "2026-09-04",   // "last updated on" date shown in the footer — bump this when you edit the site
     // Contacts — edit freely. Set any to "" to hide it.
-    email: "eliascharbel.salameh@gmail.com",
+    email: "esalameh@proton.me",
     phone: "+33 7 83 75 76 69",
     github: "https://github.com/eliascharbelsalameh",
     linkedin: "https://www.linkedin.com/in/eliascharbelsalameh",
