@@ -251,8 +251,7 @@ window.PORTFOLIO = {
         "Validation de chaque approche en simulation sur des profils de vitesse courants."
       ],
       tags: ["MPC", "Reinforcement Learning", "Control Barrier Functions", "ADAS", "SCANeR studio", "MATLAB/Simulink"],
-      tags_fr: ["MPC", "Apprentissage par renforcement", "Fonctions barrières de contrôle", "ADAS", "SCANeR studio", "MATLAB/Simulink"],
-      links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/Stage_IA_Autom" }]
+      tags_fr: ["MPC", "Apprentissage par renforcement", "Fonctions barrières de contrôle", "ADAS", "SCANeR studio", "MATLAB/Simulink"]
     },
     {
       title: "Cooperative Control of 6 Robots in Rendezvous",
@@ -423,7 +422,7 @@ window.PORTFOLIO = {
       ],
       tags: ["YOLOv5", "Computer Vision", "PyTorch", "Transformers / BERT", "RAG", "Vision Transformers", "Docker", "Synthetic Data", "FastAPI"],
       tags_fr: ["YOLOv5", "Vision par ordinateur", "PyTorch", "Transformers / BERT", "RAG", "Vision Transformers", "Docker", "Données synthétiques", "FastAPI"],
-      links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/ComputerVision_Project_inmind" }]
+      links: [{ label: "Source code on request", label_fr: "Code source sur demande", url: "#contact" }]
     },
     {
       title: "ROS2 Workshop — IC2AI'25",

@@ -173,6 +173,7 @@
   /* pick an icon from the destination rather than always showing GitHub's */
   function linkIcon(l) {
     var u = String((l && l.url) || "").toLowerCase();
+    if (u.charAt(0) === "#") return SOCIAL.mail;   // in-page jump, e.g. "#contact"
     if (u.indexOf("github.com") !== -1) return SOCIAL.github;
     if (u.indexOf("linkedin.com") !== -1) return SOCIAL.linkedin;
     if (u.indexOf("youtube.com") !== -1 || u.indexOf("youtu.be") !== -1 || u.indexOf("vimeo.com") !== -1) return SOCIAL.video;
@@ -403,7 +404,8 @@
 
     if (it.links && it.links.length) {
       card.appendChild(h("div", { class: "tl-links" }, it.links.map(function (l) {
-        return iconLink("tl-link", l.url, linkIcon(l), tf(l, "label") || l.url, true);
+        // "#…" links jump within the page, so they stay in this tab
+        return iconLink("tl-link", l.url, linkIcon(l), tf(l, "label") || l.url, String(l.url).charAt(0) !== "#");
       })));
     }
 
