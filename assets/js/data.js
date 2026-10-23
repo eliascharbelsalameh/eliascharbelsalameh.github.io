@@ -224,6 +224,41 @@ window.PORTFOLIO = {
       tags_fr: ["IA embarquée", "Certifiabilité", "Automobile", "Efficacité énergétique", "Automatique"]
     }
     ,{
+      title: "Teaching Assistant (vacataire) — Linear Systems Dynamics (TP)",
+      title_fr: "Chargé de TP (vacataire) — Dynamique des systèmes linéaires",
+      org: "Université de Bordeaux",
+      location: "Talence, France",
+      start: "2026-09", end: "present",
+      kind: "experience",
+      categories: ["academic", "technical", "leadership"],
+      summary:
+        "Leading hands-on lab sessions (TP) for the course “Dynamique des Systèmes Linéaires”.",
+      summary_fr:
+        "Encadrement de séances de travaux pratiques (TP) du cours « Dynamique des Systèmes Linéaires ».",
+      highlights: [
+        "Guide students through modelling, time- and frequency-domain analysis and stability of linear systems.",
+        "Run the lab sessions in simulation with MATLAB/Simulink.",
+        "27 hours of lab teaching across 3 groups of 25 students (75 students in total)."
+      ],
+      highlights_fr: [
+        "Accompagnement des étudiants sur la modélisation, l'analyse temporelle et fréquentielle et la stabilité des systèmes linéaires.",
+        "Animation des séances de TP en simulation sous MATLAB/Simulink.",
+        "27 heures de TP réparties sur 3 groupes de 25 étudiants (75 étudiants au total)."
+      ],
+      tags: ["Teaching", "Linear Systems", "Control", "MATLAB/Simulink", "Mentoring"],
+      tags_fr: ["Enseignement", "Systèmes linéaires", "Automatique", "MATLAB/Simulink", "Mentorat"]
+    }
+    ,{
+      title: "Judo",
+      title_fr: "Judo",
+      org: "Arts Martiaux Pessac Madran",
+      start: "2026-10", end: "present",
+      kind: "fitness",
+      categories: ["personal"],
+      tags: ["Judo", "Martial arts", "Discipline"],
+      tags_fr: ["Judo", "Arts martiaux", "Discipline"]
+    }
+    ,{
       title: "R&D Intern — Robotics & Intelligent Systems",
       title_fr: "Stagiaire R&D — Robotique & systèmes intelligents",
       org: "OpenLab Stellantis–IMS–SANPSY",
