@@ -15,23 +15,39 @@
      title        (string)  Main line, e.g. "R&D Intern — Robotics".
      org          (string)  Company / school / organisation.
      location     (string)  "City, Country".
-     start        (string)  "YYYY-MM"  (month is optional: "2025" also works).
+     start        (string)  "YYYY-MM"  (month is optional: "2025" also works),
+                            or "upcoming" for something that hasn't started yet —
+                            it gets its own group above the dated years.
      end          (string)  "YYYY-MM" or "present" (omit for a one-off event).
      kind         (string)  Picks the icon. One of:
-                            "experience" | "education" | "project" |
-                            "leadership" | "honor" | "certification"
+                            "experience" | "education" | "project" | "research" |
+                            "leadership" | "honor" | "certification" | "fitness"
+                            It also picks the entry's lane on the "At a glance"
+                            map: experience/research → Work & research,
+                            education → Education, project → Projects,
+                            leadership → Leadership, honor/certification →
+                            Awards & certificates; anything in the "personal"
+                            category goes to the Personal lane.
      categories   (array)   Which filters this entry belongs to. Use any of the
                             ids listed in the `categories` array further down,
                             e.g. ["research","technical"]. An entry shows up
                             whenever AT LEAST ONE of its categories is enabled.
      summary      (string)  One sentence shown under the title.
-     highlights   (array)   Bullet points (optional).
+     highlights   (array)   Bullet points (optional). Two or more are folded
+                            behind a "Show details" button; a single one stays
+                            visible.
      tags         (array)   Small skill/keyword chips (optional).
      links        (array)   [{ label:"GitHub", url:"https://..." }] (optional).
      image        (string)  "assets/images/yourphoto.jpg" (optional). Drop the
                             file in assets/images/ — if it's missing the card
                             simply shows no image, nothing breaks.
-     featured     (boolean) true marks it with a star (optional).
+     featured     (boolean) true stars the entry AND shows it as a tile in the
+                            Highlights row at the top of the page. Keep it to
+                            about 6 — the row is only useful if it's selective.
+     id           (string)  Optional. Pins the entry's deep-link address
+                            (#entry-<id>). Without it, one is made from the
+                            title + start date, so editing the title changes
+                            the link.
 
    ---------------------------------------------------------------------------
    FRENCH TRANSLATION (the EN / FR button)
@@ -77,7 +93,7 @@ window.PORTFOLIO = {
       "embarqués intelligents, certifiables et à faible consommation pour l'automobile. " +
       "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
     location: "Bordeaux, France",
-    updated: "2026-09-04",   // "last updated on" date shown in the footer — bump this when you edit the site
+    updated: "2026-11-15",   // "last updated on" date shown in the footer — bump this when you edit the site
     // Contacts — edit freely. Set any to "" to hide it.
     email: "esalameh@proton.me",
     phone: "+33 7 83 75 76 69",
@@ -131,7 +147,7 @@ window.PORTFOLIO = {
       start: "2026-07", end: "present",
       kind: "leadership",
       categories: ["leadership", "project-management", "volunteering", "community"],
-      featured: true,
+      featured: false,
       summary:
         "The Industrial Activities board is responsible for all industrial related matters and the growth of the industrial community within RAS, both by promoting the participation of industrial partners in current activities and thus creating more links with academics, and by proposing new actions beneficial to this community.",
       summary_fr:
@@ -207,7 +223,7 @@ window.PORTFOLIO = {
       start: "2026-09", end: "present",
       kind: "experience",
       categories: ["research", "technical"],
-      featured: true,
+      featured: false,
       summary:
         "Mixed AI / model-based approaches for low-consumption, certifiable embedded " +
         "smart automotive algorithms.",
@@ -379,7 +395,7 @@ window.PORTFOLIO = {
       start: "2025-08", end: "2026-08",
       kind: "honor",
       categories: ["award", "academic"],
-      featured: true,
+      featured: false,
       summary: "Awarded the competitive FORSA excellence scholarship for graduate study in France.",
       summary_fr: "Lauréat de la bourse d'excellence compétitive FORSA pour des études supérieures en France."
     },
@@ -507,7 +523,7 @@ window.PORTFOLIO = {
       start: "2024-06", end: "present",
       kind: "experience",
       categories: ["project-management", "leadership", "technical"],
-      featured: true,
+      featured: false,
       summary: "Co-founded a textile-waste recycling startup; won a $1,500 prototyping grant.",
       summary_fr: "Cofondation d'une startup de recyclage de déchets textiles ; lauréate d'une subvention de prototypage de 1 500 $.",
       highlights: [
@@ -530,7 +546,7 @@ window.PORTFOLIO = {
       start: "2024-09", end: "2024-12",
       kind: "honor",
       categories: ["award", "technical", "research"],
-      featured: true,
+      featured: false,
       summary: "Placed 3rd in the MECA region of the Huawei ICT Innovation Competition.",
       summary_fr: "3e place dans la région MECA du concours Huawei ICT Innovation.",
       tags: ["Innovation", "Competition"],
@@ -707,7 +723,7 @@ window.PORTFOLIO = {
       start: "2024-12", end: "2025-07",
       kind: "leadership",
       categories: ["leadership", "volunteering", "community"],
-      featured: true,
+      featured: false,
       summary: "Led the branch to an IEEE Regional Exemplary Student Branch Awards (2025).",
       summary_fr: "Antenne menée à un Prix régional IEEE d'antenne étudiante exemplaire (2025).",
       highlights: [
@@ -865,7 +881,7 @@ window.PORTFOLIO = {
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2021-09", end: "2026-08",
-      featured: true,
+      featured: false,
       kind: "education",
       categories: ["academic"],
       summary: "Bachelor of Engineering, double-degree with UTC — GPA 93.34/100, High Distinction.",
@@ -1027,6 +1043,6 @@ window.PORTFOLIO = {
     { group: "AI & Machine Learning", group_fr: "IA & apprentissage automatique", items: ["PyTorch", "Keras", "TensorFlow", "OpenCV", "Deep Learning", "Reinforcement Learning", "Computer Vision", "NLP", "Transformers / BERT", "RAG", "Vision Transformers", "YOLO", "Feature Engineering"] },
     { group: "Control & Systems", group_fr: "Commande & systèmes", items: ["MPC", "Kalman Filtering", "Control under Uncertainty", "Control Barrier Functions", "Fuzzy Logic", "Optimization", "Microcontrollers", "PLCs", "Power Electronics"] },
     { group: "Management & Soft", group_fr: "Management & savoir-être", items: ["Project Management", "Agile", "Innovation & Entrepreneurship", "Market Research", "Business Impact Analysis", "Leadership", "Strategic Planning", "Technical Communication", "Teamwork"], items_fr: ["Gestion de projet", "Agile", "Innovation & entrepreneuriat", "Étude de marché", "Analyse d'impact métier", "Leadership", "Planification stratégique", "Communication technique", "Travail d'équipe"] },
-    { group: "Languages", group_fr: "Langues", items: ["English — C1 (TOEIC 990/990)", "French — Professional (C1)", "Arabic — Native"], items_fr: ["Anglais — C1 (TOEIC 990/990)", "Français — professionnel (C1)", "Arabe — langue maternelle"] }
+    { group: "Languages", group_fr: "Langues", link: false, items: ["English — C1 (TOEIC 990/990)", "French — Professional (C1)", "Arabic — Native"], items_fr: ["Anglais — C1 (TOEIC 990/990)", "Français — professionnel (C1)", "Arabe — langue maternelle"] }
   ]
 };

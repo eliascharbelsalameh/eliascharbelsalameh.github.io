@@ -29,9 +29,10 @@ Only `title`, `start` and `categories` are required. Example:
   title: "New Award",
   org: "Some Organisation",
   location: "City, Country",
-  start: "2026-09",            // "YYYY-MM"  (or just "2026")
+  start: "2026-09",            // "YYYY-MM", just "2026", or "upcoming"
   end: "present",              // optional: "YYYY-MM" or "present"
-  kind: "honor",               // icon: experience | education | project | leadership | honor | certification
+  kind: "honor",               // icon + map lane: experience | research | education | project |
+                               //   leadership | honor | certification | fitness
   categories: ["award"],       // any ids from the `categories` array
   summary: "One-line summary.",
   highlights: ["Bullet one.", "Bullet two."],   // optional
@@ -42,6 +43,41 @@ Only `title`, `start` and `categories` are required. Example:
 
 Entries can belong to several categories — an entry shows whenever **at least one**
 of its categories is enabled. The site sorts everything by date automatically.
+
+Two or more `highlights` are folded behind a **Show details** button on the card; a
+single bullet stays visible. Visitors can open everything at once with **Expand all**,
+and printing always prints every card unfolded.
+
+### Choose your Highlights
+`featured: true` does two things: it stars the entry in the timeline, and it puts the
+entry in the **Highlights** row of large tiles near the top of the page. Keep it to
+**about 6**. The row only works if it's selective, and on phones it becomes a
+swipeable strip. Tiles appear newest first.
+
+### The "At a glance" map
+Every entry is drawn automatically as a bar (or a dot, for one-off events) on a
+shared time axis. You don't edit it directly. Its lane comes from the entry:
+
+| Lane | Entries |
+| --- | --- |
+| Work & research | `kind: "experience"` or `"research"` |
+| Education | `kind: "education"` |
+| Projects | `kind: "project"` |
+| Leadership | `kind: "leadership"` |
+| Awards & certificates | `kind: "honor"` or `"certification"` |
+| Personal | anything in the `personal` category (overrides the above) |
+
+The axis covers roughly the last five years. Anything older is cut off at the left
+edge rather than squashing everything else.
+
+### Skills that link to your work
+A skill in the `skills` array becomes a clickable filter when it appears, as a
+whole word, in at least one timeline entry's title, summary, bullets or tags, in
+either language. "YOLO" also finds "YOLOv5", and "Transformers / BERT" matches
+either name. Clicking it shows just those entries, already opened. Skills that
+match nothing stay plain, so a skill you want linked needs to be mentioned
+somewhere in the timeline. To stop a whole group from linking, add `link: false`
+to it, as the Languages group does.
 
 ### Add an image to an entry
 1. Drop the file into **`assets/images/`** (e.g. `wro2025.jpg`).
@@ -147,9 +183,17 @@ subset instead of the whole timeline:
 | `…github.io/?cat=research,technical&featured=1` | starred research + technical work |
 | `…github.io/?present=1` | only what's ongoing |
 | `…github.io/?q=SLAM` | everything matching "SLAM" |
+| `…github.io/?skill=MPC` | the entries where you used MPC |
 | `…github.io/?lang=fr` | opens in French |
 
 Params combine freely. Opening the plain URL always shows everything.
+
+### Link straight to one entry
+Every card has its own address, `#entry-…`. Clicking a Highlights tile or a bar on the
+map puts it in the address bar, so you can copy it from there. Opening such a link
+scrolls to that card and opens it. The address is made from the English title and
+start date, so **editing an entry's title changes its link**. Add `id: "phd"` to an
+entry in `data.js` to pin it to `#entry-phd` instead.
 
 ### Visitor shortcuts
 - **`/`** — jump to the search box; **`Esc`** — clear it.

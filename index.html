@@ -68,6 +68,7 @@
       </a>
       <nav class="site-nav" aria-label="Primary">
         <a href="#about" data-i18n="nav_about">About</a>
+        <a href="#highlights" data-i18n="nav_highlights">Highlights</a>
         <a href="#timeline" data-i18n="nav_timeline">Timeline</a>
         <a href="#skills" data-i18n="nav_skills">Skills</a>
         <a href="#contact" data-i18n="nav_contact">Contact</a>
@@ -97,7 +98,19 @@
           <p class="hero-summary" id="hero-summary"></p>
           <div class="hero-cta" id="hero-cta"></div>
         </div>
-        <ul class="hero-stats" id="hero-stats" aria-label="Highlights"></ul>
+        <ul class="hero-stats" id="hero-stats" aria-label="Key figures"></ul>
+      </div>
+    </section>
+
+    <!-- ========================== HIGHLIGHTS ========================== -->
+    <!-- Tiles for every `featured` entry in data.js — rendered by app.js -->
+    <section class="highlights-section" id="highlights" hidden>
+      <div class="wrap">
+        <div class="section-head">
+          <h2 data-i18n="hl_h">Highlights</h2>
+          <p class="section-sub" data-i18n="hl_sub">The work I'd show first — open one to see it in context in the timeline.</p>
+        </div>
+        <div class="hl-grid" id="highlights-grid"></div>
       </div>
     </section>
 
@@ -107,6 +120,18 @@
         <div class="section-head">
           <h2 data-i18n="timeline_h">Timeline of efforts</h2>
           <p class="section-sub" data-i18n="timeline_sub">Every role, project, award and contribution — filter the view to whatever you care about.</p>
+        </div>
+
+        <!-- Career map: every entry as a bar in its lane, rendered by app.js.
+             A visual shortcut into the list below (which carries the same
+             content accessibly), so it's hidden from assistive tech. -->
+        <div class="map" id="career-map" aria-hidden="true">
+          <div class="map-head">
+            <h3 class="map-title" data-i18n="map_h">At a glance</h3>
+            <span class="map-hint" data-i18n="map_hint">Each bar is an entry below — click one to open it.</span>
+          </div>
+          <div class="map-scroll"><div class="map-inner" id="map-inner"></div></div>
+          <div class="map-tip" id="map-tip" hidden></div>
         </div>
 
         <!-- Controls -->
@@ -133,6 +158,12 @@
               <span class="qbtn-dot" aria-hidden="true"></span>
               <span data-i18n="present_only">Ongoing</span>
             </button>
+            <!-- shown while a skill from the Skills section is filtering the list -->
+            <button class="qbtn skill-active" id="skill-active" type="button" hidden style="--qc:var(--accent)">
+              <span id="skill-active-label"></span>
+              <span class="qbtn-x" aria-hidden="true">×</span>
+            </button>
+            <button class="link-btn expand-all" id="expand-all" type="button" hidden></button>
           </div>
           <div class="filters-hint">
             <span class="filters-hint-line" aria-hidden="true"></span>
@@ -153,7 +184,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2 data-i18n="skills_h">Skills &amp; toolbox</h2>
-          <p class="section-sub" data-i18n="skills_sub">Technologies and methods used across the work above.</p>
+          <p class="section-sub" data-i18n="skills_sub">Technologies and methods used across the work above — the highlighted ones show where they were used.</p>
         </div>
         <div class="skills-grid" id="skills-grid"></div>
       </div>
