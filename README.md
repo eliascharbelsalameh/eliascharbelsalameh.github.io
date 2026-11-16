@@ -16,10 +16,11 @@ or search the whole thing.
 
 Open **`assets/js/data.js`** in any text editor. It is heavily commented. You can:
 
-- Change your name, role, summary, contact links and the hero "stat" cards (top `profile` block).
+- Change your name, role, summary, contact links, the player card's position line
+  and the hero's key figures (top `profile` block).
 - Add / edit / remove timeline entries (the `timeline` array).
 - Add or rename filter categories (the `categories` array).
-- Edit the skills (`skills` array).
+- Edit the skills and your player-card ratings (`skills` array).
 
 ### Add a new timeline entry
 Copy any `{ … }` block inside the `timeline` array, paste it, and edit the text.
@@ -66,7 +67,8 @@ row per entry). Either way each card starts compact: dates, title and organisati
   place, with a **Full details** button inside it.
 
 **Expand all** opens every visible card fully, and printing always prints every
-card with its full details.
+card with its full details, one per row, in the light theme (even if the visitor
+is in dark mode).
 
 ### Choose your Highlights
 `featured: true` does two things: it stars the entry in the timeline, and it puts the
@@ -106,14 +108,55 @@ to it, as the Languages group does.
 If an image path is missing, the card just shows no image; nothing breaks.
 
 ### Add your profile photo
-Drop a square photo at **`assets/images/profile.jpg`** and it appears automatically
-in the hero, next to the skills radar. (Until then your initials show.) To use a
-different path, edit `profile.photo` in `data.js`.
+Drop a square photo at **`assets/images/profile.jpg`** and it appears on the player
+card in the hero. (Only if the file can't load do your initials show instead, in
+capitals, from `profile.initials`.) To use a different path, edit `profile.photo`
+in `data.js`.
 
-### Skills radar and counts
-The hero draws a radar chart of how many skills each group in the `skills` array
-lists, and each group in the Skills section shows its count. Both update by
-themselves when you add or remove skills.
+### The player card (your ratings)
+Next to your name, the hero shows a "player card" in the spirit of FIFA Ultimate
+Team cards, NBA 2K ratings and GTA V stat bars: your photo, name, a short
+position line (`profile.position` / `position_fr`), an overall rating (**OVR**),
+and one row per skill group with an abbreviation, the group name, a rating out of
+99 and a segmented bar. It's built from the `skills` array:
+
+```js
+{ group: "Programming", group_fr: "Programmation", abbr: "PRG", rating: 84, items: [ … ] },
+{ group: "Control & Systems", group_fr: "Commande & systèmes", abbr: "CTL", abbr_fr: "CMD", rating: 88, items: [ … ] },
+```
+
+- `rating` (0 to 99) puts a group on the card. Leave it out to keep a group in the
+  Skills section only, as Languages is.
+- `abbr` is the 2 or 3 letter FIFA-style code; `abbr_fr` is its French twin when
+  the French word differs.
+- **OVR** is the rounded average of the ratings and updates by itself.
+- The card says the ratings are self-assessed (in both languages). Screen readers
+  hear each row as "Programming: 84 out of 99"; the bars are decoration.
+
+> The ratings in `data.js` are the site owner's own self-assessed ratings. Change
+> them there and the card and OVR update by themselves.
+
+Each group in the Skills section also shows how many skills it lists; that count
+updates by itself when you add or remove skills.
+
+### Key figures
+`profile.stats` is the row of figures under the hero (three per row, two on
+phones, so six fills it evenly). Each has a `value` and a `label`, plus optional
+`value_fr` / `label_fr` (e.g. `value_fr: "5,0/5,0"` for French number formatting).
+Labels are in sentence case.
+
+### Fonts
+The site uses **Roboto Mono** for headings, numbers, labels and buttons (the
+terminal feel) and **Roboto** for running text. Both are self-hosted in
+`assets/fonts/` (latin subset, variable weight, SIL Open Font License, see
+`assets/fonts/LICENSE.txt`), so the page loads no third-party font service.
+
+### Category colours
+Each category's `color` in `data.js` is used for icons, dots and map bars on both
+the light and the dark theme, so pick mid-tones that keep 3:1 contrast against
+white and against the dark card (`#151c2c`). Avoid the link blue (`#2563eb`), the
+"Ongoing" green and the Highlights gold, so a category never looks like a button
+or a status.
 
 ### Contact buttons
 The hero's first button is **Email me** (from `profile.email`), followed by
@@ -143,8 +186,7 @@ Because the site loads a couple of files, open it through a tiny local server
 rather than double-clicking (any of these works):
 
 ```powershell
-# Python (already on your machine)
-cd C:\Users\elias\Documents\portfolio
+# Python, run from the folder that holds index.html (wherever you cloned it)
 python -m http.server 4321
 # then open http://localhost:4321
 ```
@@ -166,7 +208,7 @@ perfect to put on a CV.
    in the GitHub web UI, or with git:
 
    ```powershell
-   cd C:\Users\elias\Documents\portfolio
+   # from the folder that holds index.html
    git init
    git add .
    git commit -m "Portfolio site"
@@ -249,6 +291,7 @@ portfolio/
 │   ├── js/
 │   │   ├── data.js         # ← YOUR CONTENT lives here
 │   │   └── app.js          # renders + filters (rarely edited)
+│   ├── fonts/              # Roboto + Roboto Mono (self-hosted) + LICENSE.txt
 │   └── images/             # entry images + profile.jpg
 ├── robots.txt              # lets crawlers in, points at the sitemap
 ├── sitemap.xml             # one URL + its EN/FR alternates

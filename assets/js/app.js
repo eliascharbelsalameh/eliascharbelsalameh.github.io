@@ -17,7 +17,12 @@
       nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Skip to timeline",
       lang_switch: "FR, switch to French",
       email_me: "Email me", explore: "Explore the timeline", cv: "Download CV", stats_label: "Key figures",
-      radar_title: "Skills per category", radar_caption: "Number of listed skills per category",
+      card_ovr: "OVR",
+      card_overall: function (n) { return "Overall rating: " + n + " out of 99"; },
+      card_attr: function (name, n) { return name + ": " + n + " out of 99"; },
+      card_attrs_label: "Skill ratings",
+      card_note: "Self-assessed ratings, out of 99",
+      card_photo_alt: function (name) { return "Portrait of " + name; },
       hl_h: "Highlights",
       hl_sub: "The work I'd show first. Open one to see it in context in the timeline.",
       hl_open: "View in timeline", hl_star: "In Highlights",
@@ -61,7 +66,12 @@
       nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Aller au parcours",
       lang_switch: "EN, passer en anglais",
       email_me: "M'écrire", explore: "Explorer le parcours", cv: "Télécharger le CV", stats_label: "Chiffres clés",
-      radar_title: "Compétences par catégorie", radar_caption: "Nombre de compétences listées par catégorie",
+      card_ovr: "GÉN",
+      card_overall: function (n) { return "Note générale : " + n + " sur 99"; },
+      card_attr: function (name, n) { return name + " : " + n + " sur 99"; },
+      card_attrs_label: "Notes par compétence",
+      card_note: "Notes auto-évaluées, sur 99",
+      card_photo_alt: function (name) { return "Portrait " + (/^[aeiouyàâéèêîôh]/i.test(name) ? "d'" : "de ") + name; },
       hl_h: "Points forts",
       hl_sub: "Les travaux à voir en premier. Ouvrez-en un pour le retrouver dans le parcours.",
       hl_open: "Voir dans le parcours", hl_star: "Dans les points forts",
@@ -142,17 +152,6 @@
       else if (k === "dataset") { for (var dk in v) e.dataset[dk] = v[dk]; }
       else if (k.slice(0, 2) === "on" && typeof v === "function") e.addEventListener(k.slice(2), v);
       else e.setAttribute(k, v);
-    }
-    for (i = 2; i < arguments.length; i++) append(e, arguments[i]);
-    return e;
-  }
-  /* the same for SVG elements, which need their namespace (used by the radar) */
-  var SVGNS = "http://www.w3.org/2000/svg";
-  function s(tag, attrs) {
-    var e = document.createElementNS(SVGNS, tag), i, k;
-    attrs = attrs || {};
-    for (k in attrs) {
-      if (Object.prototype.hasOwnProperty.call(attrs, k) && attrs[k] != null) e.setAttribute(k, attrs[k]);
     }
     for (i = 2; i < arguments.length; i++) append(e, arguments[i]);
     return e;
@@ -307,6 +306,25 @@
     var label = $("#lang-label"), btn = $("#lang-toggle");
     if (label) label.textContent = LANG === "fr" ? "EN" : "FR";
     if (btn) { btn.setAttribute("aria-label", T.lang_switch); btn.title = T.lang_switch; }
+    applyMeta();
+  }
+
+  /* Tab title, meta description and canonical follow the language, so the
+     French page (?lang=fr) is its own canonical URL, as the hreflang
+     alternates in index.html declare. The English values come from
+     index.html unless data.js sets `pageTitle` / `pageDescription`. */
+  var META = (function () {
+    var d = $('meta[name="description"]'), c = $('link[rel="canonical"]');
+    var base = c ? c.getAttribute("href").split("?")[0] : "";
+    return { title: document.title, desc: d ? d.getAttribute("content") : "", canonical: base };
+  })();
+  function applyMeta() {
+    var p = DATA.profile || {};
+    document.title = tf(p, "pageTitle") || META.title;
+    var d = $('meta[name="description"]');
+    if (d) d.setAttribute("content", tf(p, "pageDescription") || META.desc);
+    var c = $('link[rel="canonical"]');
+    if (c && META.canonical) c.setAttribute("href", META.canonical + (LANG === "fr" ? "?lang=fr" : ""));
   }
 
   /* Swap language in place (no reload), so scroll position, the current
@@ -324,7 +342,7 @@
     hideTip();
     closeMenu();
     applyStaticStrings();
-    [$("#hero-cta"), $("#hero-stats"), $("#hero-radar"), $("#footer-links"), $("#filters"), $("#timeline-list"),
+    [$("#hero-cta"), $("#hero-stats"), $("#player-card"), $("#footer-links"), $("#filters"), $("#timeline-list"),
      $("#highlights-grid"), $("#map-inner"), $("#skills-grid")].forEach(empty);
     records = [];
     groupEls = [];
@@ -386,15 +404,6 @@
     locEl.hidden = !loc;
     if (loc) { locEl.innerHTML = SOCIAL.pin; locEl.appendChild(h("span", {}, loc)); }
 
-    // avatar: initials, swapped for the photo if it loads
-    var av = $("#hero-avatar");
-    av.textContent = p.initials || "";
-    if (p.photo) {
-      var img = new Image();
-      img.onload = function () { av.style.backgroundImage = "url('" + p.photo + "')"; av.textContent = ""; };
-      img.src = p.photo;
-    }
-
     // calls to action: get in touch first, the timeline second
     var cta = $("#hero-cta");
     empty(cta);   // drops the <noscript> fallback
@@ -408,7 +417,7 @@
     // stats
     var stats = $("#hero-stats");
     (p.stats || []).forEach(function (s) {
-      stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, s.value), h("span", { class: "stat-label" }, tf(s, "label"))));
+      stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, tf(s, "value")), h("span", { class: "stat-label" }, tf(s, "label"))));
     });
 
     // footer
@@ -430,62 +439,87 @@
     $("#footer-date").textContent = updated;
   }
 
-  /* -------------------------------- RADAR --------------------------------- */
-  /* Hand-built SVG radar of how many skills each group in data.js lists.
-     Styled from CSS (classes .rd-*), so it follows the theme. */
-  function wrapWords(text, max) {
-    var lines = [], cur = "";
-    String(text).split(/\s+/).forEach(function (w) {
-      if (cur && (cur + " " + w).length > max) { lines.push(cur); cur = w; }
-      else cur = cur ? cur + " " + w : w;
-    });
-    if (cur) lines.push(cur);
-    return lines;
+  /* ----------------------------- PLAYER CARD ------------------------------ */
+  /* The hero's "player card", after FIFA Ultimate Team cards, NBA 2K ratings
+     and GTA V stat bars: photo, name, position, and one row per `skills` group
+     that has a `rating` (0 to 99) in data.js. OVR is the rounded average.
+     Assistive tech reads each row as "Programming: 84 out of 99"; the
+     abbreviations, numbers and segmented bars are the visual layer. */
+  var cardPhoto = null;      // kept across language switches, so it never reloads or flashes
+  var cardFilled = false;    // the bars fill once, on first render only
+  var CARD_SEGS = 10;        // bar segments; each one is 10 points
+  function ratingOf(g) {
+    if (!g || g.rating == null || g.rating === "") return null;
+    var v = +g.rating;
+    return isFinite(v) ? Math.max(0, Math.min(99, Math.round(v))) : null;
   }
-  function renderRadar() {
-    var fig = $("#hero-radar");
-    if (!fig) return;
-    empty(fig);
-    var groups = (DATA.skills || []).filter(function (g) { return (g.items || []).length; });
-    fig.hidden = groups.length < 3;
-    if (fig.hidden) return;
+  function cardBar(v) {
+    var segs = [];
+    for (var k = 0; k < CARD_SEGS; k++) {
+      var f = Math.max(0, Math.min(1, v / (100 / CARD_SEGS) - k));
+      segs.push(h("span", { class: "pa-seg" + (f > 0 ? " is-on" : "") },
+        f > 0 ? h("i", { style: "--f:" + f.toFixed(2) + ";--k:" + k }) : null));
+    }
+    return h("span", { class: "pa-bar", "aria-hidden": "true" }, segs);
+  }
+  function renderCard() {
+    var card = $("#player-card");
+    if (!card) return;
+    empty(card);
+    var p = DATA.profile || {};
+    var rated = (DATA.skills || []).filter(function (g) { return ratingOf(g) !== null; });
+    card.hidden = !rated.length && !p.photo;
+    if (card.hidden) return;
 
-    var W = 360, H = 300, cx = 180, cy = 150, R = 78, n = groups.length, LH = 14.5;
-    var counts = groups.map(function (g) { return g.items.length; });
-    var top = Math.max(5, Math.ceil(Math.max.apply(null, counts) / 5) * 5);
-    function ang(i) { return -Math.PI / 2 + i * 2 * Math.PI / n; }
-    function pt(i, r) { return [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))]; }
-    function pts(rad) { return groups.map(function (g, i) { return pt(i, rad(i)).map(function (v) { return v.toFixed(1); }).join(","); }).join(" "); }
+    // photo: a real <img>; the capital initials only appear if it fails to load
+    var initials = h("span", { class: "pcard-initials", "aria-hidden": "true" }, String(p.initials || "").toUpperCase());
+    var photo = h("div", { class: "pcard-photo" });
+    if (p.photo && !cardPhoto) {
+      cardPhoto = document.createElement("img");
+      cardPhoto.className = "pcard-img";
+      cardPhoto.width = 160;
+      cardPhoto.height = 160;
+      cardPhoto.decoding = "async";
+      cardPhoto.addEventListener("error", function () {
+        cardPhoto.hidden = true;
+        var ini = $("#player-card .pcard-initials");
+        if (ini) ini.hidden = false;
+      });
+      cardPhoto.src = p.photo;
+    }
+    if (cardPhoto) { cardPhoto.alt = T.card_photo_alt(p.name || ""); photo.appendChild(cardPhoto); }
+    initials.hidden = !!(cardPhoto && !cardPhoto.hidden);
+    photo.appendChild(initials);
 
-    var desc = groups.map(function (g, i) { return tf(g, "group") + ": " + counts[i]; }).join(", ");
-    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-labelledby": "radar-title radar-desc" },
-      s("title", { id: "radar-title" }, T.radar_title),
-      s("desc", { id: "radar-desc" }, desc));
-    [1 / 3, 2 / 3, 1].forEach(function (f) { svg.appendChild(s("polygon", { class: "rd-ring", points: pts(function () { return R * f; }) })); });
-    groups.forEach(function (g, i) {
-      var e = pt(i, R);
-      svg.appendChild(s("line", { class: "rd-axis", x1: cx, y1: cy, x2: e[0].toFixed(1), y2: e[1].toFixed(1) }));
-    });
-    function valR(i) { return R * counts[i] / top; }
-    svg.appendChild(s("polygon", { class: "rd-area", points: pts(valR) }));
-    groups.forEach(function (g, i) {
-      var p = pt(i, valR(i));
-      svg.appendChild(s("circle", { class: "rd-dot", cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.4 }));
-    });
-    // labels outside the rim: group name (wrapped) and its count
-    groups.forEach(function (g, i) {
-      var p = pt(i, R + 14), c = Math.cos(ang(i)), sn = Math.sin(ang(i));
-      var anchor = Math.abs(c) < 0.2 ? "middle" : (c > 0 ? "start" : "end");
-      var lines = wrapWords(tf(g, "group"), 14), total = lines.length + 1;
-      var y0 = sn < -0.5 ? p[1] - 4 - (total - 1) * LH : sn > 0.5 ? p[1] + 12 : p[1] - (total - 1) * LH / 2 + 4;
-      var x = p[0].toFixed(1);
-      var text = s("text", { class: "rd-label", x: x, y: y0.toFixed(1), "text-anchor": anchor });
-      lines.forEach(function (ln, k) { text.appendChild(s("tspan", { x: x, dy: k ? LH : null }, ln)); });
-      text.appendChild(s("tspan", { x: x, dy: LH, class: "rd-value" }, String(counts[i])));
-      svg.appendChild(text);
-    });
-    fig.appendChild(svg);
-    fig.appendChild(h("figcaption", {}, T.radar_caption));
+    var top = h("div", { class: "pcard-top" });
+    if (rated.length) {
+      var ovr = Math.round(rated.reduce(function (a, g) { return a + ratingOf(g); }, 0) / rated.length);
+      top.appendChild(h("p", { class: "pcard-ovr" },
+        h("span", { class: "pcard-ovr-num", "aria-hidden": "true" }, String(ovr)),
+        h("span", { class: "pcard-ovr-lbl", "aria-hidden": "true" }, T.card_ovr),
+        h("span", { class: "sr-only" }, T.card_overall(ovr))));
+    }
+    top.appendChild(h("div", { class: "pcard-id" },
+      h("p", { class: "pcard-name" }, p.name || ""),
+      tf(p, "position") ? h("p", { class: "pcard-pos" }, tf(p, "position")) : null));
+    top.appendChild(photo);
+    card.appendChild(top);
+
+    if (rated.length) {
+      card.appendChild(h("ul", { class: "pcard-attrs", "aria-label": T.card_attrs_label }, rated.map(function (g, i) {
+        var v = ratingOf(g), name = tf(g, "group");
+        return h("li", { class: "pcard-attr", style: "--i:" + i },
+          h("span", { class: "pa-abbr", "aria-hidden": "true" }, tf(g, "abbr") || ""),
+          h("span", { class: "pa-name", "aria-hidden": "true" }, name),
+          h("span", { class: "pa-val", "aria-hidden": "true" }, String(v)),
+          h("span", { class: "sr-only" }, T.card_attr(name, v)),
+          cardBar(v));
+      })));
+      card.appendChild(h("figcaption", { class: "pcard-note" }, T.card_note));
+    }
+    // fill animation on the first render only (CSS drops it under reduced motion)
+    card.classList.toggle("is-filling", !cardFilled);
+    cardFilled = true;
   }
 
   /* ------------------------------ FILTERS --------------------------------- */
@@ -574,10 +608,14 @@
     var tags = tf(it, "tags") || [];
     var detailsId = rec.id + "-details";
 
+    // the small icon (kind of entry, tinted with its first category's colour)
+    // carries the category at a glance on compact cards; the spine's round
+    // marker takes over in the date-ordered list
     var head = h("div", { class: "tl-head" },
-      h("span", { class: "tl-date" }, dateRange(it), ongoing ? h("span", { class: "tl-now" }, T.now) : null),
+      h("span", { class: "tl-date" }, h("span", { class: "tl-kind", html: icon(it.kind) }),
+        dateRange(it), ongoing ? h("span", { class: "tl-now" }, T.now) : null),
       h("div", { class: "tl-main" },
-        h("h3", { class: "tl-title" },
+        h("h4", { class: "tl-title" },
           tf(it, "title"),
           it.featured ? h("span", { class: "tl-star", role: "img", "aria-label": T.hl_star, title: T.hl_star }, "★") : null),
         h("div", { class: "tl-org" },
@@ -622,7 +660,7 @@
     var card = h("div", { class: "tl-card" }, head, rec.toggle, rec.details);
     var marker = h("div", { class: "tl-marker", html: icon(it.kind) });
     // tabindex lets a jump from a highlight tile or the map move keyboard focus here
-    rec.el = h("div", { class: "tl-item reveal lvl-0", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
+    rec.el = h("li", { class: "tl-item reveal lvl-0", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
     return rec.el;
   }
 
@@ -699,14 +737,17 @@
       var gk = SORT === "date" ? startYear(r.it) : tierOf(r.it);
       if (gk !== cur) {
         cur = gk;
+        // each group: an h3 (year or tier, under the section's h2) over a
+        // list of cards whose titles are h4s
         var label, pill = null;
         if (SORT === "date") {
           pill = h("span", { class: gk === "upcoming" ? "pill upcoming" : "pill" }, gk === "upcoming" ? T.upcoming : String(gk));
-          label = h("div", { class: "tl-year" }, pill);
+          label = h("h3", { class: "tl-year" }, pill);
         } else {
-          label = h("p", { class: "tl-tier" }, T.tiers[gk]);
+          label = h("h3", { class: "tl-tier" }, T.tiers[gk]);
         }
-        var body = h("div", { class: "tl-items" });
+        // role="list" because Safari drops list semantics from unstyled lists
+        var body = h("ul", { class: "tl-items", role: "list" });
         g = { section: h("div", { class: "tl-group", "data-group": String(gk) }, label, body), items: [], body: body, pill: pill };
         groupEls.push(g);
         list.appendChild(g.section);
@@ -1046,7 +1087,6 @@
     var s = stickyHeights(), st = document.documentElement.style;
     st.setProperty("--header-h", s.header + "px");
     st.setProperty("--ctl-h", s.controls + "px");
-    st.setProperty("--jump-offset", (s.header + s.controls + 12) + "px");
   }
   function scrollToEl(el, instant) {
     var top = Math.max(0, pageTop(el) - jumpOffset());
@@ -1257,7 +1297,7 @@
       name: p.name,
       url: abs(location.pathname),
       jobTitle: tf(p, "role"),
-      description: tf(p, "summary"),
+      description: [tf(p, "tagline"), tf(p, "summary")].filter(Boolean).join(" "),
       image: p.photo ? abs(p.photo) : undefined,
       email: p.email ? "mailto:" + p.email : undefined,
       telephone: p.phone || undefined,
@@ -1387,7 +1427,7 @@
      list of containers to empty. */
   function renderAll() {
     renderHero();
-    renderRadar();
+    renderCard();
     renderFilters();
     renderTimeline();
     renderHighlights();   // these two read the records renderTimeline builds

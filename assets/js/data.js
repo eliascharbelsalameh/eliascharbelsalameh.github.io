@@ -69,8 +69,21 @@
      role   / role_fr         tags / tags_fr               (array)
      label  / label_fr        items / items_fr             (array)
      location / location_fr   group / group_fr
+     position / position_fr   abbr / abbr_fr
+     value  / value_fr        pageTitle / pageDescription (+ _fr)
    If a `*_fr` field is missing, the site simply falls back to the English text,
    so nothing breaks if you only translate part of an entry.
+
+   ---------------------------------------------------------------------------
+   THE HERO: PLAYER CARD AND KEY FIGURES
+   ---------------------------------------------------------------------------
+   Next to your name, the hero shows a "player card" (in the spirit of FIFA
+   Ultimate Team cards and NBA 2K ratings): your photo (`profile.photo`), name,
+   `profile.position`, and one rated row per `skills` group that has a
+   `rating` (0 to 99) and an `abbr`. Its overall (OVR) is the rounded average
+   of those ratings. Leave `rating` out of a group to keep it off the card.
+   The ratings are a self-assessment, and the card says so.
+   Under it, `profile.stats` are the key figures (6 fit the layout best).
 
    ---------------------------------------------------------------------------
    HOW TO ADD AN IMAGE TO AN ENTRY
@@ -90,23 +103,27 @@ window.PORTFOLIO = {
   /* ------------------------------------------------------------------ */
   profile: {
     name: "Elias Charbel SALAMEH",
-    initials: "ecs",                       // shown if no photo is provided
-    photo: "assets/images/profile.jpg",   // optional: drop a file here to show it
+    initials: "ecs",                       // shown (in capitals) on the player card only if the photo can't load
+    photo: "assets/images/profile.jpg",   // square photo on the player card in the hero
     role: "R&D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS",
     role_fr: "Ingénieur R&D chez ADERA · Futur doctorant CIFRE chez Stellantis / IMS",
     tagline: "Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.",
     tagline_fr: "Alliant commande basée modèle et solutions pilotées par les données pour des algorithmes automobiles intelligents, certifiables et à faible consommation.",
-    summary:
-      "R&D engineer at ADERA and incoming CIFRE PhD candidate with Stellantis and the " +
-      "IMS laboratory, developing mixed AI/control approaches for low-consumption, " +
-      "certifiable embedded smart automotive algorithms. Hands-on experience across " +
-      "control systems, computer vision, SLAM and deep learning.",
-    summary_fr:
-      "Ingénieur R&D chez ADERA et futur doctorant CIFRE avec Stellantis et le laboratoire " +
-      "IMS, où je développe des approches hybrides IA/automatique pour des algorithmes " +
-      "embarqués intelligents, certifiables et à faible consommation pour l'automobile. " +
-      "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
+    // One line under the tagline. The role and tagline already say where you
+    // work and what on, so this only adds the hands-on breadth.
+    summary: "Hands-on experience across control systems, computer vision, SLAM and deep learning.",
+    summary_fr: "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
+    // Short "position" line on the player card in the hero, under your name.
+    position: "R&D engineer · control & AI",
+    position_fr: "Ingénieur R&D · automatique & IA",
     location: "Bordeaux, France",
+    // Browser-tab title and search-engine description. The English pair must
+    // match <title> and <meta name="description"> in index.html (crawlers read
+    // those without JavaScript); the French pair is swapped in on ?lang=fr.
+    pageTitle: "Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD",
+    pageTitle_fr: "Elias Charbel Salameh · Ingénieur R&D et futur doctorant CIFRE",
+    pageDescription: "R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms.",
+    pageDescription_fr: "Ingénieur R&D chez ADERA, futur doctorant CIFRE avec Stellantis / IMS : robotique, automatique et IA pour des algorithmes automobiles certifiables et à faible consommation.",
     updated: "2026-11-16",   // "last updated on" date shown in the footer; bump this when you edit the site
     // Contacts: edit freely. Set any to "" to hide it.
     email: "esalameh@proton.me",
@@ -116,33 +133,40 @@ window.PORTFOLIO = {
     // CV / résumé. Drop the PDF in assets/ and point here (e.g. "assets/cv-elias-charbel-salameh.pdf")
     // to get a "Download CV" button in the hero and the footer. Leave "" to hide it.
     cv: "",
-    // Punchy numbers shown in the hero band. Add / remove freely.
+    // Key figures shown under the hero, three per row (two on phones), so a
+    // multiple of 3 (and of 2) keeps the rows full: 6 is ideal. `value_fr`
+    // is optional, for French number formatting (5,0 instead of 5.0).
+    // Labels are in sentence case.
     stats: [
       { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" },
-      { value: "5.0/5.0", label: "Masters GPA (Excellent)", label_fr: "Moyenne master (Excellent)" },
-      { value: "98.4%",   label: "Object Detection mean Average Precision in the BMW vision model", label_fr: "Précision moyenne pondérée de détection d'objets dans le modèle de vision BMW" },
-      { value: "42",      label: "judges led at WRO 2025", label_fr: "juges encadrés à la WRO 2025" },
-      { value: "3×",      label: "IEEE Regional Exemplary Awards", label_fr: "prix régionaux d'excellence IEEE" },
-      { value: "$1.5K",   label: "startup grant for Byssus", label_fr: "subvention startup pour Byssus" },
-      { value: "3rd",      label: "Huawei ICT Innovation Competition, MECA region", label_fr: "Concours d'innovation Huawei ICT, région MECA" },  
-      { value: "166 kgs",    label: "Squat 1-rep Personal Record", label_fr: "record personnel squat 1-rep" }
+      { value: "5.0/5.0", value_fr: "5,0/5,0", label: "Master's GPA (excellent)", label_fr: "Moyenne de master (excellent)" },
+      { value: "98.4%", value_fr: "98,4 %", label: "mAP of the BMW object-detection model", label_fr: "Précision moyenne (mAP) du modèle de détection d'objets BMW" },
+      { value: "42", label: "Judges led at WRO 2025", label_fr: "Juges encadrés à la WRO 2025" },
+      { value: "3", label: "Languages: English C1, French C1 (professional), Arabic (native)", label_fr: "Langues : anglais C1, français C1 (professionnel), arabe (langue maternelle)" },
+      { value: "166 kg", label: "Squat, one-rep max", label_fr: "Squat, record sur une répétition" }
     ]
   },
 
   /* ------------------------------------------------------------------ */
   /*  CATEGORIES: the filter buttons (id, label, colour)                 */
   /*  Add a new category here, then use its `id` in any entry.           */
+  /*  Colours are drawn as icons, dots and map bars on both the white    */
+  /*  (light) and the navy (dark) card, so each one is a mid-tone that   */
+  /*  keeps 3:1 contrast on both. They also avoid the site's link blue   */
+  /*  (#2563eb), the "Ongoing" green and the Highlights gold, so a       */
+  /*  category never looks like a button or a status. Keep that in mind  */
+  /*  if you change one.                                                 */
   /* ------------------------------------------------------------------ */
   categories: [
-    { id: "research",            label: "Research",        label_fr: "Recherche",          color: "#7c3aed" },
-    { id: "technical",           label: "Technical",       label_fr: "Technique",          color: "#2563eb" },
-    { id: "academic",            label: "Academic",        label_fr: "Académique",         color: "#0891b2" },
-    { id: "project-management",  label: "Project Mgmt",    label_fr: "Gestion de projet",  color: "#c026d3" },
-    { id: "leadership",          label: "Leadership",      label_fr: "Leadership",         color: "#d97706" },
-    { id: "volunteering",        label: "Volunteering",    label_fr: "Bénévolat",          color: "#16a34a" },
-    { id: "community",           label: "Community",       label_fr: "Communauté",         color: "#ea580c" },
-    { id: "award",               label: "Awards & Honors", label_fr: "Prix & distinctions", color: "#ca8a04" },
-    { id: "personal",            label: "Personal",        label_fr: "Personnel",          color: "#e11d48" }
+    { id: "research",            label: "Research",        label_fr: "Recherche",          color: "#9333ea" },
+    { id: "technical",           label: "Technical",       label_fr: "Technique",          color: "#0891b2" },
+    { id: "academic",            label: "Academic",        label_fr: "Académique",         color: "#0f766e" },
+    { id: "project-management",  label: "Project Mgmt",    label_fr: "Gestion de projet",  color: "#d946ef" },
+    { id: "leadership",          label: "Leadership",      label_fr: "Leadership",         color: "#ea580c" },
+    { id: "volunteering",        label: "Volunteering",    label_fr: "Bénévolat",          color: "#4d7c0f" },
+    { id: "community",           label: "Community",       label_fr: "Communauté",         color: "#ef4444" },
+    { id: "award",               label: "Awards & Honors", label_fr: "Prix & distinctions", color: "#a16207" },
+    { id: "personal",            label: "Personal",        label_fr: "Personnel",          color: "#db2777" }
   ],
 
   /* ------------------------------------------------------------------ */
@@ -1096,13 +1120,25 @@ window.PORTFOLIO = {
 
   /* ------------------------------------------------------------------ */
   /*  SKILLS: grouped chips shown in the Skills section                  */
+  /*                                                                     */
+  /*  `rating` (0 to 99) and `abbr` also put a group on the player card  */
+  /*  in the hero: one row per rated group, with the abbreviation, the   */
+  /*  group name, the rating and a segmented bar. The card's overall     */
+  /*  (OVR) is the rounded average of the ratings. A group without a     */
+  /*  `rating` stays in the Skills section only (as Languages does).     */
+  /*  `abbr` is 2 or 3 capital letters, FIFA style; `abbr_fr` is its     */
+  /*  French twin when the French word differs.                          */
+  /*                                                                     */
+  /*  The ratings below are the site owner's own self-assessed ratings   */
+  /*  (0 to 99). The card says they are self-assessed. Change a number   */
+  /*  here and the card and its overall (OVR) update by themselves.      */
   /* ------------------------------------------------------------------ */
   skills: [
-    { group: "Programming", group_fr: "Programmation", items: ["Python", "C / C++", "MATLAB / Simulink", "Java", "Assembly", "Bash", "LaTeX"] },
-    { group: "Robotics & Simulation", group_fr: "Robotique & simulation", items: ["ROS / ROS2", "SLAM", "NVIDIA Isaac Sim / Omniverse", "Webots", "SCANeR studio", "Docker", "Git", "Linux / Unix", "NI LabVIEW"] },
-    { group: "AI & Machine Learning", group_fr: "IA & apprentissage automatique", items: ["PyTorch", "Keras", "TensorFlow", "OpenCV", "Deep Learning", "Reinforcement Learning", "Computer Vision", "NLP", "Transformers / BERT", "RAG", "Vision Transformers", "YOLO", "Feature Engineering"] },
-    { group: "Control & Systems", group_fr: "Commande & systèmes", items: ["MPC", "Kalman Filtering", "Control under Uncertainty", "Control Barrier Functions", "Fuzzy Logic", "Optimization", "Microcontrollers", "PLCs", "Power Electronics"] },
-    { group: "Management & Soft", group_fr: "Management & savoir-être", items: ["Project Management", "Agile", "Innovation & Entrepreneurship", "Market Research", "Business Impact Analysis", "Leadership", "Strategic Planning", "Technical Communication", "Teamwork"], items_fr: ["Gestion de projet", "Agile", "Innovation & entrepreneuriat", "Étude de marché", "Analyse d'impact métier", "Leadership", "Planification stratégique", "Communication technique", "Travail d'équipe"] },
+    { group: "Programming", group_fr: "Programmation", abbr: "PRG", rating: 90, items: ["Python", "C / C++", "MATLAB / Simulink", "Java", "Assembly", "Bash", "LaTeX"] },
+    { group: "Robotics & Simulation", group_fr: "Robotique & simulation", abbr: "ROB", rating: 91, items: ["ROS / ROS2", "SLAM", "NVIDIA Isaac Sim / Omniverse", "Webots", "SCANeR studio", "Docker", "Git", "Linux / Unix", "NI LabVIEW"] },
+    { group: "AI & Machine Learning", group_fr: "IA & apprentissage automatique", abbr: "AI", abbr_fr: "IA", rating: 97, items: ["PyTorch", "Keras", "TensorFlow", "OpenCV", "Deep Learning", "Reinforcement Learning", "Computer Vision", "NLP", "Transformers / BERT", "RAG", "Vision Transformers", "YOLO", "Feature Engineering"] },
+    { group: "Control & Systems", group_fr: "Commande & systèmes", abbr: "CTL", abbr_fr: "CMD", rating: 94, items: ["MPC", "Kalman Filtering", "Control under Uncertainty", "Control Barrier Functions", "Fuzzy Logic", "Optimization", "Microcontrollers", "PLCs", "Power Electronics"] },
+    { group: "Management & Soft", group_fr: "Management & savoir-être", abbr: "MGT", rating: 96, items: ["Project Management", "Agile", "Innovation & Entrepreneurship", "Market Research", "Business Impact Analysis", "Leadership", "Strategic Planning", "Technical Communication", "Teamwork"], items_fr: ["Gestion de projet", "Agile", "Innovation & entrepreneuriat", "Étude de marché", "Analyse d'impact métier", "Leadership", "Planification stratégique", "Communication technique", "Travail d'équipe"] },
     { group: "Languages", group_fr: "Langues", link: false, items: ["English (C1, TOEIC 990/990)", "French (professional, C1)", "Arabic (native)"], items_fr: ["Anglais (C1, TOEIC 990/990)", "Français (professionnel, C1)", "Arabe (langue maternelle)"] }
   ]
 };
