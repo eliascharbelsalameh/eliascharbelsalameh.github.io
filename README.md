@@ -1,11 +1,12 @@
-# Elias Charbel Salameh — Portfolio
+# Elias Charbel Salameh · Portfolio
 
 An interactive, filterable **timeline portfolio**. Every role, project, award and
-contribution is one entry on a vertical timeline, and visitors can toggle whole
-categories on/off (Research, Technical, Academic, Project Mgmt, Leadership,
-Volunteering, Community, Awards) or search the whole thing.
+contribution is one entry, shown most important first (or by date), as a grid of
+cards or a compact list. Visitors can toggle whole categories on/off (Research,
+Technical, Academic, Project Mgmt, Leadership, Volunteering, Community, Awards)
+or search the whole thing.
 
-- **No build step, no dependencies.** Plain HTML/CSS/JS — it will keep working untouched for years.
+- **No build step, no dependencies.** Plain HTML/CSS/JS, so it will keep working untouched for years.
 - **Edit one file.** All content lives in [`assets/js/data.js`](assets/js/data.js).
 - **Light & dark mode**, fully responsive (phone / tablet / desktop), and print-friendly.
 
@@ -31,6 +32,7 @@ Only `title`, `start` and `categories` are required. Example:
   location: "City, Country",
   start: "2026-09",            // "YYYY-MM", just "2026", or "upcoming"
   end: "present",              // optional: "YYYY-MM" or "present"
+  importance: 3,               // 1 to 5, 5 = most important (missing = 3)
   kind: "honor",               // icon + map lane: experience | research | education | project |
                                //   leadership | honor | certification | fitness
   categories: ["award"],       // any ids from the `categories` array
@@ -41,12 +43,30 @@ Only `title`, `start` and `categories` are required. Example:
 }
 ```
 
-Entries can belong to several categories — an entry shows whenever **at least one**
-of its categories is enabled. The site sorts everything by date automatically.
+Entries can belong to several categories: an entry shows whenever **at least one**
+of its categories is enabled.
 
-Two or more `highlights` are folded behind a **Show details** button on the card; a
-single bullet stays visible. Visitors can open everything at once with **Expand all**,
-and printing always prints every card unfolded.
+### Order: importance first
+The timeline is sorted by each entry's `importance` (1 to 5, 5 = most important;
+ties go newest first) and grouped into three tiers: **Key work** (5), **Also
+notable** (3 and 4) and **Other activities** (1 and 2). Visitors can switch to
+**Date** order, which brings back the year groups. Change an entry's number to move
+it; nothing else needs editing. Featured entries should be 5.
+
+### Views and the three levels of detail
+Visitors pick **Grid** (cards, two columns; one on phones) or **List** (one compact
+row per entry). Either way each card starts compact: dates, title and organisation.
+
+- **Preview:** resting the mouse on a card for a moment, or reaching its **More**
+  button with the keyboard, shows the summary, the tags and the first two bullets,
+  laid over the cards below so nothing moves. `Esc` dismisses it.
+- **Full details:** clicking **More** (or the card's title area) opens everything:
+  all bullets, image, categories and links.
+- **On touch screens** there is no hover, so the first tap opens the preview in
+  place, with a **Full details** button inside it.
+
+**Expand all** opens every visible card fully, and printing always prints every
+card with its full details.
 
 ### Choose your Highlights
 `featured: true` does two things: it stars the entry in the timeline, and it puts the
@@ -83,12 +103,25 @@ to it, as the Languages group does.
 1. Drop the file into **`assets/images/`** (e.g. `wro2025.jpg`).
 2. Add `image: "assets/images/wro2025.jpg"` to that entry.
 
-If an image path is missing, the card just shows no image — nothing breaks.
+If an image path is missing, the card just shows no image; nothing breaks.
 
 ### Add your profile photo
-Drop a square photo at **`assets/images/profile.jpg`** — it appears automatically
-in the hero. (Until then your initials show.) To use a different path, edit
-`profile.photo` in `data.js`.
+Drop a square photo at **`assets/images/profile.jpg`** and it appears automatically
+in the hero, next to the skills radar. (Until then your initials show.) To use a
+different path, edit `profile.photo` in `data.js`.
+
+### Skills radar and counts
+The hero draws a radar chart of how many skills each group in the `skills` array
+lists, and each group in the Skills section shows its count. Both update by
+themselves when you add or remove skills.
+
+### Contact buttons
+The hero's first button is **Email me** (from `profile.email`), followed by
+LinkedIn and GitHub. The header has a **Contact** button at every width that jumps
+to the contact block at the bottom. `index.html` also carries a small copy of your
+name, role and contact links inside `<noscript>` tags, for visitors and crawlers
+without JavaScript: if you change your email, phone, LinkedIn or role, update
+those few lines in `index.html` too.
 
 ### CV download (off by default)
 The timeline itself is the showcase, so there is no "Download CV" button unless you ask
@@ -100,7 +133,7 @@ cv: "assets/cv-elias-charbel-salameh.pdf",
 ```
 
 A **Download CV** button then appears in the hero and the footer (translated
-automatically). Set it back to `""` to remove them again — no HTML/JS edits either way.
+automatically). Set it back to `""` to remove them again; no HTML/JS edits either way.
 
 ---
 
@@ -123,7 +156,7 @@ python -m http.server 4321
 
 ## 3. Deploy free on GitHub Pages
 
-This gives you a clean URL like **`https://eliascharbelsalameh.github.io`** —
+This gives you a clean URL like **`https://eliascharbelsalameh.github.io`**,
 perfect to put on a CV.
 
 ### One-time setup
@@ -157,7 +190,7 @@ git push
 
 ### Optional: a project repo instead
 If you'd rather keep it in a repo with another name (e.g. `portfolio`), that's
-fine too — Pages will serve it at `https://eliascharbelsalameh.github.io/portfolio/`.
+fine too: Pages will serve it at `https://eliascharbelsalameh.github.io/portfolio/`.
 Use the same Settings → Pages steps.
 
 ### Optional: custom domain
@@ -184,20 +217,24 @@ subset instead of the whole timeline:
 | `…github.io/?present=1` | only what's ongoing |
 | `…github.io/?q=SLAM` | everything matching "SLAM" |
 | `…github.io/?skill=MPC` | the entries where you used MPC |
+| `…github.io/?view=list` | the compact list instead of the grid |
+| `…github.io/?sort=date` | date order (year groups) instead of importance |
 | `…github.io/?lang=fr` | opens in French |
 
-Params combine freely. Opening the plain URL always shows everything.
+Params combine freely. Opening the plain URL always shows everything, in the
+default grid view sorted by importance.
 
 ### Link straight to one entry
 Every card has its own address, `#entry-…`. Clicking a Highlights tile or a bar on the
 map puts it in the address bar, so you can copy it from there. Opening such a link
-scrolls to that card and opens it. The address is made from the English title and
-start date, so **editing an entry's title changes its link**. Add `id: "phd"` to an
-entry in `data.js` to pin it to `#entry-phd` instead.
+scrolls to that card and opens it fully, in whichever order and view the visitor
+has chosen. The address is made from the English title and start date, so
+**editing the words of an entry's title changes its link** (punctuation changes
+don't). Add `id: "phd"` to an entry in `data.js` to pin it to `#entry-phd` instead.
 
 ### Visitor shortcuts
-- **`/`** — jump to the search box; **`Esc`** — clear it.
-- **⌘/Ctrl-click a category chip** — isolate that one category instead of toggling it.
+- **`/`**: jump to the search box; **`Esc`**: close a card preview, or clear the search box.
+- **⌘/Ctrl-click a category chip** (inside **Filters**): isolate that one category instead of toggling it.
 - Search ignores accents, so `compiegne` finds *Compiègne*.
 
 ---

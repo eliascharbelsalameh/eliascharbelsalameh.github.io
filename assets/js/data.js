@@ -1,5 +1,5 @@
 /* =============================================================================
-   PORTFOLIO CONTENT  —  edit THIS file to update your site
+   PORTFOLIO CONTENT: edit THIS file to update your site
    =============================================================================
 
    You do NOT need to touch any HTML/CSS/JS to add experiences or images.
@@ -12,12 +12,12 @@
    edit the fields. Only `title`, `start`, and `categories` are required.
 
    Field reference:
-     title        (string)  Main line, e.g. "R&D Intern — Robotics".
+     title        (string)  Main line, e.g. "R&D Intern, Robotics".
      org          (string)  Company / school / organisation.
      location     (string)  "City, Country".
      start        (string)  "YYYY-MM"  (month is optional: "2025" also works),
-                            or "upcoming" for something that hasn't started yet —
-                            it gets its own group above the dated years.
+                            or "upcoming" for something that hasn't started yet
+                            (it gets its own group above the dated years).
      end          (string)  "YYYY-MM" or "present" (omit for a one-off event).
      kind         (string)  Picks the icon. One of:
                             "experience" | "education" | "project" | "research" |
@@ -28,26 +28,37 @@
                             leadership → Leadership, honor/certification →
                             Awards & certificates; anything in the "personal"
                             category goes to the Personal lane.
+     importance   (number)  1 to 5, 5 = most important. The timeline is sorted
+                            by importance by default (ties: newest first), in
+                            three groups: Key work (5), Also notable (3 and 4)
+                            and Other activities (1 and 2). Visitors can switch
+                            to date order. Missing = 3. Change the numbers
+                            freely; nothing else needs editing.
      categories   (array)   Which filters this entry belongs to. Use any of the
                             ids listed in the `categories` array further down,
                             e.g. ["research","technical"]. An entry shows up
                             whenever AT LEAST ONE of its categories is enabled.
-     summary      (string)  One sentence shown under the title.
-     highlights   (array)   Bullet points (optional). Two or more are folded
-                            behind a "Show details" button; a single one stays
-                            visible.
+     summary      (string)  One sentence, shown in the hover preview and when
+                            the card is opened.
+     highlights   (array)   Bullet points (optional). The first two also appear
+                            in the hover preview; all of them when opened.
      tags         (array)   Small skill/keyword chips (optional).
      links        (array)   [{ label:"GitHub", url:"https://..." }] (optional).
      image        (string)  "assets/images/yourphoto.jpg" (optional). Drop the
-                            file in assets/images/ — if it's missing the card
-                            simply shows no image, nothing breaks.
+                            file in assets/images/. If it's missing, the card
+                            simply shows no image and nothing breaks.
      featured     (boolean) true stars the entry AND shows it as a tile in the
                             Highlights row at the top of the page. Keep it to
-                            about 6 — the row is only useful if it's selective.
+                            about 6: the row is only useful if it's selective.
+                            Featured entries should also get importance 5.
      id           (string)  Optional. Pins the entry's deep-link address
                             (#entry-<id>). Without it, one is made from the
-                            title + start date, so editing the title changes
-                            the link.
+                            title + start date, so editing the title's words
+                            changes the link (punctuation changes don't).
+
+   Each card has three levels of detail: compact (dates, title, organisation),
+   a preview (summary, tags, first two bullets) on hover or keyboard focus,
+   and everything once opened.
 
    ---------------------------------------------------------------------------
    FRENCH TRANSLATION (the EN / FR button)
@@ -57,7 +68,7 @@
      org    / org_fr          highlights / highlights_fr   (array)
      role   / role_fr         tags / tags_fr               (array)
      label  / label_fr        items / items_fr             (array)
-     location / location_fr
+     location / location_fr   group / group_fr
    If a `*_fr` field is missing, the site simply falls back to the English text,
    so nothing breaks if you only translate part of an entry.
 
@@ -67,17 +78,20 @@
    1. Put the image file in  assets/images/   (e.g. wro2025.jpg)
    2. Add  image: "assets/images/wro2025.jpg"  to that entry.
    That's it.
+
+   Style note: the site avoids em dashes. Use a comma, a colon, parentheses
+   or " · " instead.
    ============================================================================= */
 
 window.PORTFOLIO = {
 
   /* ------------------------------------------------------------------ */
-  /*  PROFILE  —  the hero / header section                              */
+  /*  PROFILE: the hero / header section                                 */
   /* ------------------------------------------------------------------ */
   profile: {
     name: "Elias Charbel SALAMEH",
     initials: "ecs",                       // shown if no photo is provided
-    photo: "assets/images/profile.jpg",   // optional — drop a file here to show it
+    photo: "assets/images/profile.jpg",   // optional: drop a file here to show it
     role: "R&D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS",
     role_fr: "Ingénieur R&D chez ADERA · Futur doctorant CIFRE chez Stellantis / IMS",
     tagline: "Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.",
@@ -93,8 +107,8 @@ window.PORTFOLIO = {
       "embarqués intelligents, certifiables et à faible consommation pour l'automobile. " +
       "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
     location: "Bordeaux, France",
-    updated: "2026-11-15",   // "last updated on" date shown in the footer — bump this when you edit the site
-    // Contacts — edit freely. Set any to "" to hide it.
+    updated: "2026-11-16",   // "last updated on" date shown in the footer; bump this when you edit the site
+    // Contacts: edit freely. Set any to "" to hide it.
     email: "esalameh@proton.me",
     phone: "+33 7 83 75 76 69",
     github: "https://github.com/eliascharbelsalameh",
@@ -105,18 +119,18 @@ window.PORTFOLIO = {
     // Punchy numbers shown in the hero band. Add / remove freely.
     stats: [
       { value: "990/990", label: "TOEIC English (C1)", label_fr: "TOEIC anglais (C1)" },
-      { value: "5.0/5.0", label: "Masters GPA — Excellent", label_fr: "Moyenne master — Excellent" },
+      { value: "5.0/5.0", label: "Masters GPA (Excellent)", label_fr: "Moyenne master (Excellent)" },
       { value: "98.4%",   label: "Object Detection mean Average Precision in the BMW vision model", label_fr: "Précision moyenne pondérée de détection d'objets dans le modèle de vision BMW" },
-      { value: "42",      label: "judges led — WRO 2025", label_fr: "juges encadrés — WRO 2025" },
+      { value: "42",      label: "judges led at WRO 2025", label_fr: "juges encadrés à la WRO 2025" },
       { value: "3×",      label: "IEEE Regional Exemplary Awards", label_fr: "prix régionaux d'excellence IEEE" },
-      { value: "$1.5K",   label: "startup grant — Byssus", label_fr: "subvention startup — Byssus" },
-      { value: "3rd",      label: "Huawei ICT Innovation Competition — MECA region", label_fr: "Concours d'innovation Huawei ICT — région MECA" },  
+      { value: "$1.5K",   label: "startup grant for Byssus", label_fr: "subvention startup pour Byssus" },
+      { value: "3rd",      label: "Huawei ICT Innovation Competition, MECA region", label_fr: "Concours d'innovation Huawei ICT, région MECA" },  
       { value: "166 kgs",    label: "Squat 1-rep Personal Record", label_fr: "record personnel squat 1-rep" }
     ]
   },
 
   /* ------------------------------------------------------------------ */
-  /*  CATEGORIES  —  the filter buttons (id, label, colour)              */
+  /*  CATEGORIES: the filter buttons (id, label, colour)                 */
   /*  Add a new category here, then use its `id` in any entry.           */
   /* ------------------------------------------------------------------ */
   categories: [
@@ -132,20 +146,21 @@ window.PORTFOLIO = {
   ],
 
   /* ------------------------------------------------------------------ */
-  /*  TIMELINE  —  your efforts (any order; the site sorts by date)      */
+  /*  TIMELINE: your efforts (any order; the site sorts them)            */
   /* ------------------------------------------------------------------ */
   timeline: [
 
     /* ---- Current / 2026 ------------------------------------------- */
     {
-      title: "IEEE RAS IAB Startups & Entrepreneurship -- volunteer",
-      title_fr: "IEEE RAS IAB Startups & Entrepreneurship -- volontariat",
+      title: "IEEE RAS IAB Startups & Entrepreneurship (volunteer)",
+      title_fr: "IEEE RAS IAB Startups & Entrepreneurship (volontariat)",
       org: "IEEE Robotics and Automation Society",
       org_fr: "IEEE Robotics and Automation Society",
       location: "Remote",
       location_fr: "À distance",
       start: "2026-07", end: "present",
       kind: "leadership",
+      importance: 3,
       categories: ["leadership", "project-management", "volunteering", "community"],
       featured: false,
       summary:
@@ -164,6 +179,7 @@ window.PORTFOLIO = {
       location_fr: "À distance",
       start: "2026-05", end: "2026-07",
       kind: "leadership",
+      importance: 2,
       categories: ["leadership", "volunteering", "community"],
       featured: false,
       summary:
@@ -188,12 +204,13 @@ window.PORTFOLIO = {
       tags_fr: ["Leadership", "Communauté", "Partenariats", "Événements"]
     }
     ,{
-      title: "CIFRE PhD — Mixed AI / Control for Embedded Automotive Algorithms",
-      title_fr: "Doctorat CIFRE — Approches hybrides IA / automatique pour l'automobile embarquée",
+      title: "CIFRE PhD: Mixed AI / Control for Embedded Automotive Algorithms",
+      title_fr: "Doctorat CIFRE : approches hybrides IA / automatique pour l'automobile embarquée",
       org: "Stellantis / IMS Bordeaux",
       location: "Talence, France",
       start: "upcoming",
       kind: "research",
+      importance: 5,
       categories: ["research", "academic", "technical"],
       featured: true,
       summary:
@@ -207,21 +224,22 @@ window.PORTFOLIO = {
       tags: ["CIFRE", "Embedded AI", "Certifiability", "Automotive", "Control Systems"],
       tags_fr: ["CIFRE", "IA embarquée", "Certifiabilité", "Automobile", "Automatique"],
       links: [
-        { label: "IMS — integration lab (CNRS / Univ. Bordeaux / Bordeaux INP)",
-          label_fr: "IMS — laboratoire de l'Intégration du Matériau au Système (CNRS / Univ. Bordeaux / Bordeaux INP)",
+        { label: "IMS, integration lab (CNRS / Univ. Bordeaux / Bordeaux INP)",
+          label_fr: "IMS, laboratoire de l'Intégration du Matériau au Système (CNRS / Univ. Bordeaux / Bordeaux INP)",
           url: "https://www.ims-bordeaux.fr/" },
-        { label: "Stellantis — global automotive manufacturer",
-          label_fr: "Stellantis — constructeur automobile mondial",
+        { label: "Stellantis, global automotive manufacturer",
+          label_fr: "Stellantis, constructeur automobile mondial",
           url: "https://www.stellantis.com/" }
       ]
     }
     ,{
-      title: "R&D Engineer — Embedded AI & Control (CDD)",
-      title_fr: "Ingénieur R&D — IA embarquée & automatique (CDD)",
+      title: "R&D Engineer, Embedded AI & Control (CDD)",
+      title_fr: "Ingénieur R&D, IA embarquée & automatique (CDD)",
       org: "ADERA",
       location: "Bordeaux, France",
       start: "2026-09", end: "present",
       kind: "experience",
+      importance: 5,
       categories: ["research", "technical"],
       featured: false,
       summary:
@@ -231,21 +249,22 @@ window.PORTFOLIO = {
         "Approches hybrides IA / automatique pour la synthèse d'algorithmes embarqués " +
         "intelligents, certifiables et à faible consommation pour l'automobile.",
       highlights: [
-        "Same supervisors and same research project as the upcoming CIFRE doctorate with Stellantis and IMS — the thesis work, started ahead of time."
+        "Same supervisors and same research project as the upcoming CIFRE doctorate with Stellantis and IMS: the thesis work, started ahead of time."
       ],
       highlights_fr: [
-        "Mêmes encadrants et même projet de recherche que le doctorat CIFRE à venir avec Stellantis et l'IMS — les travaux de thèse, engagés en amont."
+        "Mêmes encadrants et même projet de recherche que le doctorat CIFRE à venir avec Stellantis et l'IMS : les travaux de thèse, engagés en amont."
       ],
       tags: ["Embedded AI", "Certifiability", "Automotive", "Energy Efficiency", "Control Systems"],
       tags_fr: ["IA embarquée", "Certifiabilité", "Automobile", "Efficacité énergétique", "Automatique"]
     }
     ,{
-      title: "Teaching Assistant (vacataire) — Linear Systems Dynamics (TP)",
-      title_fr: "Chargé de TP (vacataire) — Dynamique des systèmes linéaires",
+      title: "Teaching Assistant (vacataire), Linear Systems Dynamics (TP)",
+      title_fr: "Chargé de TP (vacataire), dynamique des systèmes linéaires",
       org: "Université de Bordeaux",
       location: "Talence, France",
       start: "2026-09", end: "present",
       kind: "experience",
+      importance: 4,
       categories: ["academic", "technical", "leadership"],
       summary:
         "Leading hands-on lab sessions (TP) for the course “Dynamique des Systèmes Linéaires”.",
@@ -270,17 +289,19 @@ window.PORTFOLIO = {
       org: "Arts Martiaux Pessac Madran",
       start: "2026-10", end: "present",
       kind: "fitness",
+      importance: 2,
       categories: ["personal"],
       tags: ["Judo", "Martial arts", "Discipline"],
       tags_fr: ["Judo", "Arts martiaux", "Discipline"]
     }
     ,{
-      title: "R&D Intern — Robotics & Intelligent Systems",
-      title_fr: "Stagiaire R&D — Robotique & systèmes intelligents",
+      title: "R&D Intern, Robotics & Intelligent Systems",
+      title_fr: "Stagiaire R&D, robotique & systèmes intelligents",
       org: "OpenLab Stellantis–IMS–SANPSY",
       location: "Bordeaux, France",
       start: "2026-02", end: "2026-07",
       kind: "experience",
+      importance: 5,
       categories: ["research", "technical","academic"],
       featured: true,
       summary:
@@ -307,11 +328,12 @@ window.PORTFOLIO = {
     {
       title: "Cooperative Control of 6 Robots in Rendezvous",
       title_fr: "Commande coopérative de 6 robots en rendez-vous",
-      org: "UTC — Control of Autonomous Cooperative Robots",
-      org_fr: "UTC — Commande de robots coopératifs autonomes",
+      org: "UTC, Control of Autonomous Cooperative Robots",
+      org_fr: "UTC, Commande de robots coopératifs autonomes",
       location: "Compiègne, France",
       start: "2025-11", end: "2026-01",
       kind: "project",
+      importance: 4,
       categories: ["research", "technical", "academic"],
       summary: "Designed a distributed control scheme driving six robots to a common rendezvous.",
       summary_fr: "Conception d'une commande distribuée amenant six robots à un rendez-vous commun.",
@@ -327,14 +349,15 @@ window.PORTFOLIO = {
       tags_fr: ["Commande multi-agents", "Consensus", "Robotique coopérative"]
     },
     {
-      title: "RISE for Collaboration — Research Program",
-      title_fr: "RISE for Collaboration — programme de recherche",
+      title: "RISE for Collaboration: Research Program",
+      title_fr: "RISE for Collaboration : programme de recherche",
       org: "RISE",
       location: "Remote",
       location_fr: "À distance",
       start: "2026-04",
       end: "2026-05",
       kind: "certification",
+      importance: 2,
       categories: ["research"],
       summary: "Completed for the RISE for Collaboration research program.",
       summary_fr: "Programme de recherche RISE for Collaboration validé."
@@ -342,16 +365,17 @@ window.PORTFOLIO = {
 
     /* ---- 2025 ------------------------------------------------------ */
     {
-      title: "M.Sc. — Complex Systems Eng.: Automation & Robotics of Intelligent Systems",
-      title_fr: "M2 — Ingénierie des systèmes complexes : Automatique & Robotique des Systèmes Intelligents",
+      title: "M.Sc. · Complex Systems Eng.: Automation & Robotics of Intelligent Systems",
+      title_fr: "M2 · Ingénierie des systèmes complexes : Automatique & Robotique des Systèmes Intelligents",
       org: "Université de Technologie de Compiègne (UTC)",
       location: "Compiègne, France",
       start: "2025-09", end: "2026-09",
       kind: "education",
+      importance: 5,
       categories: ["academic", "research"],
       featured: true,
-      summary: "Double-degree M2 with USEK — GPA 5.0/5.0, highest honors. Research-project lead.",
-      summary_fr: "Double diplôme M2 avec l'USEK — moyenne 5,0/5,0, félicitations du jury. Responsable de projet de recherche.",
+      summary: "Double-degree M2 with USEK, GPA 5.0/5.0, highest honors. Research-project lead.",
+      summary_fr: "Double diplôme M2 avec l'USEK, moyenne 5,0/5,0, félicitations du jury. Responsable de projet de recherche.",
       highlights: [
         "Leading a research project on Hyperdimensional Computing applied to neuromorphic vision.",
         "Coursework: advanced control of dynamic systems, control of cooperative autonomous robots, estimation for robotic navigation, robotic vision, systems-of-systems, modeling & propagation of uncertainty, optimization, biomimicry."
@@ -366,48 +390,51 @@ window.PORTFOLIO = {
     {
       title: "Hyperdimensional Computing for Neuromorphic Vision",
       title_fr: "Calcul hyperdimensionnel pour la vision neuromorphique",
-      org: "UTC — Research Project (lead)",
-      org_fr: "UTC — Projet de recherche (responsable)",
+      org: "UTC, Research Project (lead)",
+      org_fr: "UTC, projet de recherche (responsable)",
       location: "Compiègne, France",
       start: "2025-09", end: "2026-01",
       kind: "research",
+      importance: 4,
       categories: ["research", "academic"],
       featured: false,
       summary: "Leading research into hyperdimensional computing applied to event-based / neuromorphic vision.",
       summary_fr: "Pilotage d'une recherche sur le calcul hyperdimensionnel appliqué à la vision évènementielle / neuromorphique.",
       highlights: [
         "Investigating HDC representations for spatio-temporal, event-based vision.",
-        "Project lead — scoping, literature, and experimental direction."
+        "Project lead: scoping, literature, and experimental direction."
       ],
       highlights_fr: [
         "Étude des représentations HDC pour la vision évènementielle spatio-temporelle.",
-        "Responsable du projet — cadrage, état de l'art et orientation expérimentale."
+        "Responsable du projet : cadrage, état de l'art et orientation expérimentale."
       ],
       tags: ["Hyperdimensional Computing", "Neuromorphic Vision", "Event-based Vision"],
       tags_fr: ["Calcul hyperdimensionnel", "Vision neuromorphique", "Vision évènementielle"]
     },
     {
-      title: "FORSA — French Government Excellence Scholarship",
-      title_fr: "FORSA — bourse d'excellence du gouvernement français",
+      title: "FORSA: French Government Excellence Scholarship",
+      title_fr: "FORSA : bourse d'excellence du gouvernement français",
       org: "French Government",
       org_fr: "Gouvernement français",
       location: "France",
       start: "2025-08", end: "2026-08",
       kind: "honor",
+      importance: 4,
       categories: ["award", "academic"],
       featured: false,
       summary: "Awarded the competitive FORSA excellence scholarship for graduate study in France.",
       summary_fr: "Lauréat de la bourse d'excellence compétitive FORSA pour des études supérieures en France."
     },
     {
-      title: "Head of Judges — World Robot Olympiad (WRO) Lebanon 2025",
-      title_fr: "Responsable des juges — World Robot Olympiad (WRO) Liban 2025",
-      org: "World Robot Olympiad — Lebanon",
-      org_fr: "World Robot Olympiad — Liban",
+      title: "Head of Judges, World Robot Olympiad (WRO) Lebanon 2025",
+      title_fr: "Responsable des juges, World Robot Olympiad (WRO) Liban 2025",
+      org: "World Robot Olympiad Lebanon",
+      org_fr: "World Robot Olympiad Liban",
       location: "Lebanon",
       location_fr: "Liban",
       start: "2025-07",
       kind: "leadership",
+      importance: 5,
       categories: ["leadership", "volunteering", "community"],
       featured: true,
       summary: "Led and coordinated 42 judges across all categories of the national robotics olympiad.",
@@ -424,14 +451,15 @@ window.PORTFOLIO = {
       tags_fr: ["Jugement", "Direction d'événement", "Robotique"]
     },
     {
-      title: "Final Year Project — SLAM on Unitree AlienGo",
-      title_fr: "Projet de fin d'études — SLAM sur Unitree AlienGo",
-      org: "USEK — Robotics Department",
-      org_fr: "USEK — Département de robotique",
+      title: "Final Year Project: SLAM on Unitree AlienGo",
+      title_fr: "Projet de fin d'études : SLAM sur Unitree AlienGo",
+      org: "USEK, Robotics Department",
+      org_fr: "USEK, Département de robotique",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2025-02", end: "2025-05",
       kind: "project",
+      importance: 5,
       categories: ["research", "technical", "academic"],
       featured: true,
       summary: "Studied and implemented a SLAM pipeline for autonomous navigation of a quadruped robot.",
@@ -448,26 +476,27 @@ window.PORTFOLIO = {
       tags_fr: ["SLAM", "ROS1", "LiDAR 3D", "RealSense D435i", "Quadrupède"]
     },
     {
-      title: "Machine Learning & Computer Vision — Intern",
-      title_fr: "Apprentissage automatique & vision par ordinateur — stagiaire",
+      title: "Machine Learning & Computer Vision Intern",
+      title_fr: "Stagiaire en apprentissage automatique & vision par ordinateur",
       org: "inmind.ai academy",
       location: "Mkalles, Lebanon",
       location_fr: "Mkalles, Liban",
       start: "2025-02", end: "2025-03",
       kind: "experience",
+      importance: 5,
       categories: ["technical", "research"],
       featured: true,
       summary: "Built an end-to-end computer-vision pipeline for BMW factory inference (98.4% mAP).",
       summary_fr: "Conception d'une chaîne de vision par ordinateur de bout en bout pour l'inspection en usine BMW (98,4 % mAP).",
       highlights: [
         "Designed an end-to-end CV pipeline for BMW assembly-line item detection with YOLOv5 (mAP[0.5–0.95] = 98.4%).",
-        "Across the track, worked the modern AI stack — Transformers/BERT, RAG, CNNs, point clouds and Vision Transformers.",
+        "Across the track, worked the modern AI stack: Transformers/BERT, RAG, CNNs, point clouds and Vision Transformers.",
         "Stack: PyTorch, Python, Docker / Docker-Compose, Git, NVIDIA Omniverse; synthetic data, CI/CD, FastAPI, containerization.",
         "Got offered an interview with the BMW technical team based on the program performance, but decided to proceed with a Robotics/Control Systems Specialization in UTC since they had conflicting timelines."
       ],
       highlights_fr: [
         "Conception d'une chaîne CV de bout en bout pour la détection de pièces sur ligne d'assemblage BMW avec YOLOv5 (mAP[0,5–0,95] = 98,4 %).",
-        "Tout au long du parcours, utilisation de la pile IA moderne — Transformers/BERT, RAG, CNN, nuages de points et Vision Transformers.",
+        "Tout au long du parcours, utilisation de la pile IA moderne : Transformers/BERT, RAG, CNN, nuages de points et Vision Transformers.",
         "Outils : PyTorch, Python, Docker / Docker-Compose, Git, NVIDIA Omniverse ; données synthétiques, CI/CD, FastAPI, conteneurisation.",
         "Entretien proposé avec l'équipe technique BMW grâce aux résultats du programme, mais choix de poursuivre une spécialisation Robotique/Systèmes de commande à l'UTC en raison de calendriers incompatibles."
       ],
@@ -476,14 +505,15 @@ window.PORTFOLIO = {
       links: [{ label: "Source code on request", label_fr: "Code source sur demande", url: "#contact" }]
     },
     {
-      title: "ROS2 Workshop — IC2AI'25",
-      title_fr: "Atelier ROS2 — IC2AI'25",
-      org: "IEEE Lebanon — Joint Chapter RA/IM/CS",
-      org_fr: "IEEE Liban — Chapitre conjoint RA/IM/CS",
+      title: "ROS2 Workshop (IC2AI'25)",
+      title_fr: "Atelier ROS2 (IC2AI'25)",
+      org: "IEEE Lebanon, Joint Chapter RA/IM/CS",
+      org_fr: "IEEE Liban, Chapitre conjoint RA/IM/CS",
       location: "Lebanon",
       location_fr: "Liban",
       start: "2025-02",
       kind: "certification",
+      importance: 2,
       categories: ["technical"],
       summary: "Hands-on ROS2 training at the IC2AI'25 workshop.",
       summary_fr: "Formation pratique ROS2 lors de l'atelier IC2AI'25."
@@ -494,8 +524,9 @@ window.PORTFOLIO = {
       org: "Coursera",
       location: "Online",
       location_fr: "En ligne",
-      start: "2025",            // approximate date — set the real month in data.js if you have it
+      start: "2025",            // approximate date: set the real month here if you have it
       kind: "certification",
+      importance: 1,
       categories: ["research", "technical"],
       summary: "Applying AI to research workflows and insight generation.",
       summary_fr: "Application de l'IA aux workflows de recherche et à la production d'analyses."
@@ -506,8 +537,9 @@ window.PORTFOLIO = {
       org: "Coursera",
       location: "Online",
       location_fr: "En ligne",
-      start: "2025",            // approximate date — set the real month in data.js if you have it
+      start: "2025",            // approximate date: set the real month here if you have it
       kind: "certification",
+      importance: 1,
       categories: ["technical"],
       summary: "Foundations of artificial intelligence and core ML concepts.",
       summary_fr: "Bases de l'intelligence artificielle et concepts clés du machine learning."
@@ -515,13 +547,14 @@ window.PORTFOLIO = {
 
     /* ---- 2024 ------------------------------------------------------ */
     {
-      title: "Co-founder — Byssus (textile-waste recycling)",
-      title_fr: "Cofondateur — Byssus (recyclage de déchets textiles)",
+      title: "Co-founder, Byssus (textile-waste recycling)",
+      title_fr: "Cofondateur, Byssus (recyclage de déchets textiles)",
       org: "Byssus",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2024-06", end: "present",
       kind: "experience",
+      importance: 4,
       categories: ["project-management", "leadership", "technical"],
       featured: false,
       summary: "Co-founded a textile-waste recycling startup; won a $1,500 prototyping grant.",
@@ -538,13 +571,14 @@ window.PORTFOLIO = {
       tags_fr: ["Entrepreneuriat", "Automatisation", "Prototypage", "Développement durable"]
     },
     {
-      title: "Huawei ICT Innovation Competition — 3rd place, MECA region",
-      title_fr: "Huawei ICT Innovation Competition — 3e place, région MECA",
+      title: "Huawei ICT Innovation Competition: 3rd place, MECA region",
+      title_fr: "Huawei ICT Innovation Competition : 3e place, région MECA",
       org: "Huawei",
       location: "MECA Region",
       location_fr: "Région MECA",
       start: "2024-09", end: "2024-12",
       kind: "honor",
+      importance: 4,
       categories: ["award", "technical", "research"],
       featured: false,
       summary: "Placed 3rd in the MECA region of the Huawei ICT Innovation Competition.",
@@ -553,13 +587,14 @@ window.PORTFOLIO = {
       tags_fr: ["Innovation", "Concours"]
     },
     {
-      title: "Seeds for the Future — MECA Program",
-      title_fr: "Seeds for the Future — programme MECA",
+      title: "Seeds for the Future: MECA Program",
+      title_fr: "Seeds for the Future : programme MECA",
       org: "Huawei",
       location: "Uzbekistan / MECA",
       location_fr: "Ouzbékistan / MECA",
       start: "2024-08",
       kind: "certification",
+      importance: 3,
       categories: ["community", "technical", "leadership"],
       summary: "Selected for Huawei's flagship MECA talent program; Tech4Good pitch team.",
       summary_fr: "Sélectionné pour le programme phare de talents MECA de Huawei ; équipe de pitch Tech4Good.",
@@ -574,6 +609,7 @@ window.PORTFOLIO = {
       location_fr: "Liban",
       start: "2024-06",end: "2024-07",
       kind: "certification",
+      importance: 2,
       categories: ["technical"],
       summary: "Intensive bootcamp in AI, machine learning and deep learning.",
       summary_fr: "Bootcamp intensif en IA, apprentissage automatique et apprentissage profond.",
@@ -581,13 +617,14 @@ window.PORTFOLIO = {
       tags_fr: ["IA", "Apprentissage automatique", "Apprentissage profond"]
     },
     {
-      title: "Telecommunications Intern — RAN Capacity",
-      title_fr: "Stagiaire télécommunications — capacité RAN",
+      title: "Telecommunications Intern, RAN Capacity",
+      title_fr: "Stagiaire télécommunications, capacité RAN",
       org: "Alfa Telecommunications",
       location: "Dekwaneh, Lebanon",
       location_fr: "Dekwaneh, Liban",
       start: "2024-07", end: "2024-08",
       kind: "experience",
+      importance: 3,
       categories: ["technical"],
       summary: "Optimised and managed Radio Access Network (RAN) capacity for a national telecom operator.",
       summary_fr: "Optimisation et gestion de la capacité du réseau d'accès radio (RAN) pour un opérateur télécom national.",
@@ -611,14 +648,15 @@ window.PORTFOLIO = {
       location_fr: "Liban",
       start: "2024-03",
       kind: "project",
+      importance: 3,
       categories: ["technical"],
       summary: "Built a two-wheeled self-balancing robot as a base for humanoid / rover work.",
       summary_fr: "Construction d'un robot auto-équilibré à deux roues comme base pour des travaux humanoïdes / rover.",
       highlights: [
-        "Designed and built a two-wheel self-balancing robot — a foundation for more advanced platforms (humanoid, rover)."
+        "Designed and built a two-wheel self-balancing robot, a foundation for more advanced platforms (humanoid, rover)."
       ],
       highlights_fr: [
-        "Conception et construction d'un robot auto-équilibré à deux roues — base pour des plateformes plus avancées (humanoïde, rover)."
+        "Conception et construction d'un robot auto-équilibré à deux roues, base pour des plateformes plus avancées (humanoïde, rover)."
       ],
       tags: ["Control", "Embedded", "Robotics"],
       tags_fr: ["Commande", "Embarqué", "Robotique"],
@@ -627,11 +665,12 @@ window.PORTFOLIO = {
     {
       title: "Martial-Arts Assistant on Pepper (HRI)",
       title_fr: "Assistant d'arts martiaux sur Pepper (IHR)",
-      org: "USEK — GIN456",
+      org: "USEK (GIN456)",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2024-09", end: "2025-01",
       kind: "project",
+      importance: 3,
       categories: ["technical", "research", "academic"],
       summary: "Built a martial-arts assistant on the Pepper social robot, focused on human-robot interaction.",
       summary_fr: "Développement d'un assistant d'arts martiaux sur le robot social Pepper, axé sur l'interaction homme-robot.",
@@ -656,6 +695,7 @@ window.PORTFOLIO = {
       location_fr: "Liban",
       start: "2024-08",
       kind: "project",
+      importance: 3,
       categories: ["technical"],
       summary: "Led development of a RAG chatbot web app built with Streamlit.",
       summary_fr: "Pilotage du développement d'une application web de chatbot RAG construite avec Streamlit.",
@@ -664,14 +704,15 @@ window.PORTFOLIO = {
       links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/Chatbot_RAG_Webapp" }]
     },
     {
-      title: "Emotion Analysis — NLP Classifier",
-      title_fr: "Analyse des émotions — classifieur TALN",
+      title: "Emotion Analysis: NLP Classifier",
+      title_fr: "Analyse des émotions : classifieur TALN",
       org: "Personal Project",
       org_fr: "Projet personnel",
       location: "Lebanon",
       location_fr: "Liban",
       start: "2025-03",
       kind: "project",
+      importance: 2,
       categories: ["technical"],
       summary: "Built an NLP classifier for categorical emotion prediction.",
       summary_fr: "Développement d'un classifieur TALN pour la prédiction d'émotions catégorielles.",
@@ -680,30 +721,31 @@ window.PORTFOLIO = {
       links: [{ label: "GitHub", url: "https://github.com/eliascharbelsalameh/emotion_analysis" }]
     },
     {
-      title: "AI Model Portfolio — Vision & Regression",
-      title_fr: "Portfolio de modèles IA — vision & régression",
+      title: "AI Model Portfolio: Vision & Regression",
+      title_fr: "Portfolio de modèles IA : vision & régression",
       org: "Academic USEK Projects",
       org_fr: "Projets académiques USEK",
       location: "Lebanon",
       location_fr: "Liban",
       start: "2024-09", end: "2025-05",
       kind: "project",
+      importance: 3,
       categories: ["technical"],
       summary: "A set of from-scratch ML models: image classification, regression and medical diagnosis. All the below projects are part of my Machine Learning and Deep Learning coursework at USEK, where I implemented each model from scratch (no pre-trained weights or transfer learning) to deepen my understanding of the underlying algorithms and architectures. The datasets are either public or in the github repositories.",
       summary_fr: "Un ensemble de modèles de ML développés de zéro : classification d'images, régression et diagnostic médical. Tous ces projets s'inscrivent dans mes cours d'apprentissage automatique et profond à l'USEK, où j'ai implémenté chaque modèle de zéro (sans poids pré-entraînés ni apprentissage par transfert) afin d'approfondir ma compréhension des algorithmes et architectures sous-jacents. Les jeux de données sont publics ou disponibles dans les dépôts GitHub.",
       highlights: [
-        "Fashion-MNIST — MLP/CNN/ANN implemented from scratch (99.61%).",
-        "Animals-10 — multi-class image classifier (92%).",
-        "Cats vs Dogs — binary image classifier (95%).",
-        "Breast-cancer diagnosis — classifier up to 99% accuracy.",
-        "Function approximation — regression with MSE 0.0006."
+        "Fashion-MNIST: MLP/CNN/ANN implemented from scratch (99.61%).",
+        "Animals-10: multi-class image classifier (92%).",
+        "Cats vs Dogs: binary image classifier (95%).",
+        "Breast-cancer diagnosis: classifier up to 99% accuracy.",
+        "Function approximation: regression with MSE 0.0006."
       ],
       highlights_fr: [
-        "Fashion-MNIST — MLP/CNN/ANN implémentés de zéro (99,61 %).",
-        "Animals-10 — classifieur d'images multi-classes (92 %).",
-        "Chats vs Chiens — classifieur d'images binaire (95 %).",
-        "Diagnostic du cancer du sein — classifieur jusqu'à 99 % de précision.",
-        "Approximation de fonction — régression avec MSE 0,0006."
+        "Fashion-MNIST : MLP/CNN/ANN implémentés de zéro (99,61 %).",
+        "Animals-10 : classifieur d'images multi-classes (92 %).",
+        "Chats vs Chiens : classifieur d'images binaire (95 %).",
+        "Diagnostic du cancer du sein : classifieur jusqu'à 99 % de précision.",
+        "Approximation de fonction : régression avec MSE 0,0006."
       ],
       tags: ["CNN", "Classification", "Regression", "Keras"],
       tags_fr: ["CNN", "Classification", "Régression", "Keras"],
@@ -715,13 +757,14 @@ window.PORTFOLIO = {
         { label: "Function Approx.", url: "https://github.com/eliascharbelsalameh/Function_Approximation-AI" }
       ]
     },{
-      title: "Chair — IEEE USEK Student Branch",
-      title_fr: "Président — IEEE USEK Student Branch",
+      title: "Chair, IEEE USEK Student Branch",
+      title_fr: "Président, IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2024-12", end: "2025-07",
       kind: "leadership",
+      importance: 4,
       categories: ["leadership", "volunteering", "community"],
       featured: false,
       summary: "Led the branch to an IEEE Regional Exemplary Student Branch Awards (2025).",
@@ -744,12 +787,13 @@ window.PORTFOLIO = {
     {
       title: "Teaching & Research Assistant",
       title_fr: "Assistant d'enseignement et de recherche",
-      org: "USEK — Electrical & Electronics Eng.",
-      org_fr: "USEK — Génie électrique & électronique",
+      org: "USEK, Electrical & Electronics Eng.",
+      org_fr: "USEK, Génie électrique & électronique",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2023-09", end: "2025-06",
       kind: "experience",
+      importance: 4,
       categories: ["academic", "technical", "leadership"],
       summary: "Supported labs and built automated grading workflows for 40+ students each semester.",
       summary_fr: "Encadrement de TP et mise en place de workflows de notation automatisés pour plus de 40 étudiants par semestre.",
@@ -774,6 +818,7 @@ window.PORTFOLIO = {
       location_fr: "Liban",
       start: "2023-06",
       kind: "certification",
+      importance: 2,
       categories: ["technical"],
       summary: "Certified in the design and installation of residential solar photovoltaic systems.",
       summary_fr: "Certifié pour la conception et l'installation de systèmes photovoltaïques solaires résidentiels.",
@@ -788,15 +833,16 @@ window.PORTFOLIO = {
       location_fr: "Hazmieh, Liban",
       start: "2023-08",
       kind: "experience",
+      importance: 3,
       categories: ["technical"],
       summary: "Helped design the electrical system for a water-treatment plant (Cabinda Angola Refinery).",
       summary_fr: "Participation à la conception du système électrique d'une station de traitement des eaux (raffinerie de Cabinda, Angola).",
       highlights: [
-        "EPB design — wiring diagrams and layouts from P&ID; cable-tray routing and schedules.",
+        "EPB design: wiring diagrams and layouts from P&ID; cable-tray routing and schedules.",
         "Prepared work orders, instrumentation and PLC I/O lists; exposure to power electrical, automation (PLC) and panel-board design."
       ],
       highlights_fr: [
-        "Conception EPB — schémas de câblage et implantations à partir des P&ID ; cheminement et nomenclatures des chemins de câbles.",
+        "Conception EPB : schémas de câblage et implantations à partir des P&ID ; cheminement et nomenclatures des chemins de câbles.",
         "Préparation des ordres de travail, des listes d'instrumentation et d'E/S d'automate ; exposition à l'électricité de puissance, à l'automatisation (API) et à la conception d'armoires."
       ],
       tags: ["Electrical Design", "PLC", "Automation", "P&ID"],
@@ -810,18 +856,20 @@ window.PORTFOLIO = {
       location_fr: "Liban",
       start: "2023-10", end: "2023-12",
       kind: "certification",
+      importance: 2,
       categories: ["leadership", "community"],
       summary: "Completed a structured leadership-development program.",
       summary_fr: "Programme structuré de développement du leadership validé."
     },
     {
-      title: "Vice Chair — IEEE USEK Student Branch",
-      title_fr: "Vice-président — IEEE USEK Student Branch",
+      title: "Vice Chair, IEEE USEK Student Branch",
+      title_fr: "Vice-président, IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2023-12", end: "2024-12",
       kind: "leadership",
+      importance: 3,
       categories: ["leadership", "volunteering", "community"],
       featured: false,
       summary: "Participated in the organization of the IEEE Student Branch.",
@@ -829,13 +877,13 @@ window.PORTFOLIO = {
       highlights: [
         "Co-Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.",
         "Branch the IEEE Regional Exemplary Student Branch Award of 2024.",
-        "Ambassador for IEEE Day 2024 and IEEEXtreme 17.0 — coordinated 50 students and a $745 budget across a two-day event.",
+        "Ambassador for IEEE Day 2024 and IEEEXtreme 17.0: coordinated 50 students and a $745 budget across a two-day event.",
         "Technical Ambassador at Zaka AI, delivering AI sessions."
       ],
       highlights_fr: [
         "Codirection d'une équipe pluridisciplinaire ; création de liens industrie–université avec IEEE Liban, Zaka AI, Semicolon, LebThree et EXEO.",
         "L'antenne a remporté le Prix régional IEEE d'antenne étudiante exemplaire 2024.",
-        "Ambassadeur pour l'IEEE Day 2024 et IEEEXtreme 17.0 — coordination de 50 étudiants et d'un budget de 745 $ sur un événement de deux jours.",
+        "Ambassadeur pour l'IEEE Day 2024 et IEEEXtreme 17.0 : coordination de 50 étudiants et d'un budget de 745 $ sur un événement de deux jours.",
         "Ambassadeur technique chez Zaka AI, animation de sessions IA."
       ],
       tags: ["Leadership", "Community", "Partnerships", "Events"],
@@ -844,13 +892,14 @@ window.PORTFOLIO = {
 
     /* ---- 2022 ------------------------------------------------------ */
     {
-      title: "Treasurer — IEEE USEK Student Branch",
-      title_fr: "Trésorier — IEEE USEK Student Branch",
+      title: "Treasurer, IEEE USEK Student Branch",
+      title_fr: "Trésorier, IEEE USEK Student Branch",
       org: "IEEE",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2022-12", end: "2023-12",
       kind: "leadership",
+      importance: 3,
       categories: ["leadership", "volunteering", "community"],
       featured: false,
       summary: "Helped the branch to the IEEE Regional Exemplary Student Branch Awards of 2023.",
@@ -875,24 +924,25 @@ window.PORTFOLIO = {
 
     /* ---- 2021 ------------------------------------------------------ */
     {
-      title: "B.E. — Electrical & Electronics Engineering",
-      title_fr: "Diplôme d'ingénieur — Génie électrique & électronique",
+      title: "B.E., Electrical & Electronics Engineering",
+      title_fr: "Diplôme d'ingénieur, génie électrique & électronique",
       org: "Holy Spirit University of Kaslik (USEK)",
       location: "Jounieh, Lebanon",
       location_fr: "Jounieh, Liban",
       start: "2021-09", end: "2026-08",
       featured: false,
       kind: "education",
+      importance: 4,
       categories: ["academic"],
-      summary: "Bachelor of Engineering, double-degree with UTC — GPA 93.34/100, High Distinction.",
-      summary_fr: "Diplôme d'ingénieur, double diplôme avec l'UTC — moyenne 93,34/100, mention très bien.",
+      summary: "Bachelor of Engineering, double-degree with UTC (GPA 93.34/100, High Distinction).",
+      summary_fr: "Diplôme d'ingénieur, double diplôme avec l'UTC (moyenne 93,34/100, mention très bien).",
       highlights: [
-        "GPA 93.34/100 — High Distinction (≈ 18.7/20).",
+        "GPA 93.34/100, High Distinction (≈ 18.7/20).",
         "Coursework in control, automation, AI, plus project management, agile methodology and innovation & entrepreneurship.",
         "USEK Merit Scholarship across the full program (2021–2026)."
       ],
       highlights_fr: [
-        "Moyenne 93,34/100 — mention très bien (≈ 18,7/20).",
+        "Moyenne 93,34/100, mention très bien (≈ 18,7/20).",
         "Cours en commande, automatisation, IA, ainsi que gestion de projet, méthode agile et innovation & entrepreneuriat.",
         "Bourse au mérite USEK sur l'ensemble du cursus (2021–2026)."
       ],
@@ -902,65 +952,70 @@ window.PORTFOLIO = {
 
     /* ---- 2006 ------------------------------------------------------ */
     {
-      title: "French & Lebanese Double Baccalaureate — General Sciences",
-      title_fr: "Double baccalauréat franco-libanais — sciences générales",
-      org: "Collège Saint Joseph Antoura (CSJA) — AEFE",
+      title: "French & Lebanese Double Baccalaureate: General Sciences",
+      title_fr: "Double baccalauréat franco-libanais : sciences générales",
+      org: "Collège Saint Joseph Antoura (CSJA), AEFE",
       location: "Antoura, Lebanon",
       location_fr: "Antoura, Liban",
       start: "2006-09", end: "2021-06",
       kind: "education",
+      importance: 2,
       categories: ["academic"],
-      summary: "AEFE double baccalaureate in general sciences — 16.23/20, highest honors.",
-      summary_fr: "Double baccalauréat AEFE en sciences générales — 16,23/20, félicitations du jury."
+      summary: "AEFE double baccalaureate in general sciences: 16.23/20, highest honors.",
+      summary_fr: "Double baccalauréat AEFE en sciences générales : 16,23/20, félicitations du jury."
     },
 
-    /* ---- Personal / Athletics (dates below are PLACEHOLDERS — set the real ones) ---- */
+    /* ---- Personal / Athletics (dates below are PLACEHOLDERS: set the real ones) ---- */
     {
-      title: "Back Squat — 166 kg (1-rep-max PR)",
-      title_fr: "Squat arrière — 166 kg (record max sur 1 rép.)",
+      title: "Back Squat: 166 kg (1-rep-max PR)",
+      title_fr: "Squat arrière : 166 kg (record max sur 1 rép.)",
       org: "Strength training",
       org_fr: "Musculation",
-      start: "2023-11",            // PLACEHOLDER — set the real date
+      start: "2023-11",            // PLACEHOLDER: set the real date
       kind: "fitness",
+      importance: 2,
       categories: ["personal"],
-      summary: "Hit a 166 kg back-squat — a one-rep-max personal record.",
-      summary_fr: "Squat arrière à 166 kg — record personnel sur une répétition.",
+      summary: "Hit a 166 kg back-squat, a one-rep-max personal record.",
+      summary_fr: "Squat arrière à 166 kg, record personnel sur une répétition.",
       tags: ["Strength", "Powerlifting", "166 kg"],
       tags_fr: ["Force", "Powerlifting", "166 kg"]
     },
     {
-      title: "Back Squat — 140 kg x 5",
-      title_fr: "Squat arrière — 140 kg × 5",
+      title: "Back Squat: 140 kg x 5",
+      title_fr: "Squat arrière : 140 kg × 5",
       org: "Strength training",
       org_fr: "Musculation",
-      start: "2024-02",            // PLACEHOLDER — set the real date
+      start: "2024-02",            // PLACEHOLDER: set the real date
       kind: "fitness",
+      importance: 1,
       categories: ["personal"],
-      summary: "Hit a 140 kg back-squat — a five-rep-max personal record.",
-      summary_fr: "Squat arrière à 140 kg — record personnel sur cinq répétitions.",
+      summary: "Hit a 140 kg back-squat, a five-rep-max personal record.",
+      summary_fr: "Squat arrière à 140 kg, record personnel sur cinq répétitions.",
       tags: ["Strength", "Powerlifting", "140 kg"],
       tags_fr: ["Force", "Powerlifting", "140 kg"]
     },
     {
-      title: "Deadlift — 180 kg (1-rep-max PR)",
-      title_fr: "Soulevé de terre — 180 kg (record max sur 1 rép.)",
+      title: "Deadlift: 180 kg (1-rep-max PR)",
+      title_fr: "Soulevé de terre : 180 kg (record max sur 1 rép.)",
       org: "Strength training",
       org_fr: "Musculation",
-      start: "2025-06",            // PLACEHOLDER — set the real date
+      start: "2025-06",            // PLACEHOLDER: set the real date
       kind: "fitness",
+      importance: 1,
       categories: ["personal"],
-      summary: "Hit a 180 kg deadlift — a one-rep-max personal record.",
-      summary_fr: "Soulevé de terre à 180 kg — record personnel sur une répétition.",
+      summary: "Hit a 180 kg deadlift, a one-rep-max personal record.",
+      summary_fr: "Soulevé de terre à 180 kg, record personnel sur une répétition.",
       tags: ["Strength", "Powerlifting", "180 kg"],
       tags_fr: ["Force", "Powerlifting", "180 kg"]
     },
     {
-      title: "Bench Press — 120 kg × 2",
-      title_fr: "Développé couché — 120 kg × 2",
+      title: "Bench Press: 120 kg × 2",
+      title_fr: "Développé couché : 120 kg × 2",
       org: "Strength training",
       org_fr: "Musculation",
-      start: "2023-09",            // PLACEHOLDER — set the real date
+      start: "2023-09",            // PLACEHOLDER: set the real date
       kind: "fitness",
+      importance: 1,
       categories: ["personal"],
       summary: "Benched 120 kg for 2 reps.",
       summary_fr: "Développé couché à 120 kg sur 2 répétitions.",
@@ -972,50 +1027,54 @@ window.PORTFOLIO = {
       title_fr: "Course de 8 km terminée",
       org: "Running",
       org_fr: "Course à pied",
-      start: "2021-11",            // PLACEHOLDER — set the real date
+      start: "2021-11",            // PLACEHOLDER: set the real date
       kind: "fitness",
+      importance: 1,
       categories: ["personal"],
-      summary: "Finished an 8K road run — endurance goal completed.",
-      summary_fr: "Course sur route de 8 km terminée — objectif d'endurance atteint.",
+      summary: "Finished an 8K road run: endurance goal completed.",
+      summary_fr: "Course sur route de 8 km terminée : objectif d'endurance atteint.",
       tags: ["Running", "Endurance", "8K"],
       tags_fr: ["Course à pied", "Endurance", "8 km"]
     },
     {
-      title: "Reading — \"Rich Dad Poor Dad\" by Robert Kiyosaki",
-      title_fr: "Lecture — « Rich Dad Poor Dad » de Robert Kiyosaki",
+      title: "Reading: \"Rich Dad Poor Dad\" by Robert Kiyosaki",
+      title_fr: "Lecture : « Rich Dad Poor Dad » de Robert Kiyosaki",
       org: "Reading",
       org_fr: "Lecture",
       start: "2026-03",end: "2026-04",
       kind: "education",
+      importance: 1,
       categories: ["personal"],
-      summary: "Finished reading Rich Dad Poor Dad — personal finance and investing mindset.",
-      summary_fr: "Lecture terminée de « Rich Dad Poor Dad » — état d'esprit finance personnelle et investissement.",
+      summary: "Finished reading Rich Dad Poor Dad: personal finance and investing mindset.",
+      summary_fr: "Lecture terminée de « Rich Dad Poor Dad » : état d'esprit finance personnelle et investissement.",
       tags: ["Reading", "Personal Finance"],
       tags_fr: ["Lecture", "Finance personnelle"]
     },
     {
-      title: "Reading — \"Mastery\" by Robert Greene",
-      title_fr: "Lecture — « Mastery » de Robert Greene",
+      title: "Reading: \"Mastery\" by Robert Greene",
+      title_fr: "Lecture : « Mastery » de Robert Greene",
       org: "Reading",
       org_fr: "Lecture",
       start: "2026-04", end: "present",
       kind: "education",
+      importance: 1,
       categories: ["personal"],
-      summary: "Better understanding the level of \"Mastery\" — on the path from apprenticeship to expertise.",
-      summary_fr: "Mieux comprendre le niveau de « maîtrise » — sur le chemin de l'apprenti à l'expert.",
+      summary: "Better understanding the level of \"Mastery\", on the path from apprenticeship to expertise.",
+      summary_fr: "Mieux comprendre le niveau de « maîtrise », sur le chemin de l'apprenti à l'expert.",
       tags: ["Reading", "Self-development"],
       tags_fr: ["Lecture", "Développement personnel"]
     },
     {
-      title: "Reading — \"The Prince\" by Nicolo Machiavelli",
-      title_fr: "Lecture — « The Prince » de Nicolo Machiavelli",
+      title: "Reading: \"The Prince\" by Nicolo Machiavelli",
+      title_fr: "Lecture : « The Prince » de Nicolo Machiavelli",
       org: "Reading",
       org_fr: "Lecture",
       start: "2026-06", end: "present",
       kind: "education",
+      importance: 1,
       categories: ["personal"],
-      summary: "The Prince by Machiavelli — classic on power, strategy and leadership.",
-      summary_fr: "« The Prince » de Nicolo Machiavelli — classique sur le pouvoir, la stratégie et le leadership.",
+      summary: "The Prince by Machiavelli, a classic on power, strategy and leadership.",
+      summary_fr: "« The Prince » de Nicolo Machiavelli, un classique sur le pouvoir, la stratégie et le leadership.",
       tags: ["Reading", "Self-development"],
       tags_fr: ["Lecture", "Développement personnel"]
     },
@@ -1026,16 +1085,17 @@ window.PORTFOLIO = {
       org_fr: "Échecs",
       start: "2025-06",
       kind: "project",
+      importance: 1,
       categories: ["personal"],
-      summary: "Took up chess — strategy, pattern recognition and endgame practice.",
-      summary_fr: "Initiation aux échecs — stratégie, reconnaissance de schémas et pratique des finales.",
+      summary: "Took up chess: strategy, pattern recognition and endgame practice.",
+      summary_fr: "Initiation aux échecs : stratégie, reconnaissance de schémas et pratique des finales.",
       tags: ["Chess", "Strategy"],
       tags_fr: ["Échecs", "Stratégie"]
     }
   ],
 
   /* ------------------------------------------------------------------ */
-  /*  SKILLS  —  grouped chips shown in the Skills section               */
+  /*  SKILLS: grouped chips shown in the Skills section                  */
   /* ------------------------------------------------------------------ */
   skills: [
     { group: "Programming", group_fr: "Programmation", items: ["Python", "C / C++", "MATLAB / Simulink", "Java", "Assembly", "Bash", "LaTeX"] },
@@ -1043,6 +1103,6 @@ window.PORTFOLIO = {
     { group: "AI & Machine Learning", group_fr: "IA & apprentissage automatique", items: ["PyTorch", "Keras", "TensorFlow", "OpenCV", "Deep Learning", "Reinforcement Learning", "Computer Vision", "NLP", "Transformers / BERT", "RAG", "Vision Transformers", "YOLO", "Feature Engineering"] },
     { group: "Control & Systems", group_fr: "Commande & systèmes", items: ["MPC", "Kalman Filtering", "Control under Uncertainty", "Control Barrier Functions", "Fuzzy Logic", "Optimization", "Microcontrollers", "PLCs", "Power Electronics"] },
     { group: "Management & Soft", group_fr: "Management & savoir-être", items: ["Project Management", "Agile", "Innovation & Entrepreneurship", "Market Research", "Business Impact Analysis", "Leadership", "Strategic Planning", "Technical Communication", "Teamwork"], items_fr: ["Gestion de projet", "Agile", "Innovation & entrepreneuriat", "Étude de marché", "Analyse d'impact métier", "Leadership", "Planification stratégique", "Communication technique", "Travail d'équipe"] },
-    { group: "Languages", group_fr: "Langues", link: false, items: ["English — C1 (TOEIC 990/990)", "French — Professional (C1)", "Arabic — Native"], items_fr: ["Anglais — C1 (TOEIC 990/990)", "Français — professionnel (C1)", "Arabe — langue maternelle"] }
+    { group: "Languages", group_fr: "Langues", link: false, items: ["English (C1, TOEIC 990/990)", "French (professional, C1)", "Arabic (native)"], items_fr: ["Anglais (C1, TOEIC 990/990)", "Français (professionnel, C1)", "Arabe (langue maternelle)"] }
   ]
 };

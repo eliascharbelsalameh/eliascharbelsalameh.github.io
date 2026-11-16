@@ -1,90 +1,108 @@
 /* =============================================================================
    Portfolio renderer + filtering.
    Reads window.PORTFOLIO (assets/js/data.js) and builds the page.
-   You normally never need to edit this file — change content in data.js.
+   You normally never need to edit this file: change content in data.js.
    ============================================================================= */
 (function () {
   "use strict";
   var DATA = window.PORTFOLIO;
-  if (!DATA) { console.error("PORTFOLIO data not found — check assets/js/data.js"); return; }
+  if (!DATA) { console.error("PORTFOLIO data not found: check assets/js/data.js"); return; }
 
   /* ------------------------------- i18n ----------------------------------- */
   /* UI strings. Content (timeline / profile / skills) is translated in data.js
-     via parallel `*_fr` fields — see tf() below. */
+     via parallel `*_fr` fields (see tf() below). */
   var I18N = {
     en: {
-      nav_about: "About", nav_highlights: "Highlights", nav_timeline: "Timeline", nav_skills: "Skills", nav_contact: "Contact",
+      nav_about: "About", nav_highlights: "Highlights", nav_timeline: "Timeline", nav_skills: "Skills",
+      nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Skip to timeline",
+      lang_switch: "FR, switch to French",
+      email_me: "Email me", explore: "Explore the timeline", cv: "Download CV", stats_label: "Key figures",
+      radar_title: "Skills per category", radar_caption: "Number of listed skills per category",
       hl_h: "Highlights",
-      hl_sub: "The work I'd show first — open one to see it in context in the timeline.",
-      hl_open: "View in timeline", hl_star: "Highlight",
+      hl_sub: "The work I'd show first. Open one to see it in context in the timeline.",
+      hl_open: "View in timeline", hl_star: "In Highlights",
       map_h: "At a glance",
-      map_hint: "Each bar is an entry below — click one to open it.",
+      map_hint: "Each bar is an entry below. Select one to open it.",
       map_today: "Today",
       lanes: { work: "Work & research", education: "Education", projects: "Projects",
                leadership: "Leadership", awards: "Awards & certificates", personal: "Personal" },
-      details_show: "Show details", details_hide: "Hide details",
+      more: "More", less: "Less", full: "Full details",
       expand_all: "Expand all", collapse_all: "Collapse all",
       skill_chip: function (s) { return "Skill: " + s; },
-      skill_clear: "Clear the skill filter",
+      skill_clear: "clear the filter", skill_clear_title: "Clear the skill filter",
       skill_show: function (n, s) { return n === 1 ? "Show the entry that uses " + s : "Show the " + n + " entries that use " + s; },
+      skills_word: "skills",
       timeline_h: "Timeline of efforts",
-      timeline_sub: "Every role, project, award and contribution — filter the view to whatever you care about.",
-      search_ph: "Search roles, tech, organisations…",
+      timeline_sub: "Every role, project, award and contribution. Filter, sort or switch the view to whatever you care about.",
+      controls_label: "Filter the timeline",
+      search_label: "Search the timeline (roles, tech, organisations)", search_ph: "Search",
+      filters: "Filters", filters_active: "active",
+      sort_label: "Sort by", sort_importance: "Importance", sort_date: "Date",
+      view_label: "View", view_grid: "Grid view", view_list: "List view",
+      quick_label: "Quick filters", cats_label: "Categories",
+      tiers: { key: "Key work", notable: "Also notable", other: "Other activities" },
       all: "All", none: "None", reset: "Reset",
-      featured_only: "Featured", present_only: "Ongoing",
-      filters_hint: "Click a category to show or hide it",
+      featured_only: "Highlights", present_only: "Ongoing",
+      filters_hint: "Select a category to show or hide it",
       skills_h: "Skills & toolbox",
-      skills_sub: "Technologies and methods used across the work above — the highlighted ones show where they were used.",
+      skills_sub: "Technologies and methods used across the work above. Select a highlighted one to see where it was used.",
       contact_h: "Contact",
-      explore: "Explore the timeline",
-      cv: "Download CV",
       empty: "No entries match your filters.", empty_reset: "Reset filters",
-      present: "Present", now: "Now",
+      present: "Present", now: "Ongoing",
       upcoming: "Upcoming",
       to_top: "Back to top",
       theme_toggle: "Toggle dark / light",
-      footer_built: "Built as a living timeline — last updated on",
+      footer_built: "Built as a living timeline, last updated on",
       months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
       shown: function (a, b) { return a + " of " + b + " shown"; }
     },
     fr: {
-      nav_about: "Profil", nav_highlights: "Points forts", nav_timeline: "Parcours", nav_skills: "Compétences", nav_contact: "Contact",
+      nav_about: "Profil", nav_highlights: "Points forts", nav_timeline: "Parcours", nav_skills: "Compétences",
+      nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Aller au parcours",
+      lang_switch: "EN, passer en anglais",
+      email_me: "M'écrire", explore: "Explorer le parcours", cv: "Télécharger le CV", stats_label: "Chiffres clés",
+      radar_title: "Compétences par catégorie", radar_caption: "Nombre de compétences listées par catégorie",
       hl_h: "Points forts",
-      hl_sub: "Les travaux à voir en premier — ouvrez-en un pour le retrouver dans le parcours.",
-      hl_open: "Voir dans le parcours", hl_star: "Point fort",
+      hl_sub: "Les travaux à voir en premier. Ouvrez-en un pour le retrouver dans le parcours.",
+      hl_open: "Voir dans le parcours", hl_star: "Dans les points forts",
       map_h: "En un coup d'œil",
-      map_hint: "Chaque barre est une entrée ci-dessous — cliquez pour l'ouvrir.",
+      map_hint: "Chaque barre est une entrée ci-dessous. Sélectionnez-en une pour l'ouvrir.",
       map_today: "Aujourd'hui",
       lanes: { work: "Travail & recherche", education: "Formation", projects: "Projets",
                leadership: "Leadership", awards: "Prix & certificats", personal: "Personnel" },
-      details_show: "Voir le détail", details_hide: "Masquer le détail",
+      more: "Plus", less: "Moins", full: "Tout le détail",
       expand_all: "Tout déplier", collapse_all: "Tout replier",
-      skill_chip: function (s) { return "Compétence : " + s; },
-      skill_clear: "Retirer le filtre de compétence",
+      skill_chip: function (s) { return "Compétence : " + s; },
+      skill_clear: "retirer le filtre", skill_clear_title: "Retirer le filtre de compétence",
       skill_show: function (n, s) { return n === 1 ? "Voir l'entrée qui utilise " + s : "Voir les " + n + " entrées qui utilisent " + s; },
+      skills_word: "compétences",
       timeline_h: "Parcours et réalisations",
-      timeline_sub: "Chaque poste, projet, distinction et contribution — filtrez l'affichage selon vos intérêts.",
-      search_ph: "Rechercher postes, technologies, organisations…",
+      timeline_sub: "Chaque poste, projet, distinction et contribution. Filtrez, triez ou changez d'affichage selon vos intérêts.",
+      controls_label: "Filtrer le parcours",
+      search_label: "Rechercher dans le parcours (postes, technologies, organisations)", search_ph: "Rechercher",
+      filters: "Filtres", filters_active: "actifs",
+      sort_label: "Trier par", sort_importance: "Importance", sort_date: "Date",
+      view_label: "Affichage", view_grid: "Vue grille", view_list: "Vue liste",
+      quick_label: "Filtres rapides", cats_label: "Catégories",
+      tiers: { key: "Travaux clés", notable: "Également notables", other: "Autres activités" },
       all: "Tout", none: "Aucun", reset: "Réinitialiser",
-      featured_only: "En vedette", present_only: "En cours",
-      filters_hint: "Cliquez sur une catégorie pour l'afficher ou la masquer",
+      featured_only: "Points forts", present_only: "En cours",
+      filters_hint: "Sélectionnez une catégorie pour l'afficher ou la masquer",
       skills_h: "Compétences & outils",
-      skills_sub: "Technologies et méthodes utilisées dans les travaux ci-dessus — celles mises en évidence renvoient aux entrées où elles ont servi.",
+      skills_sub: "Technologies et méthodes utilisées dans les travaux ci-dessus. Sélectionnez une compétence mise en évidence pour voir où elle a servi.",
       contact_h: "Contact",
-      explore: "Explorer le parcours",
-      cv: "Télécharger le CV",
       empty: "Aucune entrée ne correspond à vos filtres.", empty_reset: "Réinitialiser les filtres",
       present: "Présent", now: "En cours",
       upcoming: "À venir",
       to_top: "Haut de page",
       theme_toggle: "Basculer clair / sombre",
-      footer_built: "Conçu comme une frise vivante — dernière mise à jour le",
+      footer_built: "Conçu comme une frise vivante, dernière mise à jour le",
       months: ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
       shown: function (a, b) { return a + " sur " + b + " affichées"; }
     }
   };
 
-  /* URL query state — lets a filtered view be bookmarked and shared.
+  /* URL query state: lets a filtered view be bookmarked and shared.
      Read once here because `lang` in the URL wins over the saved preference. */
   var URLQ = (function () {
     var out = {}, s = location.search.replace(/^\?/, "");
@@ -128,6 +146,17 @@
     for (i = 2; i < arguments.length; i++) append(e, arguments[i]);
     return e;
   }
+  /* the same for SVG elements, which need their namespace (used by the radar) */
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function s(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag), i, k;
+    attrs = attrs || {};
+    for (k in attrs) {
+      if (Object.prototype.hasOwnProperty.call(attrs, k) && attrs[k] != null) e.setAttribute(k, attrs[k]);
+    }
+    for (i = 2; i < arguments.length; i++) append(e, arguments[i]);
+    return e;
+  }
   function append(e, kid) {
     if (kid == null || kid === false) return;
     if (Array.isArray(kid)) { kid.forEach(function (k) { append(e, k); }); return; }
@@ -140,7 +169,7 @@
   /* lowercase + strip accents, so "compiegne" finds "Compiègne" */
   function norm(s) {
     s = String(s == null ? "" : s).toLowerCase();
-    return s.normalize ? s.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : s;
+    return s.normalize ? s.normalize("NFD").replace(/[̀-ͯ]/g, "") : s;
   }
 
   function fmt(d) {
@@ -157,7 +186,7 @@
     var p = String(d).split("-");
     return (+p[0]) * 12 + (p[1] ? +p[1] : 6);
   }
-  /* Group key for the year heading — "upcoming" gets its own group instead of a year. */
+  /* Group key for the year heading: "upcoming" gets its own group instead of a year. */
   function startYear(it) {
     if (it.start === "upcoming") return "upcoming";
     return parseInt(String(it.start || "0").split("-")[0], 10);
@@ -165,6 +194,13 @@
   function dateRange(it) { return it.end ? fmt(it.start) + " – " + fmt(it.end) : fmt(it.start); }
   /* months since year 0; a bare year sits mid-year, as in key() */
   function monthIdx(d) { var p = String(d).split("-"); return (+p[0]) * 12 + (p[1] ? +p[1] - 1 : 5); }
+  /* newest first; for the same start, the one that ends later first */
+  function byDateIt(a, b) {
+    return (key(b.start) - key(a.start)) || (key(b.end || b.start) - key(a.end || a.start));
+  }
+  /* `importance` 1..5 from data.js (5 = most important); missing or invalid = 3 */
+  function imp(it) { var v = +it.importance; return v >= 1 && v <= 5 ? Math.round(v) : 3; }
+  function tierOf(it) { var v = imp(it); return v >= 5 ? "key" : v >= 3 ? "notable" : "other"; }
 
   /* Stable id per entry for #entry-… deep links. Derived from the English title
      and start date so it survives a language switch; an entry can pin its own
@@ -267,13 +303,14 @@
         else el.textContent = T[k];
       });
     });
-    // the button shows the language you'd switch TO
-    var label = $("#lang-label");
+    // the button shows the language you'd switch TO; its name starts with that text
+    var label = $("#lang-label"), btn = $("#lang-toggle");
     if (label) label.textContent = LANG === "fr" ? "EN" : "FR";
+    if (btn) { btn.setAttribute("aria-label", T.lang_switch); btn.title = T.lang_switch; }
   }
 
-  /* Swap language in place — no reload, so scroll position and the current
-     filter selection survive. */
+  /* Swap language in place (no reload), so scroll position, the current
+     filter selection, the view, the sort and the opened cards survive. */
   function setLang(next) {
     if (next === LANG) return;
     LANG = next;
@@ -281,17 +318,21 @@
     try { localStorage.setItem("lang", LANG); } catch (e) {}
 
     var saved = readState();
-    var openIds = records.filter(function (r) { return r.open; }).map(function (r) { return r.id; });
+    var levels = {};
+    records.forEach(function (r) { if (r.level) levels[r.id] = r.level; });
+    hidePeek();
     hideTip();
+    closeMenu();
     applyStaticStrings();
-    [$("#hero-cta"), $("#hero-stats"), $("#footer-links"), $("#filters"), $("#timeline-list"),
+    [$("#hero-cta"), $("#hero-stats"), $("#hero-radar"), $("#footer-links"), $("#filters"), $("#timeline-list"),
      $("#highlights-grid"), $("#map-inner"), $("#skills-grid")].forEach(empty);
     records = [];
     groupEls = [];
+    ordered = [];
     recordById = {};
     renderAll();
     writeState(saved);
-    openIds.forEach(function (id) { setOpen(recordById[id], true); });
+    Object.keys(levels).forEach(function (id) { setLevel(recordById[id], levels[id]); });
     applyFilters();
     revealAll();          // already-visible content shouldn't re-animate
   }
@@ -299,6 +340,29 @@
     applyStaticStrings();
     var btn = $("#lang-toggle");
     if (btn) btn.addEventListener("click", function () { setLang(LANG === "fr" ? "en" : "fr"); });
+  }
+
+  /* ------------------------------- HEADER --------------------------------- */
+  /* On phones the section links live in a drop-down behind #menu-toggle. */
+  function closeMenu() {
+    var hd = $(".site-header"), b = $("#menu-toggle");
+    if (hd) hd.classList.remove("menu-open");
+    if (b) b.setAttribute("aria-expanded", "false");
+  }
+  function menuOpen() { var hd = $(".site-header"); return !!hd && hd.classList.contains("menu-open"); }
+  function initMenu() {
+    var b = $("#menu-toggle"), hd = $(".site-header"), nav = $("#site-nav");
+    if (!b || !hd || !nav) return;
+    b.addEventListener("click", function () {
+      var open = !menuOpen();
+      hd.classList.toggle("menu-open", open);
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) { var first = nav.querySelector("a"); if (first) first.focus(); }
+    });
+    nav.addEventListener("click", function (ev) { if (ev.target.closest("a")) closeMenu(); });
+    document.addEventListener("click", function (ev) {
+      if (menuOpen() && !ev.target.closest("#site-nav") && !ev.target.closest("#menu-toggle")) closeMenu();
+    });
   }
 
   /* ------------------------------- HERO ----------------------------------- */
@@ -331,11 +395,15 @@
       img.src = p.photo;
     }
 
-    // hero CTA
+    // calls to action: get in touch first, the timeline second
     var cta = $("#hero-cta");
-    cta.appendChild(h("a", { class: "btn btn-primary", href: "#timeline", html: T.explore + " " + SOCIAL.arrow }));
-    if (p.cv) cta.appendChild(iconLink("btn btn-ghost", p.cv, SOCIAL.cv, T.cv, true));
-    if (p.github) cta.appendChild(iconLink("btn btn-ghost", p.github, SOCIAL.github, "GitHub", true));
+    empty(cta);   // drops the <noscript> fallback
+    if (p.email)    cta.appendChild(iconLink("btn btn-primary", "mailto:" + p.email, SOCIAL.mail, T.email_me));
+    if (p.linkedin) cta.appendChild(iconLink("btn btn-ghost", p.linkedin, SOCIAL.linkedin, "LinkedIn", true));
+    if (p.github)   cta.appendChild(iconLink("btn btn-ghost", p.github, SOCIAL.github, "GitHub", true));
+    if (p.cv)       cta.appendChild(iconLink("btn btn-ghost", p.cv, SOCIAL.cv, T.cv, true));
+    cta.appendChild(h("a", { class: "hero-explore", href: "#timeline" },
+      T.explore, h("span", { class: "hero-explore-ico", html: SOCIAL.arrow })));
 
     // stats
     var stats = $("#hero-stats");
@@ -345,6 +413,7 @@
 
     // footer
     var fl = $("#footer-links");
+    empty(fl);
     if (p.email)    fl.appendChild(iconLink("btn btn-ghost", "mailto:" + p.email, SOCIAL.mail, p.email));
     if (p.linkedin) fl.appendChild(iconLink("btn btn-ghost", p.linkedin, SOCIAL.linkedin, "LinkedIn", true));
     if (p.github)   fl.appendChild(iconLink("btn btn-ghost", p.github, SOCIAL.github, "GitHub", true));
@@ -361,8 +430,66 @@
     $("#footer-date").textContent = updated;
   }
 
+  /* -------------------------------- RADAR --------------------------------- */
+  /* Hand-built SVG radar of how many skills each group in data.js lists.
+     Styled from CSS (classes .rd-*), so it follows the theme. */
+  function wrapWords(text, max) {
+    var lines = [], cur = "";
+    String(text).split(/\s+/).forEach(function (w) {
+      if (cur && (cur + " " + w).length > max) { lines.push(cur); cur = w; }
+      else cur = cur ? cur + " " + w : w;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function renderRadar() {
+    var fig = $("#hero-radar");
+    if (!fig) return;
+    empty(fig);
+    var groups = (DATA.skills || []).filter(function (g) { return (g.items || []).length; });
+    fig.hidden = groups.length < 3;
+    if (fig.hidden) return;
+
+    var W = 360, H = 300, cx = 180, cy = 150, R = 78, n = groups.length, LH = 14.5;
+    var counts = groups.map(function (g) { return g.items.length; });
+    var top = Math.max(5, Math.ceil(Math.max.apply(null, counts) / 5) * 5);
+    function ang(i) { return -Math.PI / 2 + i * 2 * Math.PI / n; }
+    function pt(i, r) { return [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))]; }
+    function pts(rad) { return groups.map(function (g, i) { return pt(i, rad(i)).map(function (v) { return v.toFixed(1); }).join(","); }).join(" "); }
+
+    var desc = groups.map(function (g, i) { return tf(g, "group") + ": " + counts[i]; }).join(", ");
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-labelledby": "radar-title radar-desc" },
+      s("title", { id: "radar-title" }, T.radar_title),
+      s("desc", { id: "radar-desc" }, desc));
+    [1 / 3, 2 / 3, 1].forEach(function (f) { svg.appendChild(s("polygon", { class: "rd-ring", points: pts(function () { return R * f; }) })); });
+    groups.forEach(function (g, i) {
+      var e = pt(i, R);
+      svg.appendChild(s("line", { class: "rd-axis", x1: cx, y1: cy, x2: e[0].toFixed(1), y2: e[1].toFixed(1) }));
+    });
+    function valR(i) { return R * counts[i] / top; }
+    svg.appendChild(s("polygon", { class: "rd-area", points: pts(valR) }));
+    groups.forEach(function (g, i) {
+      var p = pt(i, valR(i));
+      svg.appendChild(s("circle", { class: "rd-dot", cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.4 }));
+    });
+    // labels outside the rim: group name (wrapped) and its count
+    groups.forEach(function (g, i) {
+      var p = pt(i, R + 14), c = Math.cos(ang(i)), sn = Math.sin(ang(i));
+      var anchor = Math.abs(c) < 0.2 ? "middle" : (c > 0 ? "start" : "end");
+      var lines = wrapWords(tf(g, "group"), 14), total = lines.length + 1;
+      var y0 = sn < -0.5 ? p[1] - 4 - (total - 1) * LH : sn > 0.5 ? p[1] + 12 : p[1] - (total - 1) * LH / 2 + 4;
+      var x = p[0].toFixed(1);
+      var text = s("text", { class: "rd-label", x: x, y: y0.toFixed(1), "text-anchor": anchor });
+      lines.forEach(function (ln, k) { text.appendChild(s("tspan", { x: x, dy: k ? LH : null }, ln)); });
+      text.appendChild(s("tspan", { x: x, dy: LH, class: "rd-value" }, String(counts[i])));
+      svg.appendChild(text);
+    });
+    fig.appendChild(svg);
+    fig.appendChild(h("figcaption", {}, T.radar_caption));
+  }
+
   /* ------------------------------ FILTERS --------------------------------- */
-  /* how many timeline entries each category holds — shown on the chip */
+  /* how many timeline entries each category holds, shown on the chip */
   var CAT_COUNTS = (function () {
     var n = {};
     (DATA.timeline || []).forEach(function (it) {
@@ -395,11 +522,36 @@
         h("span", { class: "count" }, String(CAT_COUNTS[c.id] || 0))));
     });
   }
+  function setPanel(open) {
+    var p = $("#filters-panel"), b = $("#filters-toggle");
+    if (!p || !b) return;
+    p.hidden = !open;
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+    syncJumpOffset();
+  }
+  /* the number on the Filters button: categories switched off + quick filters on */
+  function updateFilterCount() {
+    var b = $("#filters-count");
+    if (!b) return;
+    var n = $$("#filters .chip").filter(function (c) { return c.getAttribute("aria-pressed") !== "true"; }).length +
+            (pressed("#only-featured") ? 1 : 0) + (pressed("#only-present") ? 1 : 0);
+    empty(b);
+    b.hidden = !n;
+    if (n) { append(b, String(n)); b.appendChild(h("span", { class: "sr-only" }, " " + T.filters_active)); }
+  }
 
   /* ------------------------------ TIMELINE -------------------------------- */
-  var records = [];     // one per entry, in timeline order — see renderTimeline()
-  var groupEls = [];    // { section, items:[el,...] }
+  /* records is the hub: one per entry (in date order, newest first), holding
+     its card element, its level of detail, its map mark and its search text.
+     `ordered` is the same records in the order currently shown. */
+  var records = [];
+  var groupEls = [];    // { section, items:[el,...], body, pill }
+  var ordered = [];
   var recordById = {};  // entry id → record
+  var VIEW = "grid";    // "grid" | "list"
+  var SORT = "importance";   // "importance" | "date"
+  var PREVIEW_BULLETS = 2;   // bullets shown in the preview; the rest only when opened
+  var PEEK_DELAY = 320;      // ms of hovering before the preview appears
 
   function searchText(it) {
     var parts = [tf(it, "title"), tf(it, "org"), tf(it, "location"), tf(it, "summary")]
@@ -408,6 +560,10 @@
     return norm(parts.join(" "));
   }
 
+  /* Three levels per card: 0 compact (dates, title, organisation), 1 preview
+     (summary, tags, the first bullets), 2 full (everything). The preview also
+     shows, laid over the cards below, while a mouse rests on a compact card
+     or the keyboard focuses its "More" button (see initPeek). */
   function buildCard(it, rec) {
     var color = catColor((it.categories || [])[0]);
     var ongoing = it.end === "present";
@@ -415,125 +571,246 @@
     var loc = tf(it, "location");
     var summary = tf(it, "summary");
     var highlights = tf(it, "highlights") || [];
-    var tags = tf(it, "tags");
+    var tags = tf(it, "tags") || [];
+    var detailsId = rec.id + "-details";
 
-    var head = h("div", {},
+    var head = h("div", { class: "tl-head" },
       h("span", { class: "tl-date" }, dateRange(it), ongoing ? h("span", { class: "tl-now" }, T.now) : null),
-      h("h3", { class: "tl-title" },
-        tf(it, "title"),
-        it.featured ? h("span", { class: "tl-star", title: T.hl_star }, "★") : null),
-      h("div", { class: "tl-org" },
-        tf(it, "org") || "",
-        loc ? [h("span", { class: "sep" }, " · "), h("span", { class: "tl-loc" }, loc)] : null)
-    );
+      h("div", { class: "tl-main" },
+        h("h3", { class: "tl-title" },
+          tf(it, "title"),
+          it.featured ? h("span", { class: "tl-star", role: "img", "aria-label": T.hl_star, title: T.hl_star }, "★") : null),
+        h("div", { class: "tl-org" },
+          tf(it, "org") || "",
+          loc ? [h("span", { class: "sep" }, " · "), h("span", { class: "tl-loc" }, loc)] : null)));
 
-    var card = h("div", { class: "tl-card" }, head);
-
-    if (summary) card.appendChild(h("p", { class: "tl-summary" }, summary));
+    rec.toggle = h("button", { class: "tl-more", type: "button", "aria-expanded": "false", "aria-controls": detailsId },
+      h("span", { class: "tl-more-label" }, T.more), h("span", { class: "tl-more-ico", html: CHEVRON }));
 
     var bullets = highlights.length
-      ? h("ul", { class: "tl-highlights" }, highlights.map(function (x) { return h("li", {}, x); }))
+      ? h("ul", { class: "tl-highlights" }, highlights.map(function (x, i) {
+          return h("li", { class: i >= PREVIEW_BULLETS ? "tl-x" : null }, x);
+        }))
       : null;
     var im = null;
     if (it.image) {
-      im = h("img", { class: "tl-img", src: it.image, alt: tf(it, "title") || "", loading: "lazy" });
+      im = h("img", { class: "tl-img tl-x", src: it.image, alt: tf(it, "title") || "", loading: "lazy" });
       im.addEventListener("error", function () { im.remove(); }); // missing image → just hide it
     }
+    var cats = (it.categories || []).length
+      ? h("div", { class: "tl-cats tl-x" }, it.categories.map(function (cid) {
+          return h("span", { class: "tl-cat", style: "--c:" + catColor(cid) }, h("span", { class: "d" }), catLabel(cid));
+        }))
+      : null;
+    var links = (it.links || []).length
+      ? h("div", { class: "tl-links tl-x" }, it.links.map(function (l) {
+          // "#…" links jump within the page, so they stay in this tab
+          return iconLink("tl-link", l.url, linkIcon(l), tf(l, "label") || l.url, String(l.url).charAt(0) !== "#");
+        }))
+      : null;
+    rec.full = h("button", { class: "tl-full", type: "button" }, T.full);
+    rec.details = h("div", { class: "tl-details", id: detailsId },
+      summary ? h("p", { class: "tl-summary" }, summary) : null,
+      bullets,
+      tags.length ? h("div", { class: "tl-tags" }, tags.map(function (t) { return h("span", { class: "tl-tag" }, t); })) : null,
+      im, cats, links, rec.full);
 
-    // Bullets and images sit behind a toggle so 40+ cards stay scannable. A lone
-    // bullet isn't worth a click, so it stays inline.
-    if (highlights.length > 1 || im) {
-      var detailsId = rec.id + "-details";
-      rec.details = h("div", { class: "tl-details", id: detailsId, hidden: "" }, bullets, im);
-      rec.toggle = h("button", {
-        class: "tl-more", type: "button", "aria-expanded": "false", "aria-controls": detailsId,
-        onclick: function () { setOpen(rec, !rec.open); updateExpandAll(); }
-      }, h("span", { class: "tl-more-label" }, T.details_show), h("span", { class: "tl-more-ico", html: CHEVRON }));
-      rec.detailText = norm(highlights.join(" "));
-      card.appendChild(rec.toggle);
-      card.appendChild(rec.details);
-    } else if (bullets) {
-      card.appendChild(bullets);
-    }
+    rec.compactText = norm([tf(it, "title"), tf(it, "org"), loc].join(" "));
+    rec.detailText = norm([summary].concat(highlights, tags, (it.categories || []).map(catLabel),
+      (it.links || []).map(function (l) { return tf(l, "label"); })).join(" "));
 
-    if (tags && tags.length) {
-      card.appendChild(h("div", { class: "tl-tags" }, tags.map(function (t) { return h("span", { class: "tl-tag" }, t); })));
-    }
-
-    if (it.categories && it.categories.length) {
-      card.appendChild(h("div", { class: "tl-cats" }, it.categories.map(function (cid) {
-        return h("span", { class: "tl-cat", style: "--c:" + catColor(cid) }, h("span", { class: "d" }), catLabel(cid));
-      })));
-    }
-
-    if (it.links && it.links.length) {
-      card.appendChild(h("div", { class: "tl-links" }, it.links.map(function (l) {
-        // "#…" links jump within the page, so they stay in this tab
-        return iconLink("tl-link", l.url, linkIcon(l), tf(l, "label") || l.url, String(l.url).charAt(0) !== "#");
-      })));
-    }
-
+    var card = h("div", { class: "tl-card" }, head, rec.toggle, rec.details);
     var marker = h("div", { class: "tl-marker", html: icon(it.kind) });
     // tabindex lets a jump from a highlight tile or the map move keyboard focus here
-    rec.el = h("div", { class: "tl-item reveal", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
+    rec.el = h("div", { class: "tl-item reveal lvl-0", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
     return rec.el;
   }
 
-  function setOpen(r, open) {
-    if (!r || !r.details) return;
-    r.open = !!open;
-    r.details.hidden = !r.open;
-    r.toggle.setAttribute("aria-expanded", r.open ? "true" : "false");
-    r.toggle.querySelector(".tl-more-label").textContent = r.open ? T.details_hide : T.details_show;
+  function setLevel(r, level) {
+    if (!r || !r.el) return;
+    level = Math.max(0, Math.min(2, level | 0));
+    r.level = level;
+    r.el.classList.remove("lvl-0", "lvl-1", "lvl-2");
+    r.el.classList.add("lvl-" + level);
+    r.toggle.setAttribute("aria-expanded", level > 0 ? "true" : "false");
+    r.toggle.querySelector(".tl-more-label").textContent = level > 0 ? T.less : T.more;
+    if (level > 0 && peekRec === r) hidePeek();
+  }
+  /* "More" / a click on the card head: mouse and keyboard go straight to full
+     details; a touch tap opens the preview first, with "Full details" inside. */
+  function toggleCard(r, touch) {
+    hidePeek();
+    setLevel(r, r.level > 0 ? 0 : (touch ? 1 : 2));
+    updateExpandAll();
   }
   /* "Expand all" acts on the cards currently visible, and flips to "Collapse all"
-     once they're all open. */
+     once they're all fully open. */
   function updateExpandAll() {
     var b = $("#expand-all");
     if (!b) return;
-    var vis = records.filter(function (r) { return r.details && !r.el.hidden; });
-    var allOpen = vis.length > 0 && vis.every(function (r) { return r.open; });
+    var vis = records.filter(function (r) { return !r.el.hidden; });
+    var allOpen = vis.length > 0 && vis.every(function (r) { return r.level === 2; });
     b.hidden = !vis.length;
     b.dataset.mode = allOpen ? "collapse" : "expand";
     b.textContent = allOpen ? T.collapse_all : T.expand_all;
   }
 
   function renderTimeline() {
-    var list = $("#timeline-list");
-    var sorted = (DATA.timeline || []).slice().sort(function (a, b) {
-      return (key(b.start) - key(a.start)) || (key(b.end || b.start) - key(a.end || a.start));
-    });
-
-    var curYear = null, section = null, itemsWrap = null, groupItems = null;
-    sorted.forEach(function (it) {
-      var y = startYear(it);
-      if (curYear !== y) {
-        curYear = y;
-        var ongoing = false;
-        groupItems = [];
-        var pill = h("span", { class: y === "upcoming" ? "pill upcoming" : "pill" },
-                     y === "upcoming" ? T.upcoming : String(y));
-        section = h("div", { class: "tl-group" }, h("div", { class: "tl-year" }, pill));
-        itemsWrap = section;
-        groupEls.push({ section: section, items: groupItems, pill: pill });
-        list.appendChild(section);
-      }
-      var idx = (DATA.timeline || []).indexOf(it);
+    var list = (DATA.timeline || []).map(function (it, idx) { return { it: it, idx: idx }; });
+    list.sort(function (a, b) { return byDateIt(a.it, b.it); });
+    list.forEach(function (o) {
+      var it = o.it;
       var rec = {
-        it: it, id: ENTRY_IDS[idx], el: null,
+        it: it, id: ENTRY_IDS[o.idx], el: null,
         cats: it.categories || [], featured: !!it.featured, present: it.end === "present",
-        text: searchText(it),        // current language — what the search box matches
-        textAll: FULLTEXT[idx],      // both languages — what skill links match
-        details: null, toggle: null, detailText: "", open: false,
+        text: searchText(it),        // current language: what the search box matches
+        textAll: FULLTEXT[o.idx],    // both languages: what skill links match
+        details: null, toggle: null, full: null, level: 0,
+        compactText: "", detailText: "",
         mark: null                   // its bar on the career map
       };
-      var row = buildCard(it, rec);
-      itemsWrap.appendChild(row);
-      groupItems.push(row);
+      buildCard(it, rec);
       records.push(rec);
       recordById[rec.id] = rec;
+    });
+    arrangeTimeline();
+    setView(VIEW);
+  }
+
+  /* Order and group the cards for the current SORT: by date in year groups
+     (with the spine in list view), or by importance in three tiers. Cards are
+     moved, not rebuilt, so their open state and listeners survive. */
+  function sortRecords() {
+    var list = records.slice();
+    list.sort(SORT === "date"
+      ? function (a, b) { return byDateIt(a.it, b.it); }
+      : function (a, b) { return (imp(b.it) - imp(a.it)) || byDateIt(a.it, b.it); });
+    return list;
+  }
+  function arrangeTimeline() {
+    var list = $("#timeline-list");
+    if (!list) return;
+    hidePeek();
+    empty(list);
+    groupEls = [];
+    ordered = sortRecords();
+    var cur = null, g = null;
+    ordered.forEach(function (r) {
+      var gk = SORT === "date" ? startYear(r.it) : tierOf(r.it);
+      if (gk !== cur) {
+        cur = gk;
+        var label, pill = null;
+        if (SORT === "date") {
+          pill = h("span", { class: gk === "upcoming" ? "pill upcoming" : "pill" }, gk === "upcoming" ? T.upcoming : String(gk));
+          label = h("div", { class: "tl-year" }, pill);
+        } else {
+          label = h("p", { class: "tl-tier" }, T.tiers[gk]);
+        }
+        var body = h("div", { class: "tl-items" });
+        g = { section: h("div", { class: "tl-group", "data-group": String(gk) }, label, body), items: [], body: body, pill: pill };
+        groupEls.push(g);
+        list.appendChild(g.section);
+      }
+      g.items.push(r.el);
+      g.body.appendChild(r.el);
       // mark the year pill "ongoing" if this group has a present item
-      if (it.end === "present") groupEls[groupEls.length - 1].pill.classList.add("ongoing");
+      if (g.pill && r.present) g.pill.classList.add("ongoing");
+    });
+    list.classList.toggle("by-date", SORT === "date");
+    list.classList.toggle("by-importance", SORT !== "date");
+  }
+  function setPressedPair(a, b, firstOn) {
+    var x = $(a), y = $(b);
+    if (x) x.setAttribute("aria-pressed", firstOn ? "true" : "false");
+    if (y) y.setAttribute("aria-pressed", firstOn ? "false" : "true");
+  }
+  function setView(v) {
+    VIEW = v === "list" ? "list" : "grid";
+    var list = $("#timeline-list");
+    if (list) {
+      list.classList.toggle("view-grid", VIEW === "grid");
+      list.classList.toggle("view-list", VIEW === "list");
+    }
+    setPressedPair("#view-grid", "#view-list", VIEW === "grid");
+    hidePeek();
+  }
+  function setSort(v) {
+    v = v === "date" ? "date" : "importance";
+    var changed = v !== SORT;
+    SORT = v;
+    setPressedPair("#sort-importance", "#sort-date", SORT === "importance");
+    if (changed || !groupEls.length) arrangeTimeline();
+  }
+
+  /* ---------------------------- HOVER PREVIEW ----------------------------- */
+  /* WCAG 1.4.13: the preview appears on hover (after PEEK_DELAY) or on keyboard
+     focus of "More", stays while the pointer is over the card or the preview
+     itself, and Escape dismisses it without moving the pointer or focus. It is
+     a visual aid only (aria-hidden): the same content is reachable through
+     "More", which opens the card in place. */
+  var peekRec = null, pendingRec = null, peekTimer = 0, peekDismissed = null, lastPointer = "mouse";
+  function recOf(el) {
+    var item = el && el.closest ? el.closest(".tl-item") : null;
+    return item ? recordById[item.id] : null;
+  }
+  function showPeek(r) {
+    pendingRec = null;
+    if (!r || r.level > 0 || r.el.hidden) return;
+    if (peekRec && peekRec !== r) hidePeek();
+    peekRec = r;
+    r.el.classList.add("is-peek");
+    r.details.setAttribute("aria-hidden", "true");
+  }
+  function hidePeek() {
+    clearTimeout(peekTimer);
+    pendingRec = null;
+    if (!peekRec) return;
+    peekRec.el.classList.remove("is-peek");
+    peekRec.details.removeAttribute("aria-hidden");
+    peekRec = null;
+  }
+  function initPeek() {
+    var list = $("#timeline-list");
+    if (!list) return;
+    document.addEventListener("pointerdown", function (ev) { lastPointer = ev.pointerType || "mouse"; }, true);
+    document.addEventListener("keydown", function () { lastPointer = "keyboard"; }, true);
+    list.addEventListener("pointerover", function (ev) {
+      if (ev.pointerType !== "mouse" && ev.pointerType !== "pen") return;   // touch: no hover
+      var r = recOf(ev.target);
+      if (!r || r === peekRec || r === pendingRec || r.level > 0 || r === peekDismissed) return;
+      clearTimeout(peekTimer);
+      pendingRec = r;
+      peekTimer = setTimeout(function () { showPeek(r); }, PEEK_DELAY);
+    });
+    list.addEventListener("pointerout", function (ev) {
+      var r = recOf(ev.target);
+      if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;   // still on the card or its preview
+      if (pendingRec === r) { clearTimeout(peekTimer); pendingRec = null; }
+      if (peekDismissed === r) peekDismissed = null;
+      if (peekRec === r && !r.el.contains(document.activeElement)) hidePeek();
+    });
+    list.addEventListener("focusin", function (ev) {
+      var r = recOf(ev.target);
+      if (peekRec && peekRec !== r) hidePeek();
+      if (r && ev.target === r.toggle && lastPointer === "keyboard" && r.level === 0 && peekDismissed !== r) showPeek(r);
+    });
+    list.addEventListener("focusout", function (ev) {
+      var r = recOf(ev.target);
+      if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;
+      if (peekDismissed === r) peekDismissed = null;
+      if (peekRec === r && !r.el.matches(":hover")) hidePeek();
+    });
+    // the card controls, delegated so a language re-render needs no re-wiring
+    list.addEventListener("click", function (ev) {
+      var t = ev.target, r = recOf(t);
+      if (!r) return;
+      var touch = ev.detail !== 0 && lastPointer === "touch";
+      if (t.closest(".tl-full")) { hidePeek(); setLevel(r, 2); updateExpandAll(); return; }
+      if (t.closest(".tl-more")) { toggleCard(r, touch); return; }
+      if (t.closest(".tl-head") && !t.closest("a, button")) {
+        if (window.getSelection && String(window.getSelection())) return;   // selecting text, not toggling
+        toggleCard(r, touch);
+      }
     });
   }
 
@@ -564,8 +841,9 @@
       var vis = okCat && okQ && okFeatured && okPresent && okSkill;
       r.el.hidden = !vis;
       if (r.mark) r.mark.classList.toggle("is-dim", !vis);
-      // a search hit inside the collapsed bullets shouldn't need a click to find
-      if (vis && q && r.details && !r.open && r.detailText.indexOf(q) !== -1) setOpen(r, true);
+      if (!vis && peekRec === r) hidePeek();
+      // a search hit in text a compact card doesn't show shouldn't need a click to find
+      if (vis && q && r.level < 2 && r.compactText.indexOf(q) === -1 && r.detailText.indexOf(q) !== -1) setLevel(r, 2);
       if (vis) shown++;
     }
     for (i = 0; i < groupEls.length; i++) {
@@ -574,12 +852,13 @@
     }
     $("#result-count").textContent = T.shown(shown, records.length);
     $("#empty-state").hidden = shown !== 0;
+    updateFilterCount();
     updateExpandAll();
     syncUrl();
   }
 
   /* ------------------------- SHAREABLE URL STATE -------------------------- */
-  /* Current selection as a plain object — also used to carry state across a
+  /* Current selection as a plain object, also used to carry state across a
      language switch, which re-renders the chips from scratch. */
   function readState() {
     var on = [];
@@ -591,7 +870,9 @@
       cats: on,
       featured: pressed("#only-featured"),
       present: pressed("#only-present"),
-      skill: activeSkill
+      skill: activeSkill,
+      view: VIEW,
+      sort: SORT
     };
   }
   function writeState(s) {
@@ -604,6 +885,8 @@
     if (f) f.setAttribute("aria-pressed", s.featured ? "true" : "false");
     if (p) p.setAttribute("aria-pressed", s.present ? "true" : "false");
     setSkill(s.skill && SKILL_INDEX[s.skill] ? s.skill : "");
+    setView(s.view);
+    setSort(s.sort);
   }
 
   function syncUrl() {
@@ -617,10 +900,12 @@
     if (s.featured) parts.push("featured=1");
     if (s.present) parts.push("present=1");
     if (s.skill) parts.push("skill=" + encodeURIComponent(s.skill));
+    if (s.view !== "grid") parts.push("view=" + s.view);
+    if (s.sort !== "importance") parts.push("sort=" + s.sort);
     var url = location.pathname + (parts.length ? "?" + parts.join("&") : "") + location.hash;
     try { history.replaceState(null, "", url); } catch (e) {}   // throws on file://
   }
-  /* Seed the controls from ?q=…&cat=… on first load. */
+  /* Seed the controls from ?q=…&cat=…&view=…&sort=… on first load. */
   function applyUrlState() {
     var all = (DATA.categories || []).map(function (c) { return c.id; });
     var cats = all;
@@ -631,7 +916,9 @@
       cats: cats,
       featured: URLQ.featured === "1",
       present: URLQ.present === "1",
-      skill: URLQ.skill || ""
+      skill: URLQ.skill || "",
+      view: URLQ.view === "list" ? "list" : "grid",
+      sort: URLQ.sort === "date" ? "date" : "importance"
     });
   }
   function setAllChips(on) {
@@ -650,6 +937,7 @@
     if (b1) b1.setAttribute("aria-pressed", "false");
     if (b2) b2.setAttribute("aria-pressed", "false");
   }
+  /* resets the filters only: the view and the sort are the visitor's choice */
   function resetAll() { setAllChips(true); clearToggles(); setSkill(""); $("#search").value = ""; applyFilters(); }
   function wireControls() {
     $("#search").addEventListener("input", applyFilters);
@@ -659,29 +947,40 @@
     $("#empty-reset").addEventListener("click", resetAll);
     wireToggle("#only-featured");
     wireToggle("#only-present");
+    $("#filters-toggle").addEventListener("click", function () { setPanel($("#filters-panel").hidden); });
+    $("#view-grid").addEventListener("click", function () { setView("grid"); syncUrl(); });
+    $("#view-list").addEventListener("click", function () { setView("list"); syncUrl(); });
+    $("#sort-importance").addEventListener("click", function () { setSort("importance"); applyFilters(); });
+    $("#sort-date").addEventListener("click", function () { setSort("date"); applyFilters(); });
 
     var ex = $("#expand-all");
     if (ex) ex.addEventListener("click", function () {
       var open = ex.dataset.mode !== "collapse";
-      records.forEach(function (r) { if (r.details && !r.el.hidden) setOpen(r, open); });
+      hidePeek();
+      records.forEach(function (r) { if (!r.el.hidden) setLevel(r, open ? 2 : 0); });
       updateExpandAll();
     });
     var sk = $("#skill-active");
     if (sk) sk.addEventListener("click", function () { setSkill(""); applyFilters(); });
     var ms = $(".map-scroll");
-    if (ms) ms.addEventListener("scroll", hideTip, { passive: true });
+    if (ms) ms.addEventListener("scroll", function () { hideTip(); updateMapEdges(); }, { passive: true });
 
-    // "/" jumps to the search box, Escape clears it
+    // "/" jumps to the search box; Escape closes the preview, then the menu,
+    // then clears the search box
     document.addEventListener("keydown", function (ev) {
       var el = document.activeElement;
       var typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
-      if (ev.key === "/" && !typing && !ev.metaKey && !ev.ctrlKey) {
+      if (ev.key === "Escape") {
+        if (peekRec) { peekDismissed = peekRec; hidePeek(); return; }
+        if (menuOpen()) { closeMenu(); $("#menu-toggle").focus(); return; }
+        if (el === $("#search")) {
+          if ($("#search").value) { $("#search").value = ""; applyFilters(); }
+          else el.blur();
+        }
+      } else if (ev.key === "/" && !typing && !ev.metaKey && !ev.ctrlKey) {
         ev.preventDefault();
         $("#search").focus();
         $("#search").select();
-      } else if (ev.key === "Escape" && el === $("#search")) {
-        if ($("#search").value) { $("#search").value = ""; applyFilters(); }
-        else el.blur();
       }
     });
   }
@@ -727,21 +1026,27 @@
 
   /* ------------------------- JUMPING TO AN ENTRY -------------------------- */
   /* Shared by highlight tiles, map bars and #entry-… links: un-filter the card if
-     it's hidden, open it, scroll it clear of the sticky header and filter bar,
-     and pulse it so the eye lands on it. */
+     it's hidden, open it fully, scroll it clear of the sticky header and filter
+     bar, and pulse it so the eye lands on it. Works in either sort order. */
   function pageTop(el) { var y = 0; while (el) { y += el.offsetTop; el = el.offsetParent; } return y; }
+  function stickyHeights() {
+    var hd = $(".site-header"), ctl = $(".controls");
+    return {
+      header: hd ? hd.offsetHeight : 0,
+      controls: ctl && window.getComputedStyle(ctl).position === "sticky" ? ctl.offsetHeight : 0
+    };
+  }
   /* how far below the viewport top a card must land to clear the sticky header
      and, where it sticks, the filter bar */
-  function jumpOffset() {
-    var off = 12, hd = $(".site-header"), ctl = $(".controls");
-    if (hd) off += hd.offsetHeight;
-    if (ctl && window.getComputedStyle(ctl).position === "sticky") off += ctl.offsetHeight;
-    return off;
-  }
-  /* mirrored into CSS as the cards' scroll-margin, so the browser's own jump to
-     an #entry-… anchor (on load, or a hand-edited hash) lands in the same place */
+  function jumpOffset() { var s = stickyHeights(); return s.header + s.controls + 12; }
+  /* mirrored into CSS: --header-h feeds html's scroll-padding-top and the filter
+     bar's sticky top, --ctl-h the cards' scroll-margin-top, so the browser's own
+     anchor jumps and keyboard-focus scrolling land in the same place */
   function syncJumpOffset() {
-    document.documentElement.style.setProperty("--jump-offset", jumpOffset() + "px");
+    var s = stickyHeights(), st = document.documentElement.style;
+    st.setProperty("--header-h", s.header + "px");
+    st.setProperty("--ctl-h", s.controls + "px");
+    st.setProperty("--jump-offset", (s.header + s.controls + 12) + "px");
   }
   function scrollToEl(el, instant) {
     var top = Math.max(0, pageTop(el) - jumpOffset());
@@ -760,7 +1065,8 @@
     var r = recordById[id];
     if (!r) return;
     if (r.el.hidden) resetAll();
-    setOpen(r, true);
+    hidePeek();
+    setLevel(r, 2);
     updateExpandAll();
     r.el.classList.add("in");                      // skip the scroll-reveal fade
     try { history.replaceState(null, "", location.pathname + location.search + "#" + id); } catch (e) {}
@@ -791,7 +1097,7 @@
   function renderHighlights() {
     var grid = $("#highlights-grid");
     if (!grid) return;
-    var feat = records.filter(function (r) { return r.featured; });   // already in timeline order
+    var feat = records.filter(function (r) { return r.featured; });   // records are in date order
     $("#highlights").hidden = !feat.length;
     feat.forEach(function (r) {
       var it = r.it, summary = tf(it, "summary"), org = tf(it, "org");
@@ -812,8 +1118,9 @@
 
   /* ------------------------------ CAREER MAP ------------------------------ */
   /* Every entry as a bar (or a dot, for one-off events) on a shared time axis,
-     one lane per kind of activity — a compressed view of what ran in parallel.
-     Bars that overlap inside a lane are packed onto extra rows. */
+     one lane per kind of activity: a compressed view of what ran in parallel.
+     Bars that overlap inside a lane are packed onto extra rows. It stays the
+     time overview whatever order the cards below are sorted in. */
   var LANES = ["work", "education", "projects", "leadership", "awards", "personal"];
   var MAP_ROW = 16;   // px per packed row
   function laneOf(it) {
@@ -901,6 +1208,15 @@
       h("span", { style: "left:" + pct(NOW) + "%" }, T.map_today)));
     // where the map has to scroll (phones), start at the recent end, not in 2021
     inner.parentNode.scrollLeft = inner.parentNode.scrollWidth;
+    updateMapEdges();
+  }
+  /* fade the side(s) of the map that have more to scroll to */
+  function updateMapEdges() {
+    var sc = $(".map-scroll"), l = $("#map-edge-left"), r = $("#map-edge-right");
+    if (!sc || !l || !r) return;
+    var max = sc.scrollWidth - sc.clientWidth;
+    l.hidden = !(max > 2 && sc.scrollLeft > 2);
+    r.hidden = !(max > 2 && sc.scrollLeft < max - 2);
   }
   function showTip(mark, r) {
     var tip = $("#map-tip"), box = $("#career-map");
@@ -951,11 +1267,11 @@
       alumniOf: alumniOf.length ? alumniOf.map(function (n) { return { "@type": "EducationalOrganization", name: n }; }) : undefined
     };
 
-    var s = document.createElement("script");
-    s.type = "application/ld+json";
-    s.id = "jsonld";
-    s.textContent = JSON.stringify(person);
-    document.head.appendChild(s);
+    var sc = document.createElement("script");
+    sc.type = "application/ld+json";
+    sc.id = "jsonld";
+    sc.textContent = JSON.stringify(person);
+    document.head.appendChild(sc);
   }
 
   /* ------------------------------- SKILLS --------------------------------- */
@@ -971,12 +1287,13 @@
   /* A skill becomes a filter when it matches at least one entry. Matching is
      whole-word ("RAG" must not hit "average", "Assembly" must not hit
      "assembly-line"), tries every "/"-separated alias in both languages, and
-     allows a version suffix ("YOLO" finds "YOLOv5"). Groups marked
-     `link: false` in data.js are never linked. Keyed by the English label. */
+     allows a version suffix ("YOLO" finds "YOLOv5"). A label written as
+     "Name (detail)" matches on "Name" only. Groups marked `link: false` in
+     data.js are never linked. Keyed by the English label. */
   var SKILL_INDEX = (function () {
     var idx = {}, B = "[^a-z0-9+#-]";
     function aliases(s) {
-      return String(s || "").split(/\s+—\s+|\(/)[0].split("/")
+      return String(s || "").split("(")[0].split("/")
         .map(function (a) { return norm(a.trim()); }).filter(Boolean);
     }
     function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
@@ -1004,17 +1321,19 @@
     var chip = $("#skill-active");
     if (chip) {
       chip.hidden = !activeSkill;
-      $("#skill-active-label").textContent = activeSkill ? T.skill_chip(skillLabel(activeSkill)) : "";
-      chip.setAttribute("aria-label", T.skill_clear + (activeSkill ? " — " + skillLabel(activeSkill) : ""));
-      chip.title = T.skill_clear;
+      var text = activeSkill ? T.skill_chip(skillLabel(activeSkill)) : "";
+      $("#skill-active-label").textContent = text;
+      // the accessible name starts with the visible text
+      chip.setAttribute("aria-label", activeSkill ? text + ", " + T.skill_clear : T.skill_clear_title);
+      chip.title = T.skill_clear_title;
     }
     $$(".skill-link").forEach(function (b) {
       b.setAttribute("aria-pressed", b.dataset.skill === activeSkill ? "true" : "false");
     });
   }
   /* Clicking a skill shows exactly the entries that use it: other filters are
-     cleared, the matches open, and the view moves to the first one. Clicking
-     the active skill again clears it. */
+     cleared, the matches open, and the view moves to the first one shown.
+     Clicking the active skill again clears it. */
   function pickSkill(key) {
     if (activeSkill === key) { setSkill(""); applyFilters(); return; }
     setAllChips(true);
@@ -1022,17 +1341,20 @@
     $("#search").value = "";
     setSkill(key);
     applyFilters();
-    var shown = records.filter(function (r) { return !r.el.hidden; });
-    shown.forEach(function (r) { setOpen(r, true); });
+    var shown = ordered.filter(function (r) { return !r.el.hidden; });
+    shown.forEach(function (r) { setLevel(r, 2); });
     updateExpandAll();
-    if (shown.length) scrollToEl(shown[0].el.parentNode);   // its year group, so the heading shows
+    if (shown.length) scrollToEl(shown[0].el.closest(".tl-group") || shown[0].el);   // its group, so the heading shows
   }
 
   function renderSkills() {
     var grid = $("#skills-grid");
     (DATA.skills || []).forEach(function (g) {
+      var n = (g.items || []).length;
       grid.appendChild(h("div", { class: "skill-group reveal" },
-        h("h3", {}, tf(g, "group")),
+        h("h3", {},
+          h("span", {}, tf(g, "group")),
+          h("span", { class: "skill-count" }, String(n), h("span", { class: "sr-only" }, " " + T.skills_word))),
         h("ul", {}, (tf(g, "items") || []).map(function (label, i) {
           var key = (g.items || [])[i], s = g.link !== false && SKILL_INDEX[key];
           if (!s) return h("li", {}, label);
@@ -1060,9 +1382,12 @@
   }
 
   /* -------------------------------- INIT ---------------------------------- */
-  /* Everything that reads content out of data.js — re-run on a language swap. */
+  /* Everything that reads content out of data.js, re-run on a language swap.
+     Anything rendered into a container here must also be in setLang()'s
+     list of containers to empty. */
   function renderAll() {
     renderHero();
+    renderRadar();
     renderFilters();
     renderTimeline();
     renderHighlights();   // these two read the records renderTimeline builds
@@ -1073,12 +1398,14 @@
 
   initTheme();
   initLang();
+  initMenu();
   renderAll();
   applyUrlState();
   wireControls();
+  initPeek();
   applyFilters();
   if (activeSkill) {      // a shared ?skill= link opens its matches, like a click would
-    records.forEach(function (r) { if (!r.el.hidden) setOpen(r, true); });
+    records.forEach(function (r) { if (!r.el.hidden) setLevel(r, 2); });
     updateExpandAll();
   }
   initReveal();
@@ -1087,10 +1414,33 @@
   // #entry-… deep links: the cards don't exist when the browser first looks for
   // the anchor, so jump by hand, and again once web fonts have reflowed the page
   syncJumpOffset();
-  window.addEventListener("resize", syncJumpOffset, { passive: true });
-  openFromHash(true);
-  if (/^#entry-/.test(location.hash) && document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { var r = recordById[location.hash.slice(1)]; if (r) scrollToEl(r.el, true); });
+  window.addEventListener("resize", function () { syncJumpOffset(); updateMapEdges(); }, { passive: true });
+  if ("ResizeObserver" in window) {
+    var ro = new ResizeObserver(syncJumpOffset);
+    [$(".site-header"), $(".controls")].forEach(function (el) { if (el) ro.observe(el); });
   }
+  openFromHash(true);
+  settleOnEntry(location.hash.slice(1));
   window.addEventListener("hashchange", function () { openFromHash(false); });
+
+  /* Web fonts and late layout keep shifting the page for a moment after load,
+     so keep a deep-linked card pinned under the filter bar while the page
+     settles, until the visitor scrolls, taps or types themselves. */
+  function settleOnEntry(id) {
+    var r = recordById[id];
+    if (!r) return;
+    var done = false, tries = 0;
+    function stop() { done = true; }
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function (t) {
+      window.addEventListener(t, stop, { once: true, passive: true });
+    });
+    function again() { if (!done && tries++ < 12) scrollToEl(r.el, true); }
+    if ("ResizeObserver" in window) {
+      var ro2 = new ResizeObserver(again);
+      ro2.observe(document.body);
+      setTimeout(function () { ro2.disconnect(); done = true; }, 2500);
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(again);
+    window.addEventListener("load", again, { once: true });
+  }
 })();

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elias Charbel Salameh — R&D Engineer & Incoming CIFRE PhD</title>
-  <meta name="description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS — robotics, control and AI for certifiable, low-consumption automotive algorithms." />
+  <title>Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD</title>
+  <meta name="description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms." />
   <meta name="author" content="Elias Charbel Salameh" />
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" id="meta-theme-color" content="#f5f6f9" />
@@ -14,13 +14,13 @@
   <link rel="alternate" hreflang="x-default" href="https://eliascharbelsalameh.github.io/" />
 
   <!-- Open Graph / link preview (shows when shared with recruiters).
-       og:image must be an ABSOLUTE url — crawlers don't resolve relative paths.
+       og:image must be an ABSOLUTE url, because crawlers don't resolve relative paths.
        To upgrade to a wide banner card: drop a 1200x630 assets/images/og-cover.png
        in, point og:image at it, and switch twitter:card to summary_large_image. -->
   <meta property="og:type" content="profile" />
   <meta property="og:site_name" content="Elias Charbel Salameh" />
   <meta property="og:url" content="https://eliascharbelsalameh.github.io/" />
-  <meta property="og:title" content="Elias Charbel Salameh — R&D Engineer & Incoming CIFRE PhD" />
+  <meta property="og:title" content="Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD" />
   <meta property="og:description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS. An interactive, filterable timeline of research, engineering, leadership and academic work." />
   <meta property="og:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
   <meta property="og:image:width" content="525" />
@@ -29,7 +29,7 @@
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="fr_FR" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Elias Charbel Salameh — R&D Engineer & Incoming CIFRE PhD" />
+  <meta name="twitter:title" content="Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD" />
   <meta name="twitter:description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS. An interactive, filterable timeline of research, engineering, leadership and academic work." />
   <meta name="twitter:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
 
@@ -57,29 +57,37 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#timeline">Skip to timeline</a>
+  <a class="skip-link" href="#timeline" data-i18n="skip">Skip to timeline</a>
 
   <!-- ============================= HEADER ============================= -->
   <header class="site-header" id="top">
     <div class="wrap header-inner">
-      <a class="brand" href="#top" aria-label="Home">
-        <span class="brand-mark" aria-hidden="true">ECS</span>
+      <a class="brand" href="#top">
+        <span class="brand-mark">ECS</span>
         <span class="brand-name">Elias&nbsp;Charbel&nbsp;Salameh</span>
       </a>
-      <nav class="site-nav" aria-label="Primary">
+      <!-- section links: inline on wide screens, a drop-down behind #menu-toggle on phones -->
+      <nav class="site-nav" id="site-nav" aria-label="Sections" data-i18n-aria="nav_label">
         <a href="#about" data-i18n="nav_about">About</a>
         <a href="#highlights" data-i18n="nav_highlights">Highlights</a>
         <a href="#timeline" data-i18n="nav_timeline">Timeline</a>
         <a href="#skills" data-i18n="nav_skills">Skills</a>
-        <a href="#contact" data-i18n="nav_contact">Contact</a>
       </nav>
       <div class="header-actions">
-        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Switch language" title="English / Français">
+        <a class="btn btn-primary btn-sm header-contact" href="#contact" id="header-contact">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/></svg>
+          <span data-i18n="contact_btn">Contact</span>
+        </a>
+        <!-- accessible name and title are set by app.js and start with the visible "FR" / "EN" -->
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="FR, switch to French" title="FR, switch to French">
           <span id="lang-label">FR</span>
         </button>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark / light" data-i18n-aria="theme_toggle" data-i18n-title="theme_toggle">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark / light" title="Toggle dark / light" data-i18n-aria="theme_toggle" data-i18n-title="theme_toggle">
           <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8" stroke-linecap="round"/></svg>
           <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu" title="Menu" data-i18n-aria="menu" data-i18n-title="menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
         </button>
       </div>
     </div>
@@ -87,28 +95,41 @@
 
   <main>
     <!-- ============================= HERO ============================= -->
+    <!-- The <noscript> fallbacks keep the name, role and contact links readable
+         without JavaScript. app.js replaces them with the data.js content, so
+         if you change your role or contact details, update them here too. -->
     <section class="hero" id="about">
       <div class="wrap hero-inner">
         <div class="hero-text">
-          <div class="hero-avatar" id="hero-avatar" aria-hidden="true"></div>
-          <p class="hero-eyebrow" id="hero-role"></p>
-          <h1 class="hero-name" id="hero-name"></h1>
+          <p class="hero-eyebrow" id="hero-role"><noscript>R&amp;D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS</noscript></p>
+          <h1 class="hero-name" id="hero-name"><noscript>Elias Charbel Salameh</noscript></h1>
           <p class="hero-loc" id="hero-loc" hidden></p>
           <p class="hero-tagline" id="hero-tagline"></p>
           <p class="hero-summary" id="hero-summary"></p>
-          <div class="hero-cta" id="hero-cta"></div>
+          <div class="hero-cta" id="hero-cta"><noscript>
+            <a class="btn btn-primary" href="mailto:esalameh@proton.me">Email me</a>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh">LinkedIn</a>
+            <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh">GitHub</a>
+            <a class="btn btn-ghost" href="tel:+33783757669">+33 7 83 75 76 69</a>
+            <p class="noscript-note">The interactive timeline needs JavaScript.</p>
+          </noscript></div>
         </div>
-        <ul class="hero-stats" id="hero-stats" aria-label="Key figures"></ul>
+        <div class="hero-visual">
+          <div class="hero-avatar" id="hero-avatar" aria-hidden="true"></div>
+          <!-- radar of skills per category, drawn by app.js from the skills in data.js -->
+          <figure class="hero-radar" id="hero-radar"></figure>
+        </div>
+        <ul class="hero-stats" id="hero-stats" aria-label="Key figures" data-i18n-aria="stats_label"></ul>
       </div>
     </section>
 
     <!-- ========================== HIGHLIGHTS ========================== -->
-    <!-- Tiles for every `featured` entry in data.js — rendered by app.js -->
+    <!-- Tiles for every `featured` entry in data.js, rendered by app.js -->
     <section class="highlights-section" id="highlights" hidden>
       <div class="wrap">
         <div class="section-head">
           <h2 data-i18n="hl_h">Highlights</h2>
-          <p class="section-sub" data-i18n="hl_sub">The work I'd show first — open one to see it in context in the timeline.</p>
+          <p class="section-sub" data-i18n="hl_sub">The work I'd show first. Open one to see it in context in the timeline.</p>
         </div>
         <div class="hl-grid" id="highlights-grid"></div>
       </div>
@@ -119,61 +140,89 @@
       <div class="wrap">
         <div class="section-head">
           <h2 data-i18n="timeline_h">Timeline of efforts</h2>
-          <p class="section-sub" data-i18n="timeline_sub">Every role, project, award and contribution — filter the view to whatever you care about.</p>
+          <p class="section-sub" data-i18n="timeline_sub">Every role, project, award and contribution. Filter, sort or switch the view to whatever you care about.</p>
         </div>
 
         <!-- Career map: every entry as a bar in its lane, rendered by app.js.
              A visual shortcut into the list below (which carries the same
-             content accessibly), so it's hidden from assistive tech. -->
+             content accessibly), so it's hidden from assistive tech and kept
+             out of the tab order. -->
         <div class="map" id="career-map" aria-hidden="true">
           <div class="map-head">
             <h3 class="map-title" data-i18n="map_h">At a glance</h3>
-            <span class="map-hint" data-i18n="map_hint">Each bar is an entry below — click one to open it.</span>
+            <span class="map-hint" data-i18n="map_hint">Each bar is an entry below. Select one to open it.</span>
           </div>
-          <div class="map-scroll"><div class="map-inner" id="map-inner"></div></div>
+          <div class="map-frame">
+            <div class="map-scroll" tabindex="-1"><div class="map-inner" id="map-inner"></div></div>
+            <span class="map-edge is-left" id="map-edge-left" hidden></span>
+            <span class="map-edge is-right" id="map-edge-right" hidden></span>
+          </div>
           <div class="map-tip" id="map-tip" hidden></div>
         </div>
 
-        <!-- Controls -->
-        <div class="controls" role="region" aria-label="Filter the timeline">
+        <!-- Controls: one sticky line (search, filters, sort, view, count);
+             the category chips sit in the Filters panel below it -->
+        <div class="controls" role="region" aria-label="Filter the timeline" data-i18n-aria="controls_label">
           <div class="controls-row">
             <label class="search" for="search">
+              <span class="sr-only" data-i18n="search_label">Search the timeline (roles, tech, organisations)</span>
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
-              <input type="search" id="search" placeholder="Search roles, tech, organisations…" data-i18n-ph="search_ph" autocomplete="off" />
+              <input type="search" id="search" placeholder="Search" data-i18n-ph="search_ph" autocomplete="off" />
               <kbd class="search-kbd" aria-hidden="true">/</kbd>
             </label>
-            <div class="controls-meta">
-              <span id="result-count" class="result-count" aria-live="polite"></span>
-              <button class="link-btn" id="select-all" type="button" data-i18n="all">All</button>
-              <button class="link-btn" id="clear-all" type="button" data-i18n="none">None</button>
-              <button class="link-btn" id="reset" type="button" data-i18n="reset">Reset</button>
+            <button class="ctl-btn" id="filters-toggle" type="button" aria-expanded="false" aria-controls="filters-panel">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
+              <span data-i18n="filters">Filters</span>
+              <span class="ctl-count" id="filters-count" hidden></span>
+            </button>
+            <div class="seg" role="group" aria-label="Sort by" data-i18n-aria="sort_label">
+              <button class="seg-btn" id="sort-importance" type="button" aria-pressed="true" data-i18n="sort_importance">Importance</button>
+              <button class="seg-btn" id="sort-date" type="button" aria-pressed="false" data-i18n="sort_date">Date</button>
             </div>
-          </div>
-          <div class="quick-filters" role="group" aria-label="Quick filters">
-            <button class="qbtn" id="only-featured" type="button" aria-pressed="false" style="--qc:#ca8a04">
-              <span class="qbtn-ico" aria-hidden="true">★</span>
-              <span data-i18n="featured_only">Featured</span>
-            </button>
-            <button class="qbtn" id="only-present" type="button" aria-pressed="false" style="--qc:#16a34a">
-              <span class="qbtn-dot" aria-hidden="true"></span>
-              <span data-i18n="present_only">Ongoing</span>
-            </button>
+            <div class="seg" role="group" aria-label="View" data-i18n-aria="view_label">
+              <button class="seg-btn seg-ico" id="view-grid" type="button" aria-pressed="true" aria-label="Grid view" title="Grid view" data-i18n-aria="view_grid" data-i18n-title="view_grid">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+              </button>
+              <button class="seg-btn seg-ico" id="view-list" type="button" aria-pressed="false" aria-label="List view" title="List view" data-i18n-aria="view_list" data-i18n-title="view_list">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" stroke-linecap="round"/><circle cx="5" cy="6" r="1.2"/><circle cx="5" cy="12" r="1.2"/><circle cx="5" cy="18" r="1.2"/></svg>
+              </button>
+            </div>
             <!-- shown while a skill from the Skills section is filtering the list -->
             <button class="qbtn skill-active" id="skill-active" type="button" hidden style="--qc:var(--accent)">
               <span id="skill-active-label"></span>
               <span class="qbtn-x" aria-hidden="true">×</span>
             </button>
-            <button class="link-btn expand-all" id="expand-all" type="button" hidden></button>
+            <div class="controls-meta">
+              <span id="result-count" class="result-count" aria-live="polite"></span>
+              <button class="link-btn expand-all" id="expand-all" type="button" hidden></button>
+            </div>
           </div>
-          <div class="filters-hint">
-            <span class="filters-hint-line" aria-hidden="true"></span>
-            <span data-i18n="filters_hint">Click a category to show or hide it</span>
-            <span class="filters-hint-line" aria-hidden="true"></span>
+          <div class="filters-panel" id="filters-panel" hidden>
+            <div class="quick-filters" role="group" aria-label="Quick filters" data-i18n-aria="quick_label">
+              <button class="qbtn" id="only-featured" type="button" aria-pressed="false" style="--qc:var(--star)">
+                <span class="qbtn-ico" aria-hidden="true">★</span>
+                <span data-i18n="featured_only">Highlights</span>
+              </button>
+              <button class="qbtn" id="only-present" type="button" aria-pressed="false" style="--qc:var(--ok)">
+                <span class="qbtn-dot" aria-hidden="true"></span>
+                <span data-i18n="present_only">Ongoing</span>
+              </button>
+              <div class="panel-actions">
+                <button class="link-btn" id="select-all" type="button" data-i18n="all">All</button>
+                <button class="link-btn" id="clear-all" type="button" data-i18n="none">None</button>
+                <button class="link-btn" id="reset" type="button" data-i18n="reset">Reset</button>
+              </div>
+            </div>
+            <div class="filters-hint">
+              <span class="filters-hint-line" aria-hidden="true"></span>
+              <span data-i18n="filters_hint">Select a category to show or hide it</span>
+              <span class="filters-hint-line" aria-hidden="true"></span>
+            </div>
+            <div class="filters" id="filters" role="group" aria-label="Categories" data-i18n-aria="cats_label"></div>
           </div>
-          <div class="filters" id="filters" role="group" aria-label="Categories"></div>
         </div>
 
-        <!-- Timeline renders here -->
+        <!-- Timeline renders here (grouped by year, or by importance tier) -->
         <div class="timeline" id="timeline-list"></div>
         <p class="empty-state" id="empty-state" hidden><span data-i18n="empty">No entries match your filters.</span> <button class="link-btn" id="empty-reset" type="button" data-i18n="empty_reset">Reset filters</button></p>
       </div>
@@ -184,7 +233,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2 data-i18n="skills_h">Skills &amp; toolbox</h2>
-          <p class="section-sub" data-i18n="skills_sub">Technologies and methods used across the work above — the highlighted ones show where they were used.</p>
+          <p class="section-sub" data-i18n="skills_sub">Technologies and methods used across the work above. Select a highlighted one to see where it was used.</p>
         </div>
         <div class="skills-grid" id="skills-grid"></div>
       </div>
@@ -196,8 +245,13 @@
     <div class="wrap footer-inner">
       <div class="footer-cta">
         <h2 data-i18n="contact_h">Contact</h2>
-        <!-- <p class="section-sub">Open to research-engineering roles in the robotics, control &amp; AI fields — and a CIFRE industrial PhD.</p> -->
-        <div class="footer-links" id="footer-links"></div>
+        <!-- <p class="section-sub">Open to research-engineering roles in the robotics, control &amp; AI fields, and a CIFRE industrial PhD.</p> -->
+        <div class="footer-links" id="footer-links"><noscript>
+          <a class="btn btn-ghost" href="mailto:esalameh@proton.me">esalameh@proton.me</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh">LinkedIn</a>
+          <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh">GitHub</a>
+          <a class="btn btn-ghost" href="tel:+33783757669">+33 7 83 75 76 69</a>
+        </noscript></div>
       </div>
       <p class="footer-note">
         <span id="footer-copy"></span> · <span id="footer-built"></span> <span id="footer-date"></span>.
@@ -205,7 +259,7 @@
     </div>
   </footer>
 
-  <!-- Back to top — revealed by app.js once you've scrolled past the hero -->
+  <!-- Back to top: revealed by app.js once you've scrolled past the hero -->
   <button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top" data-i18n-aria="to_top" data-i18n-title="to_top" hidden>
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
