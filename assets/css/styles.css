@@ -174,8 +174,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 .site-nav { display: flex; gap: 1.3rem; margin-left: auto; }
 .site-nav a { position: relative; display: inline-flex; align-items: center; min-height: 32px; color: var(--text-muted); font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-ui); }
 .site-nav a:hover { color: var(--text); text-decoration: none; }
-.site-nav a[aria-current="true"] { color: var(--text); font-weight: 600; }
-.site-nav a[aria-current="true"]::after {
+.site-nav a[aria-current="true"], .site-nav a[aria-current="page"] { color: var(--text); font-weight: 600; }
+.site-nav a[aria-current="true"]::after, .site-nav a[aria-current="page"]::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
   height: 2px; border-radius: 2px; background: var(--accent);
 }
@@ -804,6 +804,35 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
 .to-top[hidden] { display: none; }
 @keyframes to-top-in { from { opacity: 0; transform: translateY(8px); } }
 
+/* --------------------- Before app.js / without JS ------------------------- */
+/* With JavaScript, the page body stays unpainted (but laid out) until app.js
+   has rendered it and removed html.app-pending, so the static copy in
+   index.html never visibly turns into the interactive page: no flash and no
+   layout shift. If app.js never gets there, the backstop shows the page
+   (with its static copy) after 3s anyway. */
+html.app-pending main, html.app-pending .site-footer { visibility: hidden; animation: app-backstop 0s linear 3s forwards; }
+@keyframes app-backstop { to { visibility: visible; } }
+/* Without JavaScript: drop the controls that can't work, keep the content */
+html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display: none; }
+
+/* The static timeline (written by tools/build.mjs; replaced by app.js) */
+.tl-static-note { margin: 0 0 1rem; color: var(--text-muted); font-size: var(--fs-ui); }
+.tl-static-list { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: .75rem; }
+.tl-static-item {
+  padding: .95rem 1.15rem; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.tl-static-item h4 { font-size: var(--fs-body); font-weight: 600; line-height: 1.35; }
+.tl-static-item p, .tl-static-item ul { margin: .35rem 0 0; font-size: var(--fs-ui); line-height: 1.55; }
+.tl-static-item ul { padding-left: 1.15rem; }
+.tl-static-meta { color: var(--text-muted); }
+.tl-static-meta span { font-family: var(--font-mono); font-size: var(--fs-meta); font-variant-numeric: tabular-nums; }
+.tl-static-tags { color: var(--text-muted); font-size: var(--fs-meta) !important; }
+
+/* small feed link (footer of every page) */
+.feed-link { white-space: nowrap; }
+.feed-link svg { display: inline-block; vertical-align: -2px; margin-right: .25rem; }
+
 /* ----------------------------- Reveal anim -------------------------------- */
 .reveal { opacity: 0; transform: translateY(14px); }
 .reveal.in { opacity: 1; transform: none; transition: opacity .5s var(--ease), transform .5s var(--ease); }
@@ -904,8 +933,109 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   .seg-btn { padding: 0 .6rem; }
 }
 
+/* ---------------------------- Intro splash -------------------------------- */
+/* The "ecs" intro (#splash in index.html), first visit of a browser session
+   only. The inline script in <head> decides before first paint and adds
+   html.splash-on; without that class (no JS, reduced motion, repeat visit,
+   crawlers) the splash keeps its [hidden] attribute and never shows.
+   Timeline, about 2.2s: outlines draw (0 to .8s), colour floods each letter
+   from below (.3 to 1s), the letters extrude into 3D (.95 to 1.45s), a light
+   sweeps across them (1.3 to 1.75s), then the whole screen fades out. */
+/* the scrollbar's space stays reserved (html.js: home page only), so locking
+   the scroll and unlocking it never changes the page width */
+html.js { scrollbar-gutter: stable; }
+html.splash-on { overflow: hidden; }
+html.splash-on .splash {
+  /* letter face: lit from the top left; sides: the same blue, deep in shadow */
+  --sp-face-hi: color-mix(in srgb, var(--accent) 52%, #ffffff);
+  --sp-face-lo: color-mix(in srgb, var(--accent) 88%, #0a1633);
+  --sp-side-hi: color-mix(in srgb, var(--accent) 52%, #0a1633);
+  --sp-side-lo: color-mix(in srgb, var(--accent) 18%, #050a18);
+  --sp-floor: rgba(16, 28, 46, .30);
+  --sp-glow: color-mix(in srgb, var(--accent) 9%, var(--bg));
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center; align-content: center; gap: 1.4rem;
+  background: radial-gradient(circle at 50% 46%, var(--sp-glow), var(--bg) min(46vmax, 560px)), var(--bg);
+  cursor: default; touch-action: none; user-select: none; -webkit-user-select: none;
+  transition: opacity .42s var(--ease), visibility 0s linear .42s;
+  /* backstop: even if every script stalls, the splash takes itself away */
+  animation: sp-failsafe .3s linear 4.5s forwards;
+}
+html[data-theme="dark"].splash-on .splash {
+  --sp-face-hi: color-mix(in srgb, var(--accent) 58%, #ffffff);
+  --sp-face-lo: color-mix(in srgb, var(--accent) 80%, #0a1633);
+  --sp-side-hi: color-mix(in srgb, var(--accent) 47%, #0a1633);
+  --sp-side-lo: color-mix(in srgb, var(--accent) 16%, #03060f);
+  --sp-floor: rgba(0, 0, 0, .55);
+  --sp-glow: color-mix(in srgb, var(--accent) 14%, var(--bg));
+}
+@keyframes sp-failsafe { 99%, to { opacity: 0; visibility: hidden; pointer-events: none; } }
+.splash.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.sp-art { width: min(64vw, 380px); height: auto; overflow: visible; stroke: none; }
+.splash.is-leaving .sp-art { transform: scale(1.05); transition: transform .42s var(--ease); }
+
+/* 1. outlines draw on, letter by letter (paths have pathLength="1") */
+.sp-line use {
+  fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round;
+  stroke-dasharray: 1 1; stroke-dashoffset: 1;
+  animation: sp-draw .75s cubic-bezier(.5, 0, .3, 1) both, sp-rim .4s ease 1s both;
+}
+.sp-line use:nth-child(2) { animation-delay: .09s, 1s; }
+.sp-line use:nth-child(3) { animation-delay: .18s, 1s; }
+@keyframes sp-draw { to { stroke-dashoffset: 0; } }
+@keyframes sp-rim { to { stroke-opacity: .35; } }
+
+/* 2. colour floods up through the letters, a liquid with a moving surface */
+.sp-stop-hi { stop-color: var(--sp-face-hi); }
+.sp-stop-lo { stop-color: var(--sp-face-lo); }
+.sp-rise { animation: sp-rise .7s cubic-bezier(.45, 0, .2, 1) .3s both; }
+.sp-wave { animation: sp-wave .9s linear .3s both; }
+@keyframes sp-rise { from { transform: translateY(128px); } to { transform: translateY(-16px); } }
+@keyframes sp-wave { from { transform: translateX(0); } to { transform: translateX(-120px); } }
+
+/* 3. depth: layered copies slide out behind the face, darker toward the back */
+.sp-depth use {
+  fill: color-mix(in srgb, var(--sp-side-lo) calc(var(--i) * 9%), var(--sp-side-hi));
+  stroke: color-mix(in srgb, var(--sp-side-lo) calc(var(--i) * 9%), var(--sp-side-hi));
+  stroke-width: 1.4; stroke-linejoin: round;
+  transform: translate(calc(var(--i) * 1.05px), calc(var(--i) * 1.15px));
+  animation: sp-extrude .5s cubic-bezier(.2, .9, .3, 1.15) .95s both;
+}
+@keyframes sp-extrude { from { transform: translate(0, 0); opacity: 0; } 20% { opacity: 1; } }
+.sp-floor { fill: url(#sp-floor-grad); transform-origin: 172px 134px; animation: sp-floor .5s ease-out .95s both; }
+.sp-floor-in { stop-color: var(--sp-floor); }
+.sp-floor-out { stop-color: var(--sp-floor); stop-opacity: 0; }
+@keyframes sp-floor { from { opacity: 0; transform: scale(.6, .4); } }
+
+/* 4. a band of light sweeps across the finished faces */
+.sp-sheen { fill: url(#sp-sheen-grad); animation: sp-sheen .55s cubic-bezier(.4, 0, .2, 1) 1.3s both; }
+.sp-sheen-mid { stop-color: #ffffff; stop-opacity: .55; }
+.sp-sheen-edge { stop-color: #ffffff; stop-opacity: 0; }
+@keyframes sp-sheen { from { transform: translateX(-80px) skewX(-18deg); } to { transform: translateX(440px) skewX(-18deg); } }
+
+/* the name underneath; drawn as text, so it only appears once Roboto Mono is
+   ready (.has-font, set by the script) and never shows in a fallback font */
+.sp-name { opacity: 0; transform: translateY(6px); }
+.sp-name::before {
+  content: attr(data-text);
+  font-family: var(--font-mono); font-weight: 600; font-size: var(--fs-meta);
+  letter-spacing: .22em; text-transform: uppercase; color: var(--text-muted);
+}
+.splash.has-font .sp-name { animation: sp-name .5s var(--ease) 1.05s both; }
+@keyframes sp-name { to { opacity: 1; transform: none; } }
+
+/* reduced motion never gets the splash (the <head> script checks); if the
+   setting changes while it plays, just show the finished mark */
+@media (prefers-reduced-motion: reduce) {
+  .splash *, .splash *::before { animation-duration: 1ms !important; animation-delay: 0s !important; }
+}
+
 /* ------------------------------- Print ------------------------------------ */
 @media print {
+  .splash { display: none !important; }
+  html.splash-on { overflow: visible; }
+  html.app-pending main, html.app-pending .site-footer { visibility: visible; animation: none; }
   /* print in the light palette whatever theme is on screen */
   :root, html[data-theme] {
     --bg: #ffffff; --surface: #ffffff; --surface-2: #eef1f6;

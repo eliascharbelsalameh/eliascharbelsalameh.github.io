@@ -1,0 +1,17 @@
+# Fails (red X on the commit) if someone edited assets/js/data.js or a post in
+# posts/ without running "node tools/build.mjs", so the static copies in
+# index.html, the blog pages, the feed and the sitemap never drift from their
+# sources. It only checks; GitHub Pages still deploys the branch as it is.
+name: Generated files up to date
+on:
+  push:
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/build.mjs --check

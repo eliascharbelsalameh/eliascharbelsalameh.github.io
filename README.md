@@ -6,9 +6,14 @@ cards or a compact list. Visitors can toggle whole categories on/off (Research,
 Technical, Academic, Project Mgmt, Leadership, Volunteering, Community, Awards)
 or search the whole thing.
 
-- **No build step, no dependencies.** Plain HTML/CSS/JS, so it will keep working untouched for years.
+- **No dependencies.** Plain HTML/CSS/JS, so it will keep working untouched for years.
 - **Edit one file.** All content lives in [`assets/js/data.js`](assets/js/data.js).
+- **One command after editing:** `node tools/build.mjs` (Node 18 or newer, nothing
+  to install). It writes the blog pages and refreshes the copy of your content
+  that search engines read. The site works without it; it just goes stale for
+  crawlers until you run it. See [5. Blog](#5-blog) and [6. Search engines](#6-search-engines-and-link-previews).
 - **Light & dark mode**, fully responsive (phone / tablet / desktop), and print-friendly.
+- **A blog** of real static pages, written in Markdown.
 
 ---
 
@@ -21,6 +26,17 @@ Open **`assets/js/data.js`** in any text editor. It is heavily commented. You ca
 - Add / edit / remove timeline entries (the `timeline` array).
 - Add or rename filter categories (the `categories` array).
 - Edit the skills and your player-card ratings (`skills` array).
+
+Then run, from the project folder:
+
+```powershell
+node tools/build.mjs
+```
+
+It copies the new content into `index.html` (for search engines and visitors
+without JavaScript) and updates `sitemap.xml`. Bump `profile.updated` when you
+make a real change: it's the footer's "last updated" date and the home page's
+`<lastmod>` in the sitemap.
 
 ### Add a new timeline entry
 Copy any `{ … }` block inside the `timeline` array, paste it, and edit the text.
@@ -161,10 +177,10 @@ or a status.
 ### Contact buttons
 The hero's first button is **Email me** (from `profile.email`), followed by
 LinkedIn and GitHub. The header has a **Contact** button at every width that jumps
-to the contact block at the bottom. `index.html` also carries a small copy of your
-name, role and contact links inside `<noscript>` tags, for visitors and crawlers
-without JavaScript: if you change your email, phone, LinkedIn or role, update
-those few lines in `index.html` too.
+to the contact block at the bottom. The header's **Blog** link and the footer's
+**Blog · Atom feed** links lead to the blog. The copy of your contact links in
+`index.html` (for visitors and crawlers without JavaScript) is written by
+`node tools/build.mjs`, so you only ever change them in `data.js`.
 
 ### CV download (off by default)
 The timeline itself is the showcase, so there is no "Download CV" button unless you ask
@@ -221,14 +237,20 @@ perfect to put on a CV.
 4. Wait ~1 minute, then visit **https://eliascharbelsalameh.github.io**.
 
 ### Updating later
-Edit `data.js` (locally or directly on GitHub), commit/push, and the site updates
+Edit `data.js` (or add a post), run the build, commit/push, and the site updates
 automatically in a minute.
 
 ```powershell
+node tools/build.mjs
 git add .
 git commit -m "Add new experience"
 git push
 ```
+
+If you edit `data.js` directly on GitHub's website, the site updates too, but the
+**"Generated files up to date"** check (`.github/workflows/build-check.yml`) turns
+red on that commit as a reminder: pull, run `node tools/build.mjs`, and push. The
+check only reports; it never blocks or changes the deployment.
 
 ### Optional: a project repo instead
 If you'd rather keep it in a repo with another name (e.g. `portfolio`), that's
@@ -279,26 +301,152 @@ don't). Add `id: "phd"` to an entry in `data.js` to pin it to `#entry-phd` inste
 - **⌘/Ctrl-click a category chip** (inside **Filters**): isolate that one category instead of toggling it.
 - Search ignores accents, so `compiegne` finds *Compiègne*.
 
+### The intro animation
+The first time someone opens the site in a browser session, an intro plays for
+about 2.2 seconds: your initials "ecs" are drawn in outline, fill with colour from
+below, extrude into 3D and catch a sweep of light, with your name underneath, then
+the screen fades to the page. While it plays the page can't be scrolled, clicked
+or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early.
+
+- **Once per session:** going to a blog post and back, or reloading, doesn't replay
+  it. A new tab or a new browser session does.
+- **Never shown** to visitors who ask their system for reduced motion, to search
+  engines and link-preview bots, to tabs opened in the background, or without
+  JavaScript. The page is fully there underneath the whole time.
+- **Can't get stuck:** it removes itself after 4 seconds whatever happens, and a
+  CSS backstop hides it even if every script fails.
+- It lives in `index.html` (the `#splash` block and two small scripts, all
+  commented) and the "Intro splash" section of `styles.css`, in the site's own
+  colours for each theme. To turn it off, delete the `#splash` block and the two
+  scripts marked "Intro splash".
+
+---
+
+## 5. Blog
+
+Posts are Markdown files in **`posts/`**. Each one becomes a real page at
+`/blog/<name>/`, with its own title, description, link preview and structured
+data, readable by search engines and link previews without JavaScript.
+
+### Write a post
+1. Create `posts/my-post-name.md` (the file name becomes the address:
+   `/blog/my-post-name/`). Start it with this block:
+
+   ```markdown
+   ---
+   title: "Tuning MPC weights for adaptive cruise control"
+   description: "One or two sentences for search results and link previews (50 to 160 characters)."
+   date: 2026-12-01
+   tags: [Control, MPC]
+   ---
+
+   Your text, in Markdown.
+   ```
+
+2. Run `node tools/build.mjs`.
+3. Open `http://localhost:4321/blog/` (see [2. Preview locally](#2-preview-locally)), then commit and push.
+
+Optional front-matter lines: `updated: 2026-12-15` (after a real revision; shown
+on the post and used in the sitemap and feed), `draft: true` (skipped by the
+build), `slug: other-address` (a different address than the file name),
+`image: assets/images/blog/cover.png` plus `image_alt: "…"` (its own link-preview
+image instead of the site's). Lines starting with `#` in the block are notes the
+build ignores.
+
+The starter post, `posts/about-me-and-this-blog.md`, was written only from facts
+already in `data.js`. Rewrite it in your own words or delete it.
+
+### What Markdown works
+`##` and `###` headings (the post title is the page's only `#`), paragraphs,
+`**bold**`, `*italic*`, `~~struck~~`, `` `inline code` ``, fenced code blocks
+(```` ```python ````), `>` quotes, `-` and `1.` lists (indent to nest),
+`[links](https://…)`, `<https://autolinks>`, `---` rules, and images:
+
+```markdown
+![What the image shows](assets/images/blog/setup.jpg "Optional caption")
+```
+
+Put images in `assets/images/blog/` and write paths from the site root, as in
+`data.js`; links to your own pages work the same way (`blog/other-post/`,
+`/?skill=MPC`). Images get their width and height filled in (no layout jump) and
+load lazily. Raw HTML isn't passed through: it shows as text, so a post can't
+break the page. The build warns about missing images, missing alt text and
+overly long titles or descriptions.
+
+### What the build writes
+| File | What it is |
+| --- | --- |
+| `blog/<name>/index.html` | one page per post |
+| `blog/index.html` | the listing, newest first |
+| `blog/feed.xml` | Atom feed (readers find it from every page's `<head>`) |
+| `sitemap.xml` | home, blog and every post, each with its `<lastmod>` |
+
+Commit these generated files: GitHub Pages serves them as they are. Don't edit
+them by hand; the next build overwrites them. Deleting or renaming a post and
+rebuilding removes its old page. Posts are in English for now; nothing in the
+layout stops a French version later.
+
+---
+
+## 6. Search engines and link previews
+
+- **Your content is in the HTML.** The page is drawn by JavaScript, so
+  `node tools/build.mjs` also writes a plain copy of `data.js` into
+  `index.html` (between `<!-- build:… -->` markers): name, role, summary, key
+  figures, every timeline entry and the skills. Search engines, link previews
+  and visitors without JavaScript read that; `app.js` replaces it with the
+  interactive page. With JavaScript on, the page body appears only once it's
+  drawn, so it never jumps. Don't edit inside the markers.
+- **Structured data** (JSON-LD, built from `data.js`): Person, WebSite and
+  ProfilePage on the home page; Blog on the listing; BlogPosting and
+  BreadcrumbList on each post.
+- **One address per page.** The French view (`?lang=fr`, or the FR button) is the
+  same page translated in place, so it isn't listed as a separate French page for
+  search engines: its French text isn't in the HTML. Giving it its own
+  indexable page would mean a static `/fr/` copy (a possible next step).
+- **Link-preview image:** `assets/images/og-cover.png` (1200×630) is a screenshot
+  of `tools/og-cover.html`. Its text is typed into that file, so if your role
+  changes, edit it and re-create the PNG with Edge (PowerShell, from the project
+  folder):
+
+  ```powershell
+  & "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=3000 --screenshot="$PWD\assets\images\og-cover.png" "$PWD\tools\og-cover.html"
+  ```
+
+- `robots.txt` lets everything in except `posts/` and `tools/` (sources, not
+  pages) and points at the sitemap.
+
 ---
 
 ## File map
 
 ```
 portfolio/
-├── index.html              # page structure (rarely edited)
+├── index.html              # page structure (rarely edited; build:… regions are generated)
 ├── assets/
-│   ├── css/styles.css      # all styling + light/dark theme
+│   ├── css/
+│   │   ├── styles.css      # all styling + light/dark theme + intro animation
+│   │   └── blog.css        # blog reading layout
 │   ├── js/
 │   │   ├── data.js         # ← YOUR CONTENT lives here
-│   │   └── app.js          # renders + filters (rarely edited)
+│   │   ├── app.js          # renders + filters (rarely edited)
+│   │   └── site.js         # theme toggle on blog pages
 │   ├── fonts/              # Roboto + Roboto Mono (self-hosted) + LICENSE.txt
-│   └── images/             # entry images + profile.jpg
+│   └── images/             # entry images, profile.jpg, og-cover.png
+├── posts/                  # ← YOUR BLOG POSTS (Markdown)
+├── blog/                   # generated: post pages, listing, feed.xml
+├── tools/
+│   ├── build.mjs           # node tools/build.mjs: blog + static copy + sitemap
+│   └── og-cover.html       # source of the link-preview image
+├── .github/workflows/      # the "generated files up to date" check
 ├── robots.txt              # lets crawlers in, points at the sitemap
-├── sitemap.xml             # one URL + its EN/FR alternates
+├── sitemap.xml             # generated: every page with its last-modified date
 ├── .nojekyll               # tells GitHub Pages to serve files as-is
 └── README.md               # this file
 ```
 
-> `robots.txt`, `sitemap.xml` and the `<link rel="canonical">` / `og:` tags in
-> `index.html` hard-code `https://eliascharbelsalameh.github.io/`. If the site ever
-> moves to a custom domain, update the URL in those three places.
+> The site address `https://eliascharbelsalameh.github.io` is written in
+> `tools/build.mjs` (`SITE`, used for every generated page, the feed and the
+> sitemap), `robots.txt`, `tools/og-cover.html` and the `<link rel="canonical">` /
+> `og:` / feed tags in `index.html`. If the site ever moves to a custom domain,
+> update it in those places and rebuild.

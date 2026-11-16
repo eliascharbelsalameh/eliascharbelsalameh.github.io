@@ -5,6 +5,11 @@
    You do NOT need to touch any HTML/CSS/JS to add experiences or images.
    Everything on the page is generated from the data below.
 
+   After editing, run   node tools/build.mjs   from the project folder. It
+   refreshes the copy of this content inside index.html that search engines,
+   link previews and visitors without JavaScript read, plus the sitemap. The
+   page itself works either way; a GitHub check flags it if you forget.
+
    ---------------------------------------------------------------------------
    HOW TO ADD A NEW TIMELINE ENTRY
    ---------------------------------------------------------------------------
@@ -117,14 +122,15 @@ window.PORTFOLIO = {
     position: "R&D engineer · control & AI",
     position_fr: "Ingénieur R&D · automatique & IA",
     location: "Bordeaux, France",
-    // Browser-tab title and search-engine description. The English pair must
-    // match <title> and <meta name="description"> in index.html (crawlers read
-    // those without JavaScript); the French pair is swapped in on ?lang=fr.
+    // Browser-tab title and search-engine description. `node tools/build.mjs`
+    // copies the English pair into <title> and <meta name="description"> in
+    // index.html (crawlers read those without JavaScript); the French pair is
+    // swapped in when the page is shown in French.
     pageTitle: "Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD",
     pageTitle_fr: "Elias Charbel Salameh · Ingénieur R&D et futur doctorant CIFRE",
     pageDescription: "R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms.",
     pageDescription_fr: "Ingénieur R&D chez ADERA, futur doctorant CIFRE avec Stellantis / IMS : robotique, automatique et IA pour des algorithmes automobiles certifiables et à faible consommation.",
-    updated: "2026-11-16",   // "last updated on" date shown in the footer; bump this when you edit the site
+    updated: "2026-11-16",   // "last updated on" date in the footer and the home page's sitemap <lastmod>; bump it when you edit the site
     // Contacts: edit freely. Set any to "" to hide it.
     email: "esalameh@proton.me",
     phone: "+33 7 83 75 76 69",

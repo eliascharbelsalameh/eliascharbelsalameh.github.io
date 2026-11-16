@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+# sources of generated pages, not pages themselves
+Disallow: /posts/
+Disallow: /tools/
 
 Sitemap: https://eliascharbelsalameh.github.io/sitemap.xml

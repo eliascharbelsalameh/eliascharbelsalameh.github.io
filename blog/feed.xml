@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <title>Elias Charbel Salameh · Blog</title>
+  <subtitle>Notes on robotics, control and AI for embedded automotive systems, and on the projects behind them.</subtitle>
+  <link rel="self" type="application/atom+xml" href="https://eliascharbelsalameh.github.io/blog/feed.xml"/>
+  <link rel="alternate" type="text/html" href="https://eliascharbelsalameh.github.io/blog/"/>
+  <id>https://eliascharbelsalameh.github.io/blog/</id>
+  <updated>2026-11-16T00:00:00Z</updated>
+  <author>
+    <name>Elias Charbel SALAMEH</name>
+    <uri>https://eliascharbelsalameh.github.io/</uri>
+  </author>
+  <entry>
+    <title>About me, and about this blog</title>
+    <link rel="alternate" type="text/html" href="https://eliascharbelsalameh.github.io/blog/about-me-and-this-blog/"/>
+    <id>https://eliascharbelsalameh.github.io/blog/about-me-and-this-blog/</id>
+    <published>2026-11-16T00:00:00Z</published>
+    <updated>2026-11-16T00:00:00Z</updated>
+    <summary>Who I am, an R&amp;D engineer in control and embedded AI heading into a CIFRE PhD with Stellantis and IMS, and what this blog will cover.</summary>
+    <category term="Introduction"/>
+    <category term="Control"/>
+    <category term="Robotics"/>
+    <category term="Embedded AI"/>
+    <content type="html">&lt;p&gt;I&amp;#39;m Elias Charbel Salameh, an R&amp;amp;D engineer at ADERA in Bordeaux. I work on
+mixed AI / model-based approaches for low-consumption, certifiable embedded
+automotive algorithms. It is the same research project as my upcoming CIFRE
+PhD with Stellantis and the IMS laboratory, started ahead of time.&lt;/p&gt;
+&lt;h2 id=&quot;where-im-coming-from&quot;&gt;Where I&amp;#39;m coming from&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Education.&lt;/strong&gt; A B.E. in Electrical &amp;amp; Electronics Engineering at the Holy
+Spirit University of Kaslik (USEK), then a double-degree M.Sc. in Complex
+Systems Engineering (Automation &amp;amp; Robotics of Intelligent Systems) at the
+Université de Technologie de Compiègne (UTC).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Control under uncertainty.&lt;/strong&gt; As an R&amp;amp;D intern at the OpenLab
+Stellantis–IMS–SANPSY, I worked on Adaptive Cruise Control for connected
+automated vehicles: robust MPC, soft-constrained MPC and reinforcement
+learning, benchmarked across speed profiles, and a Safe-RL controller with
+Control Barrier Functions.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Robotics.&lt;/strong&gt; My final-year project at USEK studied a SLAM pipeline for the
+Unitree AlienGo quadruped, fusing a 3D LiDAR, an IMU and an Intel RealSense
+D435i depth camera.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Computer vision.&lt;/strong&gt; At inmind.ai academy I built an end-to-end
+object-detection pipeline for BMW assembly-line items with YOLOv5
+(98.4% mAP).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Teaching and community.&lt;/strong&gt; I lead lab sessions on linear systems dynamics
+at the Université de Bordeaux, and I was Head of Judges for the World Robot
+Olympiad Lebanon 2025, coordinating 42 judges.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;a href=&quot;https://eliascharbelsalameh.github.io/&quot;&gt;portfolio&lt;/a&gt; has every entry in detail, and its timeline can be
+filtered by topic: for example the &lt;a href=&quot;https://eliascharbelsalameh.github.io/?skill=MPC&quot;&gt;entries that use MPC&lt;/a&gt; or
+the &lt;a href=&quot;https://eliascharbelsalameh.github.io/?cat=research&quot;&gt;research work&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;what-this-blog-is-for&quot;&gt;What this blog is for&lt;/h2&gt;
+&lt;p&gt;Posts here will follow the same threads as that timeline: control, robotics
+and embedded AI, and the projects and teaching around them.&lt;/p&gt;
+&lt;h2 id=&quot;get-in-touch&quot;&gt;Get in touch&lt;/h2&gt;
+&lt;p&gt;The quickest way to reach me is by &lt;a href=&quot;mailto:esalameh@proton.me&quot;&gt;email&lt;/a&gt; or on
+&lt;a href=&quot;https://www.linkedin.com/in/eliascharbelsalameh&quot;&gt;LinkedIn&lt;/a&gt;.&lt;/p&gt;</content>
+  </entry>
+</feed>

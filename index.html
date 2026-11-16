@@ -3,35 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD</title>
-  <meta name="description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms." />
+  <!-- Tab title and search description: written by tools/build.mjs from
+       profile.pageTitle / pageDescription in data.js (app.js swaps in the
+       French pair when the page is shown in French). -->
+  <!-- build:meta -->
+  <title>Elias Charbel Salameh · R&amp;D Engineer &amp; Incoming CIFRE PhD</title>
+  <meta name="description" content="R&amp;D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms." />
+  <!-- /build:meta -->
   <meta name="author" content="Elias Charbel Salameh" />
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" id="meta-theme-color" content="#f5f6f9" />
+  <!-- One indexable URL: the French view (?lang=fr, or a saved preference) is
+       the same page translated in place by app.js, so it isn't declared as a
+       separate hreflang alternate; its content isn't in the HTML. -->
   <link rel="canonical" href="https://eliascharbelsalameh.github.io/" />
-  <link rel="alternate" hreflang="en" href="https://eliascharbelsalameh.github.io/" />
-  <link rel="alternate" hreflang="fr" href="https://eliascharbelsalameh.github.io/?lang=fr" />
-  <link rel="alternate" hreflang="x-default" href="https://eliascharbelsalameh.github.io/" />
+  <link rel="alternate" type="application/atom+xml" title="Elias Charbel Salameh · Blog" href="https://eliascharbelsalameh.github.io/blog/feed.xml" />
 
   <!-- Open Graph / link preview (shows when shared with recruiters).
        og:image must be an ABSOLUTE url, because crawlers don't resolve relative paths.
-       To upgrade to a wide banner card: drop a 1200x630 assets/images/og-cover.png
-       in, point og:image at it, and switch twitter:card to summary_large_image. -->
+       og-cover.png is made from tools/og-cover.html (see the README). -->
   <meta property="og:type" content="profile" />
   <meta property="og:site_name" content="Elias Charbel Salameh" />
   <meta property="og:url" content="https://eliascharbelsalameh.github.io/" />
   <meta property="og:title" content="Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD" />
   <meta property="og:description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS. An interactive, filterable timeline of research, engineering, leadership and academic work." />
-  <meta property="og:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
-  <meta property="og:image:width" content="525" />
-  <meta property="og:image:height" content="525" />
-  <meta property="og:image:alt" content="Portrait of Elias Charbel Salameh" />
+  <meta property="og:image" content="https://eliascharbelsalameh.github.io/assets/images/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Elias Charbel Salameh, R&D engineer in control and AI" />
   <meta property="og:locale" content="en_US" />
-  <meta property="og:locale:alternate" content="fr_FR" />
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD" />
   <meta name="twitter:description" content="R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS. An interactive, filterable timeline of research, engineering, leadership and academic work." />
-  <meta name="twitter:image" content="https://eliascharbelsalameh.github.io/assets/images/profile.jpg" />
+  <meta name="twitter:image" content="https://eliascharbelsalameh.github.io/assets/images/og-cover.png" />
+
+  <!-- Structured data for search engines (schema.org Person, WebSite and
+       ProfilePage), written by tools/build.mjs from data.js -->
+  <!-- build:jsonld -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://eliascharbelsalameh.github.io/#website",
+        "url": "https://eliascharbelsalameh.github.io/",
+        "name": "Elias Charbel Salameh",
+        "description": "R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms.",
+        "inLanguage": "en",
+        "publisher": {
+          "@id": "https://eliascharbelsalameh.github.io/#person"
+        }
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": "https://eliascharbelsalameh.github.io/#profile",
+        "url": "https://eliascharbelsalameh.github.io/",
+        "name": "Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD",
+        "inLanguage": "en",
+        "isPartOf": {
+          "@id": "https://eliascharbelsalameh.github.io/#website"
+        },
+        "mainEntity": {
+          "@id": "https://eliascharbelsalameh.github.io/#person"
+        },
+        "dateModified": "2026-11-16"
+      },
+      {
+        "@type": "Person",
+        "@id": "https://eliascharbelsalameh.github.io/#person",
+        "name": "Elias Charbel Salameh",
+        "url": "https://eliascharbelsalameh.github.io/",
+        "image": "https://eliascharbelsalameh.github.io/assets/images/profile.jpg",
+        "jobTitle": "R&D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS",
+        "description": "Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms. Hands-on experience across control systems, computer vision, SLAM and deep learning.",
+        "email": "mailto:esalameh@proton.me",
+        "telephone": "+33 7 83 75 76 69",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Bordeaux",
+          "addressCountry": "France"
+        },
+        "worksFor": [
+          {
+            "@type": "Organization",
+            "name": "ADERA"
+          }
+        ],
+        "alumniOf": [
+          {
+            "@type": "EducationalOrganization",
+            "name": "Université de Technologie de Compiègne (UTC)"
+          },
+          {
+            "@type": "EducationalOrganization",
+            "name": "Holy Spirit University of Kaslik (USEK)"
+          },
+          {
+            "@type": "EducationalOrganization",
+            "name": "Collège Saint Joseph Antoura (CSJA), AEFE"
+          }
+        ],
+        "knowsAbout": [
+          "Python",
+          "C / C++",
+          "MATLAB / Simulink",
+          "Java",
+          "Assembly",
+          "Bash",
+          "LaTeX",
+          "ROS / ROS2",
+          "SLAM",
+          "NVIDIA Isaac Sim / Omniverse",
+          "Webots",
+          "SCANeR studio",
+          "Docker",
+          "Git",
+          "Linux / Unix",
+          "NI LabVIEW",
+          "PyTorch",
+          "Keras",
+          "TensorFlow",
+          "OpenCV",
+          "Deep Learning",
+          "Reinforcement Learning",
+          "Computer Vision",
+          "NLP",
+          "Transformers / BERT",
+          "RAG",
+          "Vision Transformers",
+          "YOLO",
+          "Feature Engineering",
+          "MPC",
+          "Kalman Filtering",
+          "Control under Uncertainty",
+          "Control Barrier Functions",
+          "Fuzzy Logic",
+          "Optimization",
+          "Microcontrollers",
+          "PLCs",
+          "Power Electronics",
+          "Project Management",
+          "Agile",
+          "Innovation & Entrepreneurship",
+          "Market Research",
+          "Business Impact Analysis",
+          "Leadership",
+          "Strategic Planning",
+          "Technical Communication",
+          "Teamwork"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/eliascharbelsalameh",
+          "https://github.com/eliascharbelsalameh"
+        ]
+      }
+    ]
+  }
+  </script>
+  <!-- /build:jsonld -->
 
   <!-- Inline SVG favicon (no external file needed): the same "ECS" mark as the header -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b2a4a'/%3E%3Ctext x='50' y='63' font-family='Consolas,Menlo,monospace' font-size='36' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EECS%3C/text%3E%3C/svg%3E" />
@@ -44,9 +174,14 @@
 
   <link rel="stylesheet" href="assets/css/styles.css" />
 
-  <!-- Set saved theme before first paint to avoid a flash -->
+  <!-- Set saved theme before first paint to avoid a flash. Also marks the page
+       as scripted: "js" hides the controls that need JavaScript only when it's
+       off, and "app-pending" keeps the page body unpainted until app.js has
+       rendered it (no layout shift; app.js removes it, styles.css has a 3s
+       backstop). -->
   <script>
     (function () {
+      document.documentElement.classList.add("js", "app-pending");
       try {
         var t = localStorage.getItem("theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -56,8 +191,82 @@
       } catch (e) {}
     })();
   </script>
+
+  <!-- Intro splash (#splash, first thing in <body>): decided here, before first
+       paint, so the page never flashes before it. It plays on the first page
+       view of a browser session only, never under reduced motion, never for
+       crawlers, and never without JavaScript (it stays [hidden]). The timers
+       below are the hard stop: the splash is gone after 4s whatever else fails. -->
+  <script>
+    (function () {
+      var d = document.documentElement, ended = false;
+      try {
+        if (sessionStorage.getItem("ecs-intro") ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+            document.visibilityState === "hidden" ||
+            /bot|crawl|spider|slurp|preview|lighthouse|pagespeed|headless/i.test(navigator.userAgent)) return;
+        sessionStorage.setItem("ecs-intro", "1");
+      } catch (e) { return; }   // no session storage: skip it rather than replay it on every page
+      d.classList.add("splash-on");
+      function cleanup() {
+        d.classList.remove("splash-on", "splash-out");
+        var held = document.querySelectorAll("[data-splash-inert]");
+        for (var i = 0; i < held.length; i++) { held[i].inert = false; held[i].removeAttribute("data-splash-inert"); }
+        var s = document.getElementById("splash");
+        if (s && s.parentNode) s.parentNode.removeChild(s);
+      }
+      // fade out (about .45s), then remove; app.js listens for "ecs:intro-end"
+      window.ecsIntroEnd = function (now) {
+        if (ended) return;
+        ended = true;
+        d.classList.add("splash-out");
+        var s = document.getElementById("splash");
+        if (s) s.classList.add("is-leaving");
+        try { document.dispatchEvent(new Event("ecs:intro-end")); } catch (e) {}
+        setTimeout(cleanup, now || !s ? 0 : 450);
+      };
+      setTimeout(function () { try { window.ecsIntroEnd(true); } catch (e) {} cleanup(); }, 4000);
+    })();
+  </script>
 </head>
 <body>
+  <!-- Intro splash: "ecs" in Roboto Mono Bold, as vector outlines (so it can't
+       flash a fallback font), drawn, filled and extruded by CSS (styles.css,
+       "Intro splash"). Removed from the page once it has played. -->
+  <div class="splash" id="splash" role="img" aria-label="Elias Charbel Salameh" hidden>
+    <svg class="sp-art" viewBox="-12 -18 368 172" aria-hidden="true" focusable="false">
+      <defs>
+        <path id="sp-e" pathLength="1" d="M55.4 112.2Q71.1 112.2 82.6 106.1Q94.1 100 99.4 92.5L85.5 77.5Q80.7 83.7 73 86.8Q65.3 89.9 57.1 89.9Q51.3 89.9 46.4 88.1Q41.5 86.3 37.7 83Q34 79.8 31.8 75.8Q29.6 71.9 28.2 65.4V65.1H101.6V53.3Q101.6 41.4 98.3 31.6Q95 21.7 88.7 14.7Q82.3 7.7 73.2 3.9Q64 0 52.3 0Q41 0 31.4 4.1Q21.8 8.2 14.8 15.6Q7.8 23 3.9 33.2Q0 43.5 0 55.9V59.9Q0 70.8 4 80.3Q7.9 89.9 15.2 96.9Q22.5 104 32.7 108.1Q42.9 112.2 55.4 112.2ZM52.1 22.5Q57.4 22.5 61.5 24.1Q65.5 25.8 68.3 28.6Q71.1 31.5 72.7 35.4Q74.3 39.3 74.3 43.7V45.9H28.7Q29.7 40.6 31.7 36.3Q33.7 32 36.7 28.9Q39.6 25.8 43.5 24.1Q47.4 22.5 52.1 22.5Z"/>
+        <path id="sp-c" pathLength="1" d="M166.7 90Q160 90 155.7 87.3Q151.3 84.6 148.8 80.1Q146.2 75.7 145.2 69.8Q144.2 64 144.2 57.7V54.7Q144.2 48.5 145.2 42.7Q146.3 36.9 148.9 32.4Q151.4 27.9 155.7 25.2Q160 22.5 166.6 22.5Q171.1 22.5 174.9 24Q178.7 25.6 181.4 28.2Q184.1 30.8 185.5 34.4Q186.9 38 186.7 42H212.9Q213.1 32.4 209.7 24.6Q206.3 16.9 200.2 11.4Q194 6 185.5 3Q177 0 167 0Q154.5 0 145.1 4.3Q135.6 8.6 129.2 16Q122.8 23.4 119.6 33.3Q116.4 43.3 116.4 54.7V57.7Q116.4 69.1 119.7 79Q122.9 89 129.3 96.4Q135.6 103.8 145.1 108Q154.6 112.3 167.2 112.3Q176.5 112.3 184.8 109.3Q193.2 106.4 199.5 101.2Q205.8 96 209.5 88.8Q213.1 81.6 212.9 73.2H186.7Q186.9 77 185.4 80.1Q183.8 83.2 181 85.4Q178.2 87.6 174.5 88.8Q170.8 90 166.7 90Z"/>
+        <path id="sp-s" pathLength="1" d="M304.5 80.5Q304.5 83 303.2 85.1Q302 87.2 299.5 88.8Q296.9 90.4 292.9 91.3Q288.8 92.3 283.4 92.3Q278.9 92.3 274.7 91.4Q270.4 90.5 267.1 88.5Q263.8 86.6 261.7 83.4Q259.6 80.3 259.3 75.9H232.8Q232.8 82.5 236.1 89Q239.3 95.6 245.6 100.7Q251.9 105.9 261.2 109.1Q270.6 112.3 282.8 112.3Q293.9 112.3 302.9 109.8Q311.9 107.4 318.3 103Q324.6 98.6 328.1 92.5Q331.5 86.5 331.5 79.3Q331.5 71.5 328.1 65.8Q324.6 60.2 318.5 56.2Q312.4 52.3 304 49.8Q295.6 47.3 285.8 45.7Q279 44.7 274.6 43.4Q270.2 42 267.7 40.3Q265.1 38.7 264.1 36.6Q263.1 34.6 263.1 32.2Q263.1 29.8 264.2 27.6Q265.4 25.5 267.6 23.9Q270 22.1 273.8 21.1Q277.6 20.1 282.7 20.1Q288.7 20.1 293 21.6Q297.2 23.1 299.7 25.6Q301.5 27.5 302.4 29.9Q303.3 32.2 303.3 34.9H331.1Q331.1 27.4 327.8 21Q324.5 14.6 318.3 9.9Q312 5.3 303 2.6Q294 0 282.7 0Q271.9 0 263.3 2.7Q254.7 5.4 248.7 10Q242.7 14.6 239.5 20.7Q236.3 26.8 236.3 33.5Q236.3 40.4 239.5 45.7Q242.6 51 248.2 55Q253.8 59.1 261.6 62Q269.5 64.8 279 66.7Q286.5 68.1 291.4 69.5Q296.3 70.9 299.3 72.5Q302.2 74.2 303.4 76.1Q304.5 78 304.5 80.5Z"/>
+        <g id="sp-word"><use href="#sp-e"/><use href="#sp-c"/><use href="#sp-s"/></g>
+        <clipPath id="sp-clip"><use href="#sp-e"/><use href="#sp-c"/><use href="#sp-s"/></clipPath>
+        <linearGradient id="sp-face-grad" x1="0" y1="0" x2=".25" y2="1">
+          <stop class="sp-stop-hi" offset=".12"/><stop class="sp-stop-lo" offset=".85"/>
+        </linearGradient>
+        <linearGradient id="sp-sheen-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop class="sp-sheen-edge" offset="0"/><stop class="sp-sheen-mid" offset=".5"/><stop class="sp-sheen-edge" offset="1"/>
+        </linearGradient>
+        <radialGradient id="sp-floor-grad">
+          <stop class="sp-floor-in" offset="0"/><stop class="sp-floor-out" offset="1"/>
+        </radialGradient>
+      </defs>
+      <ellipse class="sp-floor" cx="172" cy="134" rx="182" ry="11"/>
+      <g class="sp-depth">
+        <use href="#sp-word" style="--i:11"/><use href="#sp-word" style="--i:10"/><use href="#sp-word" style="--i:9"/>
+        <use href="#sp-word" style="--i:8"/><use href="#sp-word" style="--i:7"/><use href="#sp-word" style="--i:6"/>
+        <use href="#sp-word" style="--i:5"/><use href="#sp-word" style="--i:4"/><use href="#sp-word" style="--i:3"/>
+        <use href="#sp-word" style="--i:2"/><use href="#sp-word" style="--i:1"/>
+      </g>
+      <g clip-path="url(#sp-clip)">
+        <g class="sp-rise"><path class="sp-wave" fill="url(#sp-face-grad)" d="M-30 0q15-7 30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0t30 0V144H-30Z"/></g>
+        <rect class="sp-sheen" x="-60" y="-20" width="46" height="160"/>
+      </g>
+      <g class="sp-line"><use href="#sp-e"/><use href="#sp-c"/><use href="#sp-s"/></g>
+    </svg>
+    <div class="sp-name" data-text="Elias Charbel Salameh" aria-hidden="true"></div>
+  </div>
+
   <a class="skip-link" href="#timeline" data-i18n="skip">Skip to timeline</a>
 
   <!-- ============================= HEADER ============================= -->
@@ -73,6 +282,7 @@
         <a href="#highlights" data-i18n="nav_highlights">Highlights</a>
         <a href="#timeline" data-i18n="nav_timeline">Timeline</a>
         <a href="#skills" data-i18n="nav_skills">Skills</a>
+        <a href="blog/" data-i18n="nav_blog">Blog</a>
       </nav>
       <div class="header-actions">
         <a class="btn btn-primary btn-sm header-contact" href="#contact" id="header-contact">
@@ -96,31 +306,44 @@
 
   <main>
     <!-- ============================= HERO ============================= -->
-    <!-- The <noscript> fallbacks keep the name, role and contact links readable
-         without JavaScript. app.js replaces them with the data.js content, so
-         if you change your role or contact details, update them here too. -->
+    <!-- The "build:NAME" regions on this page hold a static copy of the
+         data.js content (name, role, figures, every timeline entry, skills,
+         contact links), written by tools/build.mjs, for search engines, link
+         previews and visitors without JavaScript. app.js replaces each one
+         with the interactive version. Don't edit inside them: edit data.js and
+         run `node tools/build.mjs`. -->
     <section class="hero" id="about">
       <div class="wrap hero-inner">
         <div class="hero-text">
-          <p class="hero-eyebrow" id="hero-role"><noscript>R&amp;D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS</noscript></p>
-          <h1 class="hero-name" id="hero-name"><noscript>Elias Charbel Salameh</noscript></h1>
-          <p class="hero-loc" id="hero-loc" hidden></p>
-          <p class="hero-tagline" id="hero-tagline"></p>
-          <p class="hero-summary" id="hero-summary"></p>
-          <div class="hero-cta" id="hero-cta"><noscript>
+          <!-- build:hero -->
+          <p class="hero-eyebrow" id="hero-role">R&amp;D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS</p>
+          <h1 class="hero-name" id="hero-name">Elias Charbel SALAMEH</h1>
+          <p class="hero-loc" id="hero-loc"><span>Bordeaux, France</span></p>
+          <p class="hero-tagline" id="hero-tagline">Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.</p>
+          <p class="hero-summary" id="hero-summary">Hands-on experience across control systems, computer vision, SLAM and deep learning.</p>
+          <div class="hero-cta" id="hero-cta">
             <a class="btn btn-primary" href="mailto:esalameh@proton.me">Email me</a>
-            <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh">LinkedIn</a>
-            <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh">GitHub</a>
-            <a class="btn btn-ghost" href="tel:+33783757669">+33 7 83 75 76 69</a>
-            <p class="noscript-note">The interactive timeline needs JavaScript.</p>
-          </noscript></div>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh" rel="me">LinkedIn</a>
+            <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh" rel="me">GitHub</a>
+            <a class="btn btn-ghost" href="blog/">Blog</a>
+          </div>
+          <!-- /build:hero -->
         </div>
         <div class="hero-visual">
           <!-- "player card": photo, name, position and the rated skill groups,
                built by app.js from profile + skills (`rating`, `abbr`) in data.js -->
           <figure class="pcard" id="player-card" hidden></figure>
         </div>
-        <ul class="hero-stats" id="hero-stats" aria-label="Key figures" data-i18n-aria="stats_label"></ul>
+        <ul class="hero-stats" id="hero-stats" aria-label="Key figures" data-i18n-aria="stats_label">
+          <!-- build:stats -->
+          <li><span class="stat-value">990/990</span><span class="stat-label">TOEIC English (C1)</span></li>
+          <li><span class="stat-value">5.0/5.0</span><span class="stat-label">Master&#39;s GPA (excellent)</span></li>
+          <li><span class="stat-value">98.4%</span><span class="stat-label">mAP of the BMW object-detection model</span></li>
+          <li><span class="stat-value">42</span><span class="stat-label">Judges led at WRO 2025</span></li>
+          <li><span class="stat-value">3</span><span class="stat-label">Languages: English C1, French C1 (professional), Arabic (native)</span></li>
+          <li><span class="stat-value">166 kg</span><span class="stat-label">Squat, one-rep max</span></li>
+          <!-- /build:stats -->
+        </ul>
       </div>
     </section>
 
@@ -224,7 +447,322 @@
         </div>
 
         <!-- Timeline renders here (grouped by year, or by importance tier) -->
-        <div class="timeline" id="timeline-list"></div>
+        <div class="timeline" id="timeline-list">
+          <!-- build:timeline -->
+          <noscript><p class="tl-static-note">Filters, views and the map need JavaScript. Here is every entry, most important first.</p></noscript>
+          <div class="tl-group tl-static" data-group="key">
+            <h3 class="tl-tier">Key work</h3>
+            <ul class="tl-static-list">
+              <li class="tl-static-item">
+                <h4>CIFRE PhD: Mixed AI / Control for Embedded Automotive Algorithms</h4>
+                <p class="tl-static-meta"><span>Upcoming</span> · Stellantis / IMS Bordeaux · Talence, France</p>
+                <p>Industry-funded (CIFRE) doctorate with Stellantis and the IMS laboratory, on mixed AI / model-based approaches for low-consumption, certifiable embedded smart automotive algorithms.</p>
+                <p class="tl-static-tags">CIFRE · Embedded AI · Certifiability · Automotive · Control Systems</p>
+                <p class="tl-static-links"><a href="https://www.ims-bordeaux.fr/">IMS, integration lab (CNRS / Univ. Bordeaux / Bordeaux INP)</a> · <a href="https://www.stellantis.com/">Stellantis, global automotive manufacturer</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>R&amp;D Engineer, Embedded AI &amp; Control (CDD)</h4>
+                <p class="tl-static-meta"><span>Sep 2026 – Present</span> · ADERA · Bordeaux, France</p>
+                <p>Mixed AI / model-based approaches for low-consumption, certifiable embedded smart automotive algorithms.</p>
+                <ul><li>Same supervisors and same research project as the upcoming CIFRE doctorate with Stellantis and IMS: the thesis work, started ahead of time.</li></ul>
+                <p class="tl-static-tags">Embedded AI · Certifiability · Automotive · Energy Efficiency · Control Systems</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>R&amp;D Intern, Robotics &amp; Intelligent Systems</h4>
+                <p class="tl-static-meta"><span>Feb 2026 – Jul 2026</span> · OpenLab Stellantis–IMS–SANPSY · Bordeaux, France</p>
+                <p>Improvement of Adaptive Cruise Control (ACC) under uncertainty for connected automated vehicles, blending robust control with learning.</p>
+                <ul><li>Research of a mixed control approach between AI and modeling methods for ACC under uncertainty within ADAS for connected automated vehicles (CAV).</li><li>Implemented and benchmarked robust MPC, soft-constrained MPC and reinforcement learning across varied speed profiles (MATLAB/Simulink, Python, SCANeR studio, C).</li><li>Developed a mixed Safe-RL ACC with Control Barrier Functions (SFRL-ACC + CBF).</li><li>Validated each approach in simulation on common speed profiles with cruise speeds, speed changes in wide ranges, and sudden braking.</li></ul>
+                <p class="tl-static-tags">MPC · Reinforcement Learning · Control Barrier Functions · ADAS · SCANeR studio · MATLAB/Simulink</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>M.Sc. · Complex Systems Eng.: Automation &amp; Robotics of Intelligent Systems</h4>
+                <p class="tl-static-meta"><span>Sep 2025 – Sep 2026</span> · Université de Technologie de Compiègne (UTC) · Compiègne, France</p>
+                <p>Double-degree M2 with USEK, GPA 5.0/5.0, highest honors. Research-project lead.</p>
+                <ul><li>Leading a research project on Hyperdimensional Computing applied to neuromorphic vision.</li><li>Coursework: advanced control of dynamic systems, control of cooperative autonomous robots, estimation for robotic navigation, robotic vision, systems-of-systems, modeling &amp; propagation of uncertainty, optimization, biomimicry.</li></ul>
+                <p class="tl-static-tags">Robotics · Control · Estimation · Optimization · Robotic Vision</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Head of Judges, World Robot Olympiad (WRO) Lebanon 2025</h4>
+                <p class="tl-static-meta"><span>Jul 2025</span> · World Robot Olympiad Lebanon · Lebanon</p>
+                <p>Led and coordinated 42 judges across all categories of the national robotics olympiad.</p>
+                <ul><li>Managed 42 judges across every competition category.</li><li>Capped three consecutive years judging the WRO national competition.</li></ul>
+                <p class="tl-static-tags">Judging · Event leadership · Robotics</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Final Year Project: SLAM on Unitree AlienGo</h4>
+                <p class="tl-static-meta"><span>Feb 2025 – May 2025</span> · USEK, Robotics Department · Jounieh, Lebanon</p>
+                <p>Studied and implemented a SLAM pipeline for autonomous navigation of a quadruped robot.</p>
+                <ul><li>Study and preliminary implementation of a SLAM algorithm (ROS1) on the Unitree AlienGo quadruped.</li><li>Fused 3D LiDAR, IMU and an Intel RealSense D435i depth camera to improve navigation robustness and performance.</li></ul>
+                <p class="tl-static-tags">SLAM · ROS1 · 3D LiDAR · RealSense D435i · Quadruped</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Machine Learning &amp; Computer Vision Intern</h4>
+                <p class="tl-static-meta"><span>Feb 2025 – Mar 2025</span> · inmind.ai academy · Mkalles, Lebanon</p>
+                <p>Built an end-to-end computer-vision pipeline for BMW factory inference (98.4% mAP).</p>
+                <ul><li>Designed an end-to-end CV pipeline for BMW assembly-line item detection with YOLOv5 (mAP[0.5–0.95] = 98.4%).</li><li>Across the track, worked the modern AI stack: Transformers/BERT, RAG, CNNs, point clouds and Vision Transformers.</li><li>Stack: PyTorch, Python, Docker / Docker-Compose, Git, NVIDIA Omniverse; synthetic data, CI/CD, FastAPI, containerization.</li><li>Got offered an interview with the BMW technical team based on the program performance, but decided to proceed with a Robotics/Control Systems Specialization in UTC since they had conflicting timelines.</li></ul>
+                <p class="tl-static-tags">YOLOv5 · Computer Vision · PyTorch · Transformers / BERT · RAG · Vision Transformers · Docker · Synthetic Data · FastAPI</p>
+                <p class="tl-static-links"><a href="#contact">Source code on request</a></p>
+              </li>
+            </ul>
+          </div>
+          <div class="tl-group tl-static" data-group="notable">
+            <h3 class="tl-tier">Also notable</h3>
+            <ul class="tl-static-list">
+              <li class="tl-static-item">
+                <h4>Teaching Assistant (vacataire), Linear Systems Dynamics (TP)</h4>
+                <p class="tl-static-meta"><span>Sep 2026 – Present</span> · Université de Bordeaux · Talence, France</p>
+                <p>Leading hands-on lab sessions (TP) for the course “Dynamique des Systèmes Linéaires”.</p>
+                <ul><li>Guide students through modelling, time- and frequency-domain analysis and stability of linear systems.</li><li>Run the lab sessions in simulation with MATLAB/Simulink.</li><li>27 hours of lab teaching across 3 groups of 25 students (75 students in total).</li></ul>
+                <p class="tl-static-tags">Teaching · Linear Systems · Control · MATLAB/Simulink · Mentoring</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>IEEE RAS IAB Startups &amp; Entrepreneurship (volunteer)</h4>
+                <p class="tl-static-meta"><span>Jul 2026 – Present</span> · IEEE Robotics and Automation Society · Remote</p>
+                <p>The Industrial Activities board is responsible for all industrial related matters and the growth of the industrial community within RAS, both by promoting the participation of industrial partners in current activities and thus creating more links with academics, and by proposing new actions beneficial to this community.</p>
+                <p class="tl-static-tags">Leadership · Entrepreneurship · Partnerships · Events</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Cooperative Control of 6 Robots in Rendezvous</h4>
+                <p class="tl-static-meta"><span>Nov 2025 – Jan 2026</span> · UTC, Control of Autonomous Cooperative Robots · Compiègne, France</p>
+                <p>Designed a distributed control scheme driving six robots to a common rendezvous.</p>
+                <ul><li>Multi-agent control design for consensus / rendezvous of six mobile robots.</li><li>Studied stability and convergence of cooperative control laws.</li></ul>
+                <p class="tl-static-tags">Multi-agent control · Consensus · Cooperative robotics</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Hyperdimensional Computing for Neuromorphic Vision</h4>
+                <p class="tl-static-meta"><span>Sep 2025 – Jan 2026</span> · UTC, Research Project (lead) · Compiègne, France</p>
+                <p>Leading research into hyperdimensional computing applied to event-based / neuromorphic vision.</p>
+                <ul><li>Investigating HDC representations for spatio-temporal, event-based vision.</li><li>Project lead: scoping, literature, and experimental direction.</li></ul>
+                <p class="tl-static-tags">Hyperdimensional Computing · Neuromorphic Vision · Event-based Vision</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>FORSA: French Government Excellence Scholarship</h4>
+                <p class="tl-static-meta"><span>Aug 2025 – Aug 2026</span> · French Government · France</p>
+                <p>Awarded the competitive FORSA excellence scholarship for graduate study in France.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Chair, IEEE USEK Student Branch</h4>
+                <p class="tl-static-meta"><span>Dec 2024 – Jul 2025</span> · IEEE · Jounieh, Lebanon</p>
+                <p>Led the branch to an IEEE Regional Exemplary Student Branch Awards (2025).</p>
+                <ul><li>Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.</li><li>Branch won the IEEE Regional Exemplary Student Branch Award for the third consecutive year (2025).</li><li>Technical Ambassador at Zaka AI, delivering AI sessions.</li></ul>
+                <p class="tl-static-tags">Leadership · Community · Partnerships · Events</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>AI Model Portfolio: Vision &amp; Regression</h4>
+                <p class="tl-static-meta"><span>Sep 2024 – May 2025</span> · Academic USEK Projects · Lebanon</p>
+                <p>A set of from-scratch ML models: image classification, regression and medical diagnosis. All the below projects are part of my Machine Learning and Deep Learning coursework at USEK, where I implemented each model from scratch (no pre-trained weights or transfer learning) to deepen my understanding of the underlying algorithms and architectures. The datasets are either public or in the github repositories.</p>
+                <ul><li>Fashion-MNIST: MLP/CNN/ANN implemented from scratch (99.61%).</li><li>Animals-10: multi-class image classifier (92%).</li><li>Cats vs Dogs: binary image classifier (95%).</li><li>Breast-cancer diagnosis: classifier up to 99% accuracy.</li><li>Function approximation: regression with MSE 0.0006.</li></ul>
+                <p class="tl-static-tags">CNN · Classification · Regression · Keras</p>
+                <p class="tl-static-links"><a href="https://github.com/eliascharbelsalameh/Fashion_MNIST-AI">Fashion-MNIST</a> · <a href="https://github.com/eliascharbelsalameh/animals-10_AI">Animals-10</a> · <a href="https://github.com/eliascharbelsalameh/cats_and_dogs-AI">Cats vs Dogs</a> · <a href="https://github.com/eliascharbelsalameh/WISC_BCancer_diagnonsis_AI">Breast Cancer</a> · <a href="https://github.com/eliascharbelsalameh/Function_Approximation-AI">Function Approx.</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Martial-Arts Assistant on Pepper (HRI)</h4>
+                <p class="tl-static-meta"><span>Sep 2024 – Jan 2025</span> · USEK (GIN456) · Jounieh, Lebanon</p>
+                <p>Built a martial-arts assistant on the Pepper social robot, focused on human-robot interaction.</p>
+                <ul><li>Developed a martial-arts assistant on the Pepper social robot.</li><li>Applied human-robot interaction (HRI) principles.</li></ul>
+                <p class="tl-static-tags">HRI · Social Robotics · Pepper</p>
+                <p class="tl-static-links"><a href="https://github.com/eliascharbelsalameh/GIN456-Martial_Arts">GitHub</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Huawei ICT Innovation Competition: 3rd place, MECA region</h4>
+                <p class="tl-static-meta"><span>Sep 2024 – Dec 2024</span> · Huawei · MECA Region</p>
+                <p>Placed 3rd in the MECA region of the Huawei ICT Innovation Competition.</p>
+                <p class="tl-static-tags">Innovation · Competition</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Seeds for the Future: MECA Program</h4>
+                <p class="tl-static-meta"><span>Aug 2024</span> · Huawei · Uzbekistan / MECA</p>
+                <p>Selected for Huawei&#39;s flagship MECA talent program; Tech4Good pitch team.</p>
+                <p class="tl-static-tags">ICT · Tech4Good · Leadership</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Retrieval-Augmented Generation Chatbot (Web App)</h4>
+                <p class="tl-static-meta"><span>Aug 2024</span> · Personal Project · Lebanon</p>
+                <p>Led development of a RAG chatbot web app built with Streamlit.</p>
+                <p class="tl-static-tags">RAG · LLM · NLP · Streamlit</p>
+                <p class="tl-static-links"><a href="https://github.com/eliascharbelsalameh/Chatbot_RAG_Webapp">GitHub</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Telecommunications Intern, RAN Capacity</h4>
+                <p class="tl-static-meta"><span>Jul 2024 – Aug 2024</span> · Alfa Telecommunications · Dekwaneh, Lebanon</p>
+                <p>Optimised and managed Radio Access Network (RAN) capacity for a national telecom operator.</p>
+                <ul><li>Analysed network-performance data and helped plan and deploy network resources.</li><li>Identified efficiency improvements using advanced analytical tools and strategic capacity planning.</li></ul>
+                <p class="tl-static-tags">RAN · Telecom · Network Optimization · Data Analysis</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Co-founder, Byssus (textile-waste recycling)</h4>
+                <p class="tl-static-meta"><span>Jun 2024 – Present</span> · Byssus · Jounieh, Lebanon</p>
+                <p>Co-founded a textile-waste recycling startup; won a $1,500 prototyping grant.</p>
+                <ul><li>Co-created a startup tackling textile-waste recycling; winners of a $1,500 grant at ACIE USEK IdeaLab #3.</li><li>Contributed to the design of automated systems and prototyping of innovative solutions.</li></ul>
+                <p class="tl-static-tags">Entrepreneurship · Automation · Prototyping · Sustainability</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Self-Balancing Robot</h4>
+                <p class="tl-static-meta"><span>Mar 2024</span> · Personal Project · Lebanon</p>
+                <p>Built a two-wheeled self-balancing robot as a base for humanoid / rover work.</p>
+                <ul><li>Designed and built a two-wheel self-balancing robot, a foundation for more advanced platforms (humanoid, rover).</li></ul>
+                <p class="tl-static-tags">Control · Embedded · Robotics</p>
+                <p class="tl-static-links"><a href="https://github.com/eliascharbelsalameh/self-balancing-robot">GitHub</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Vice Chair, IEEE USEK Student Branch</h4>
+                <p class="tl-static-meta"><span>Dec 2023 – Dec 2024</span> · IEEE · Jounieh, Lebanon</p>
+                <p>Participated in the organization of the IEEE Student Branch.</p>
+                <ul><li>Co-Led a multidisciplinary team; built industry–academia links with IEEE Lebanon, Zaka AI, Semicolon, LebThree and EXEO.</li><li>Branch the IEEE Regional Exemplary Student Branch Award of 2024.</li><li>Ambassador for IEEE Day 2024 and IEEEXtreme 17.0: coordinated 50 students and a $745 budget across a two-day event.</li><li>Technical Ambassador at Zaka AI, delivering AI sessions.</li></ul>
+                <p class="tl-static-tags">Leadership · Community · Partnerships · Events</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Teaching &amp; Research Assistant</h4>
+                <p class="tl-static-meta"><span>Sep 2023 – Jun 2025</span> · USEK, Electrical &amp; Electronics Eng. · Jounieh, Lebanon</p>
+                <p>Supported labs and built automated grading workflows for 40+ students each semester.</p>
+                <ul><li>Ran lab sessions and departmental academic support for 40+ students per semester.</li><li>Introduced automated methods for evaluating and grading submissions (incl. power-systems courses).</li><li>Entrusted with class management and development; fostered new collaboration opportunities with faculty leaders.</li></ul>
+                <p class="tl-static-tags">Teaching · Automation · Mentoring</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Electrical Engineering Intern</h4>
+                <p class="tl-static-meta"><span>Aug 2023</span> · EMCO Group · Hazmieh, Lebanon</p>
+                <p>Helped design the electrical system for a water-treatment plant (Cabinda Angola Refinery).</p>
+                <ul><li>EPB design: wiring diagrams and layouts from P&amp;ID; cable-tray routing and schedules.</li><li>Prepared work orders, instrumentation and PLC I/O lists; exposure to power electrical, automation (PLC) and panel-board design.</li></ul>
+                <p class="tl-static-tags">Electrical Design · PLC · Automation · P&amp;ID</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Treasurer, IEEE USEK Student Branch</h4>
+                <p class="tl-static-meta"><span>Dec 2022 – Dec 2023</span> · IEEE · Jounieh, Lebanon</p>
+                <p>Helped the branch to the IEEE Regional Exemplary Student Branch Awards of 2023.</p>
+                <ul><li>Branch won the IEEE Regional Exemplary Student Branch Award of 2023.</li><li>Kept the books for the IEEE USEK SB.</li><li>Developed a new method to register members to the IEEE Membership, making their experience smoother and more efficient.</li><li>Increased the membership of the branch by 74% in one year.</li><li>IEEE SYPLC&#39;23 Treasury Team Member.</li></ul>
+                <p class="tl-static-tags">Leadership · Community · Partnerships · Events · Reporting · Treasury Management</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>B.E., Electrical &amp; Electronics Engineering</h4>
+                <p class="tl-static-meta"><span>Sep 2021 – Aug 2026</span> · Holy Spirit University of Kaslik (USEK) · Jounieh, Lebanon</p>
+                <p>Bachelor of Engineering, double-degree with UTC (GPA 93.34/100, High Distinction).</p>
+                <ul><li>GPA 93.34/100, High Distinction (≈ 18.7/20).</li><li>Coursework in control, automation, AI, plus project management, agile methodology and innovation &amp; entrepreneurship.</li><li>USEK Merit Scholarship across the full program (2021–2026).</li></ul>
+                <p class="tl-static-tags">Electrical Eng. · Control · Automation</p>
+              </li>
+            </ul>
+          </div>
+          <div class="tl-group tl-static" data-group="other">
+            <h3 class="tl-tier">Other activities</h3>
+            <ul class="tl-static-list">
+              <li class="tl-static-item">
+                <h4>Judo</h4>
+                <p class="tl-static-meta"><span>Oct 2026 – Present</span> · Arts Martiaux Pessac Madran</p>
+                <p class="tl-static-tags">Judo · Martial arts · Discipline</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Reading: &quot;The Prince&quot; by Nicolo Machiavelli</h4>
+                <p class="tl-static-meta"><span>Jun 2026 – Present</span> · Reading</p>
+                <p>The Prince by Machiavelli, a classic on power, strategy and leadership.</p>
+                <p class="tl-static-tags">Reading · Self-development</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>IEEE Young Professionals R8 LEAD 2.0 Program</h4>
+                <p class="tl-static-meta"><span>May 2026 – Jul 2026</span> · IEEE Region 8 · Remote</p>
+                <p>Leadership development and networking program for IEEE Young Professionals in Region 8.</p>
+                <ul><li>IEEE R8 YP Member Activities.</li><li>IEEE MGA YP Opportunities.</li><li>IEEE vTools</li><li>IEEE Collabratec.</li><li>IEEE Volunteer Ethics.</li><li>Leadership sessions.</li></ul>
+                <p class="tl-static-tags">Leadership · Community · Partnerships · Events</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Reading: &quot;Mastery&quot; by Robert Greene</h4>
+                <p class="tl-static-meta"><span>Apr 2026 – Present</span> · Reading</p>
+                <p>Better understanding the level of &quot;Mastery&quot;, on the path from apprenticeship to expertise.</p>
+                <p class="tl-static-tags">Reading · Self-development</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>RISE for Collaboration: Research Program</h4>
+                <p class="tl-static-meta"><span>Apr 2026 – May 2026</span> · RISE · Remote</p>
+                <p>Completed for the RISE for Collaboration research program.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Reading: &quot;Rich Dad Poor Dad&quot; by Robert Kiyosaki</h4>
+                <p class="tl-static-meta"><span>Mar 2026 – Apr 2026</span> · Reading</p>
+                <p>Finished reading Rich Dad Poor Dad: personal finance and investing mindset.</p>
+                <p class="tl-static-tags">Reading · Personal Finance</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>AI for Research and Insights - Gemini</h4>
+                <p class="tl-static-meta"><span>2025</span> · Coursera · Online</p>
+                <p>Applying AI to research workflows and insight generation.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>AI Fundamentals - Gemini</h4>
+                <p class="tl-static-meta"><span>2025</span> · Coursera · Online</p>
+                <p>Foundations of artificial intelligence and core ML concepts.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Deadlift: 180 kg (1-rep-max PR)</h4>
+                <p class="tl-static-meta"><span>Jun 2025</span> · Strength training</p>
+                <p>Hit a 180 kg deadlift, a one-rep-max personal record.</p>
+                <p class="tl-static-tags">Strength · Powerlifting · 180 kg</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Started playing chess</h4>
+                <p class="tl-static-meta"><span>Jun 2025</span> · Chess</p>
+                <p>Took up chess: strategy, pattern recognition and endgame practice.</p>
+                <p class="tl-static-tags">Chess · Strategy</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Emotion Analysis: NLP Classifier</h4>
+                <p class="tl-static-meta"><span>Mar 2025</span> · Personal Project · Lebanon</p>
+                <p>Built an NLP classifier for categorical emotion prediction.</p>
+                <p class="tl-static-tags">NLP · Classification · Deep Learning</p>
+                <p class="tl-static-links"><a href="https://github.com/eliascharbelsalameh/emotion_analysis">GitHub</a></p>
+              </li>
+              <li class="tl-static-item">
+                <h4>ROS2 Workshop (IC2AI&#39;25)</h4>
+                <p class="tl-static-meta"><span>Feb 2025</span> · IEEE Lebanon, Joint Chapter RA/IM/CS · Lebanon</p>
+                <p>Hands-on ROS2 training at the IC2AI&#39;25 workshop.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>AI Bootcamp</h4>
+                <p class="tl-static-meta"><span>Jun 2024 – Jul 2024</span> · ZAKA AI · Lebanon</p>
+                <p>Intensive bootcamp in AI, machine learning and deep learning.</p>
+                <p class="tl-static-tags">AI · Machine Learning · Deep Learning</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Back Squat: 140 kg x 5</h4>
+                <p class="tl-static-meta"><span>Feb 2024</span> · Strength training</p>
+                <p>Hit a 140 kg back-squat, a five-rep-max personal record.</p>
+                <p class="tl-static-tags">Strength · Powerlifting · 140 kg</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Back Squat: 166 kg (1-rep-max PR)</h4>
+                <p class="tl-static-meta"><span>Nov 2023</span> · Strength training</p>
+                <p>Hit a 166 kg back-squat, a one-rep-max personal record.</p>
+                <p class="tl-static-tags">Strength · Powerlifting · 166 kg</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Level Up Leadership Program 2023</h4>
+                <p class="tl-static-meta"><span>Oct 2023 – Dec 2023</span> · Level Up · Lebanon</p>
+                <p>Completed a structured leadership-development program.</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Bench Press: 120 kg × 2</h4>
+                <p class="tl-static-meta"><span>Sep 2023</span> · Strength training</p>
+                <p>Benched 120 kg for 2 reps.</p>
+                <p class="tl-static-tags">Strength · Bench Press · 120 kg</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Installing Solar PV Systems for Residential Use</h4>
+                <p class="tl-static-meta"><span>Jun 2023</span> · Apave · Lebanon</p>
+                <p>Certified in the design and installation of residential solar photovoltaic systems.</p>
+                <p class="tl-static-tags">Solar PV · Power Systems</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>Completed an 8K run</h4>
+                <p class="tl-static-meta"><span>Nov 2021</span> · Running</p>
+                <p>Finished an 8K road run: endurance goal completed.</p>
+                <p class="tl-static-tags">Running · Endurance · 8K</p>
+              </li>
+              <li class="tl-static-item">
+                <h4>French &amp; Lebanese Double Baccalaureate: General Sciences</h4>
+                <p class="tl-static-meta"><span>Sep 2006 – Jun 2021</span> · Collège Saint Joseph Antoura (CSJA), AEFE · Antoura, Lebanon</p>
+                <p>AEFE double baccalaureate in general sciences: 16.23/20, highest honors.</p>
+              </li>
+            </ul>
+          </div>
+          <!-- /build:timeline -->
+        </div>
         <p class="empty-state" id="empty-state" hidden><span data-i18n="empty">No entries match your filters.</span> <button class="link-btn" id="empty-reset" type="button" data-i18n="empty_reset">Reset filters</button></p>
       </div>
     </section>
@@ -236,7 +774,16 @@
           <h2 data-i18n="skills_h">Skills &amp; toolbox</h2>
           <p class="section-sub" data-i18n="skills_sub">Technologies and methods used across the work above. Select a highlighted one to see where it was used.</p>
         </div>
-        <div class="skills-grid" id="skills-grid"></div>
+        <div class="skills-grid" id="skills-grid">
+          <!-- build:skills -->
+          <div class="skill-group"><h3><span>Programming</span></h3><ul><li>Python</li><li>C / C++</li><li>MATLAB / Simulink</li><li>Java</li><li>Assembly</li><li>Bash</li><li>LaTeX</li></ul></div>
+          <div class="skill-group"><h3><span>Robotics &amp; Simulation</span></h3><ul><li>ROS / ROS2</li><li>SLAM</li><li>NVIDIA Isaac Sim / Omniverse</li><li>Webots</li><li>SCANeR studio</li><li>Docker</li><li>Git</li><li>Linux / Unix</li><li>NI LabVIEW</li></ul></div>
+          <div class="skill-group"><h3><span>AI &amp; Machine Learning</span></h3><ul><li>PyTorch</li><li>Keras</li><li>TensorFlow</li><li>OpenCV</li><li>Deep Learning</li><li>Reinforcement Learning</li><li>Computer Vision</li><li>NLP</li><li>Transformers / BERT</li><li>RAG</li><li>Vision Transformers</li><li>YOLO</li><li>Feature Engineering</li></ul></div>
+          <div class="skill-group"><h3><span>Control &amp; Systems</span></h3><ul><li>MPC</li><li>Kalman Filtering</li><li>Control under Uncertainty</li><li>Control Barrier Functions</li><li>Fuzzy Logic</li><li>Optimization</li><li>Microcontrollers</li><li>PLCs</li><li>Power Electronics</li></ul></div>
+          <div class="skill-group"><h3><span>Management &amp; Soft</span></h3><ul><li>Project Management</li><li>Agile</li><li>Innovation &amp; Entrepreneurship</li><li>Market Research</li><li>Business Impact Analysis</li><li>Leadership</li><li>Strategic Planning</li><li>Technical Communication</li><li>Teamwork</li></ul></div>
+          <div class="skill-group"><h3><span>Languages</span></h3><ul><li>English (C1, TOEIC 990/990)</li><li>French (professional, C1)</li><li>Arabic (native)</li></ul></div>
+          <!-- /build:skills -->
+        </div>
       </div>
     </section>
   </main>
@@ -247,15 +794,19 @@
       <div class="footer-cta">
         <h2 data-i18n="contact_h">Contact</h2>
         <!-- <p class="section-sub">Open to research-engineering roles in the robotics, control &amp; AI fields, and a CIFRE industrial PhD.</p> -->
-        <div class="footer-links" id="footer-links"><noscript>
+        <div class="footer-links" id="footer-links">
+          <!-- build:footer -->
           <a class="btn btn-ghost" href="mailto:esalameh@proton.me">esalameh@proton.me</a>
-          <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh">LinkedIn</a>
-          <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh">GitHub</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/in/eliascharbelsalameh" rel="me">LinkedIn</a>
+          <a class="btn btn-ghost" href="https://github.com/eliascharbelsalameh" rel="me">GitHub</a>
           <a class="btn btn-ghost" href="tel:+33783757669">+33 7 83 75 76 69</a>
-        </noscript></div>
+          <!-- /build:footer -->
+        </div>
       </div>
       <p class="footer-note">
-        <span id="footer-copy"></span> · <span id="footer-built"></span> <span id="footer-date"></span>.
+        <span class="footer-js"><span id="footer-copy"></span> · <span id="footer-built"></span> <span id="footer-date"></span>.</span>
+        <a href="blog/" data-i18n="nav_blog">Blog</a> ·
+        <a class="feed-link" href="blog/feed.xml"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8" stroke-linecap="round"/><circle cx="6" cy="18" r="1.3"/></svg><span data-i18n="feed">Atom feed</span></a>
       </p>
     </div>
   </footer>
@@ -265,8 +816,38 @@
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
 
-  <!-- Data first, then the app that renders it -->
-  <script src="assets/js/data.js"></script>
+  <!-- Intro splash, part 2: while it plays, everything behind it is inert (no
+       focus, clicks or screen-reader browsing), then it ends on its own timeline
+       (about 2.2s). A click, Esc, Enter or Space ends it early. -->
+  <script>
+    (function () {
+      var d = document.documentElement, s = document.getElementById("splash");
+      if (!s) return;
+      if (!d.classList.contains("splash-on")) { s.parentNode.removeChild(s); return; }
+      // the stylesheet didn't load, so the splash can't show: don't hold the page
+      if (window.getComputedStyle(s).display === "none") { window.ecsIntroEnd(true); return; }
+      var kids = document.body.children;
+      for (var i = 0; i < kids.length; i++) {
+        var el = kids[i];
+        if (el === s || el.tagName === "SCRIPT" || el.inert) continue;
+        el.inert = true;
+        el.setAttribute("data-splash-inert", "");
+      }
+      function end() { window.ecsIntroEnd(); }
+      s.addEventListener("click", end);
+      document.addEventListener("keydown", function (ev) {
+        if (d.classList.contains("splash-on") && /^(Escape|Enter| )$/.test(ev.key)) { ev.preventDefault(); end(); }
+      });
+      // the caption is real text: show it only once its font is ready
+      if (document.fonts && document.fonts.load) {
+        document.fonts.load('600 13px "Roboto Mono"', "E").then(function () { s.classList.add("has-font"); }, function () {});
+      }
+      setTimeout(end, 1750);
+    })();
+  </script>
+
+  <!-- Data first, then the app that renders it (deferred scripts run in order) -->
+  <script src="assets/js/data.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </body>
 </html>

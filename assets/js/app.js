@@ -13,7 +13,8 @@
      via parallel `*_fr` fields (see tf() below). */
   var I18N = {
     en: {
-      nav_about: "About", nav_highlights: "Highlights", nav_timeline: "Timeline", nav_skills: "Skills",
+      nav_about: "About", nav_highlights: "Highlights", nav_timeline: "Timeline", nav_skills: "Skills", nav_blog: "Blog",
+      feed: "Atom feed",
       nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Skip to timeline",
       lang_switch: "FR, switch to French",
       email_me: "Email me", explore: "Explore the timeline", cv: "Download CV", stats_label: "Key figures",
@@ -62,7 +63,8 @@
       shown: function (a, b) { return a + " of " + b + " shown"; }
     },
     fr: {
-      nav_about: "Profil", nav_highlights: "Points forts", nav_timeline: "Parcours", nav_skills: "Compétences",
+      nav_about: "Profil", nav_highlights: "Points forts", nav_timeline: "Parcours", nav_skills: "Compétences", nav_blog: "Blog",
+      feed: "Flux Atom",
       nav_label: "Sections", menu: "Menu", contact_btn: "Contact", skip: "Aller au parcours",
       lang_switch: "EN, passer en anglais",
       email_me: "M'écrire", explore: "Explorer le parcours", cv: "Télécharger le CV", stats_label: "Chiffres clés",
@@ -309,22 +311,19 @@
     applyMeta();
   }
 
-  /* Tab title, meta description and canonical follow the language, so the
-     French page (?lang=fr) is its own canonical URL, as the hreflang
-     alternates in index.html declare. The English values come from
-     index.html unless data.js sets `pageTitle` / `pageDescription`. */
+  /* Tab title and meta description follow the language. The canonical URL
+     does not: the French view is this same page translated in place, so it
+     stays the one URL in index.html (search engines get one consistent
+     canonical, with or without running this script). */
   var META = (function () {
-    var d = $('meta[name="description"]'), c = $('link[rel="canonical"]');
-    var base = c ? c.getAttribute("href").split("?")[0] : "";
-    return { title: document.title, desc: d ? d.getAttribute("content") : "", canonical: base };
+    var d = $('meta[name="description"]');
+    return { title: document.title, desc: d ? d.getAttribute("content") : "" };
   })();
   function applyMeta() {
     var p = DATA.profile || {};
     document.title = tf(p, "pageTitle") || META.title;
     var d = $('meta[name="description"]');
     if (d) d.setAttribute("content", tf(p, "pageDescription") || META.desc);
-    var c = $('link[rel="canonical"]');
-    if (c && META.canonical) c.setAttribute("href", META.canonical + (LANG === "fr" ? "?lang=fr" : ""));
   }
 
   /* Swap language in place (no reload), so scroll position, the current
@@ -416,6 +415,7 @@
 
     // stats
     var stats = $("#hero-stats");
+    empty(stats);   // drops the static copy from index.html
     (p.stats || []).forEach(function (s) {
       stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, tf(s, "value")), h("span", { class: "stat-label" }, tf(s, "label"))));
     });
@@ -517,8 +517,14 @@
       })));
       card.appendChild(h("figcaption", { class: "pcard-note" }, T.card_note));
     }
-    // fill animation on the first render only (CSS drops it under reduced motion)
-    card.classList.toggle("is-filling", !cardFilled);
+    // fill animation on the first render only (CSS drops it under reduced motion);
+    // while the intro splash covers the page, hold it until the splash leaves
+    var cl = document.documentElement.classList;
+    if (!cardFilled && cl.contains("splash-on") && !cl.contains("splash-out")) {
+      document.addEventListener("ecs:intro-end", function () { card.classList.add("is-filling"); }, { once: true });
+    } else {
+      card.classList.toggle("is-filling", !cardFilled);
+    }
     cardFilled = true;
   }
 
@@ -1048,13 +1054,13 @@
     // highlight the nav link for whichever section is crossing mid-viewport
     if (!("IntersectionObserver" in window)) return;
     var links = {};
-    $$(".site-nav a").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
+    $$('.site-nav a[href^="#"]').forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         var a = links[en.target.id];
         if (!a) return;
         if (en.isIntersecting) {
-          $$(".site-nav a").forEach(function (x) { x.removeAttribute("aria-current"); });
+          $$('.site-nav a[href^="#"]').forEach(function (x) { x.removeAttribute("aria-current"); });
           a.setAttribute("aria-current", "true");
         }
       });
@@ -1273,46 +1279,9 @@
   }
   function hideTip() { var t = $("#map-tip"); if (t) t.hidden = true; }
 
-  /* ----------------------- STRUCTURED DATA (SEO) -------------------------- */
-  /* A schema.org Person built from data.js, so search engines and the tools
-     recruiters use get the profile without re-typing it in the HTML. */
-  function renderJsonLd() {
-    var p = DATA.profile || {};
-    var old = $("#jsonld");
-    if (old) old.parentNode.removeChild(old);
-
-    function abs(u) { try { return new URL(u, location.href).href; } catch (e) { return u; } }
-    var sameAs = [p.github, p.linkedin].filter(Boolean);
-    var knowsAbout = [];
-    (DATA.skills || []).forEach(function (g) { knowsAbout = knowsAbout.concat(tf(g, "items") || []); });
-    var alumniOf = [];
-    (DATA.timeline || []).forEach(function (it) {
-      var org = tf(it, "org");
-      if (it.kind === "education" && org && alumniOf.indexOf(org) === -1) alumniOf.push(org);
-    });
-
-    var person = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: p.name,
-      url: abs(location.pathname),
-      jobTitle: tf(p, "role"),
-      description: [tf(p, "tagline"), tf(p, "summary")].filter(Boolean).join(" "),
-      image: p.photo ? abs(p.photo) : undefined,
-      email: p.email ? "mailto:" + p.email : undefined,
-      telephone: p.phone || undefined,
-      address: tf(p, "location") ? { "@type": "PostalAddress", addressLocality: tf(p, "location") } : undefined,
-      sameAs: sameAs.length ? sameAs : undefined,
-      knowsAbout: knowsAbout.length ? knowsAbout : undefined,
-      alumniOf: alumniOf.length ? alumniOf.map(function (n) { return { "@type": "EducationalOrganization", name: n }; }) : undefined
-    };
-
-    var sc = document.createElement("script");
-    sc.type = "application/ld+json";
-    sc.id = "jsonld";
-    sc.textContent = JSON.stringify(person);
-    document.head.appendChild(sc);
-  }
+  /* Structured data (schema.org Person, WebSite, ProfilePage) is written into
+     index.html by tools/build.mjs from data.js, so crawlers that don't run
+     JavaScript get it too. */
 
   /* ------------------------------- SKILLS --------------------------------- */
   /* Each entry's text in both languages, so a skill links to the same entries
@@ -1389,6 +1358,7 @@
 
   function renderSkills() {
     var grid = $("#skills-grid");
+    empty(grid);   // drops the static copy from index.html
     (DATA.skills || []).forEach(function (g) {
       var n = (g.items || []).length;
       grid.appendChild(h("div", { class: "skill-group reveal" },
@@ -1433,7 +1403,6 @@
     renderHighlights();   // these two read the records renderTimeline builds
     renderMap();
     renderSkills();
-    renderJsonLd();
   }
 
   initTheme();
@@ -1450,6 +1419,9 @@
   }
   initReveal();
   initChrome();
+  // the page body was kept unpainted until now (html.app-pending in styles.css):
+  // it appears already rendered, with no static-to-interactive swap or layout shift
+  document.documentElement.classList.remove("app-pending");
 
   // #entry-… deep links: the cards don't exist when the browser first looks for
   // the anchor, so jump by hand, and again once web fonts have reflowed the page
