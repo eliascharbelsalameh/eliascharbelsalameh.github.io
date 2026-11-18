@@ -32,14 +32,16 @@
       map_today: "Today",
       lanes: { work: "Work & research", education: "Education", projects: "Projects",
                leadership: "Leadership", awards: "Awards & certificates", personal: "Personal" },
-      more: "More", less: "Less", full: "Full details",
+      more: "Details", less: "Close", full: "Full details",
       expand_all: "Expand all", collapse_all: "Collapse all",
+      fold_show: function (n) { return "Show the " + n + " other activities"; },
+      fold_hide: "Hide other activities",
       skill_chip: function (s) { return "Skill: " + s; },
       skill_clear: "clear the filter", skill_clear_title: "Clear the skill filter",
       skill_show: function (n, s) { return n === 1 ? "Show the entry that uses " + s : "Show the " + n + " entries that use " + s; },
       skills_word: "skills",
       timeline_h: "Timeline of efforts",
-      timeline_sub: "Every role, project, award and contribution. Filter, sort or switch the view to whatever you care about.",
+      timeline_sub: "Every role, project, award and contribution, most important first. Open any card for its details, or filter and sort to focus on what you care about.",
       controls_label: "Filter the timeline",
       search_label: "Search the timeline (roles, tech, organisations)", search_ph: "Search",
       filters: "Filters", filters_active: "active",
@@ -82,14 +84,16 @@
       map_today: "Aujourd'hui",
       lanes: { work: "Travail & recherche", education: "Formation", projects: "Projets",
                leadership: "Leadership", awards: "Prix & certificats", personal: "Personnel" },
-      more: "Plus", less: "Moins", full: "Tout le détail",
+      more: "Détails", less: "Fermer", full: "Tout le détail",
       expand_all: "Tout déplier", collapse_all: "Tout replier",
+      fold_show: function (n) { return "Afficher les " + n + " autres activités"; },
+      fold_hide: "Masquer les autres activités",
       skill_chip: function (s) { return "Compétence : " + s; },
       skill_clear: "retirer le filtre", skill_clear_title: "Retirer le filtre de compétence",
       skill_show: function (n, s) { return n === 1 ? "Voir l'entrée qui utilise " + s : "Voir les " + n + " entrées qui utilisent " + s; },
       skills_word: "compétences",
       timeline_h: "Parcours et réalisations",
-      timeline_sub: "Chaque poste, projet, distinction et contribution. Filtrez, triez ou changez d'affichage selon vos intérêts.",
+      timeline_sub: "Chaque poste, projet, distinction et contribution, les plus importants d'abord. Ouvrez une carte pour son détail, ou filtrez et triez selon vos intérêts.",
       controls_label: "Filtrer le parcours",
       search_label: "Rechercher dans le parcours (postes, technologies, organisations)", search_ph: "Rechercher",
       filters: "Filtres", filters_active: "actifs",
@@ -166,6 +170,8 @@
   function $(sel) { return document.querySelector(sel); }
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function empty(el) { while (el && el.firstChild) el.removeChild(el.firstChild); }
+  /* read at the moment of each animation, so a change of the setting applies at once */
+  function reduceMotion() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
 
   /* lowercase + strip accents, so "compiegne" finds "Compiègne" */
   function norm(s) {
@@ -262,6 +268,7 @@
     return SOCIAL.link;
   }
   var CHEVRON = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
 
   /* ------------------------------ THEME ----------------------------------- */
   function setTheme(theme) {
@@ -351,7 +358,6 @@
     writeState(saved);
     Object.keys(levels).forEach(function (id) { setLevel(recordById[id], levels[id]); });
     applyFilters();
-    revealAll();          // already-visible content shouldn't re-animate
   }
   function initLang() {
     applyStaticStrings();
@@ -517,15 +523,99 @@
       })));
       card.appendChild(h("figcaption", { class: "pcard-note" }, T.card_note));
     }
-    // fill animation on the first render only (CSS drops it under reduced motion);
-    // while the intro splash covers the page, hold it until the splash leaves
-    var cl = document.documentElement.classList;
-    if (!cardFilled && cl.contains("splash-on") && !cl.contains("splash-out")) {
-      document.addEventListener("ecs:intro-end", function () { card.classList.add("is-filling"); }, { once: true });
-    } else {
-      card.classList.toggle("is-filling", !cardFilled);
-    }
+    // the light on the card (shade and glare for the tilt, the reveal's sweep):
+    // decorative layers above the content, in the card's clipped shape
+    card.appendChild(h("span", { class: "pcard-shade", "aria-hidden": "true" }));
+    card.appendChild(h("span", { class: "pcard-glare", "aria-hidden": "true" }));
+    card.appendChild(h("span", { class: "pcard-sweep", "aria-hidden": "true" }));
+
+    // the reveal runs on the first render only (not on a language switch);
+    // while the intro covers the page it waits, then lands just after the mark
+    if (cardFilled) { card.classList.remove("is-revealing", "is-filling", "is-gleaming"); return; }
     cardFilled = true;
+    var cl = document.documentElement.classList;
+    if (cl.contains("splash-on") && !cl.contains("splash-out")) {
+      document.addEventListener("ecs:intro-end", function (ev) {
+        revealCard(card, ev.detail && ev.detail.flying ? 600 : 180);
+      }, { once: true });
+    } else {
+      revealCard(card, 0);
+    }
+  }
+
+  /* The card's entrance (styles.css, "the reveal"): turned face-up into place,
+     the ratings fill as their numbers count up, then a band of light runs
+     across the finished card. Under reduced motion it is simply there, filled. */
+  function revealCard(card, delay) {
+    if (reduceMotion()) return;
+    var fill = delay + 640, gleam = fill + 1000;   // the last bar is full about .93s after the fill starts
+    card.style.setProperty("--reveal-delay", delay + "ms");
+    card.style.setProperty("--fill-delay", fill + "ms");
+    card.style.setProperty("--gleam-delay", gleam + "ms");
+    card.classList.add("is-revealing", "is-filling", "is-gleaming");
+    countUp(card, fill);
+    setTimeout(function () { card.classList.remove("is-revealing"); }, delay + 950);   // the turn is over: the tilt may start
+    setTimeout(function () { card.classList.remove("is-gleaming"); }, gleam + 1000);
+  }
+  /* the visible numbers tick up with their bars; assistive tech reads the
+     real values from the sr-only text all along */
+  function countUp(card, delay) {
+    var els = Array.prototype.slice.call(card.querySelectorAll(".pcard-ovr-num, .pa-val"));
+    if (!els.length || !window.requestAnimationFrame) return;
+    var goal = els.map(function (el) { return +el.textContent || 0; });
+    var lag = els.map(function (el) {
+      var li = el.closest(".pcard-attr");
+      return li ? (parseInt(li.style.getPropertyValue("--i"), 10) || 0) * 90 : 0;
+    });
+    els.forEach(function (el) { el.textContent = "0"; });
+    var t0 = 0, D = 720;
+    function step(now) {
+      if (!t0) t0 = now;
+      var more = false;
+      els.forEach(function (el, i) {
+        var p = Math.max(0, Math.min(1, (now - t0 - lag[i]) / D));
+        if (p < 1) more = true;
+        el.textContent = String(Math.round(goal[i] * (1 - Math.pow(1 - p, 3))));
+      });
+      if (more && els[0].isConnected) requestAnimationFrame(step);   // a language switch re-renders: stop
+    }
+    setTimeout(function () { requestAnimationFrame(step); }, delay);
+  }
+
+  /* The card in the hand: with a mouse over it, it tilts toward the pointer and
+     the light moves with it. One rAF-throttled update of four CSS variables per
+     frame; only the card's transform and its light layers repaint. Not on
+     touch screens, not under reduced motion, not during the reveal. Set up
+     once: the card element survives re-renders. */
+  function initCardTilt() {
+    var card = $("#player-card");
+    if (!card || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    var box = null, x = 0.5, y = 0.5, raf = 0;
+    function canTilt(ev) { return ev.pointerType === "mouse" && !reduceMotion() && !card.classList.contains("is-revealing"); }
+    function start() { box = card.getBoundingClientRect(); card.classList.add("is-tilting"); }
+    function paint() {
+      raf = 0;
+      if (!box) return;
+      card.style.setProperty("--ry", ((x - 0.5) * 16).toFixed(2) + "deg");
+      card.style.setProperty("--rx", ((0.5 - y) * 13).toFixed(2) + "deg");
+      card.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+      card.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+    }
+    card.addEventListener("pointerenter", function (ev) { if (canTilt(ev)) start(); });
+    card.addEventListener("pointermove", function (ev) {
+      if (!box) { if (!canTilt(ev)) return; start(); }   // e.g. the reveal ended under the pointer
+      x = Math.max(0, Math.min(1, (ev.clientX - box.left) / box.width));
+      y = Math.max(0, Math.min(1, (ev.clientY - box.top) / box.height));
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    card.addEventListener("pointerleave", function () {
+      box = null;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      card.classList.remove("is-tilting");   // back to flat on the slow settle in styles.css
+      card.style.setProperty("--rx", "0deg");
+      card.style.setProperty("--ry", "0deg");
+    });
+    window.addEventListener("scroll", function () { if (box) box = card.getBoundingClientRect(); }, { passive: true });
   }
 
   /* ------------------------------ FILTERS --------------------------------- */
@@ -590,6 +680,10 @@
   var recordById = {};  // entry id → record
   var VIEW = "grid";    // "grid" | "list"
   var SORT = "importance";   // "importance" | "date"
+  /* The default view keeps the "Other activities" tier folded behind one
+     button, so a first read is the key work and what's notable; any filter,
+     search, skill or the date order shows everything that matches. */
+  var FOLD = true;
   var PREVIEW_BULLETS = 2;   // bullets shown in the preview; the rest only when opened
   var PEEK_DELAY = 320;      // ms of hovering before the preview appears
 
@@ -623,7 +717,7 @@
       h("div", { class: "tl-main" },
         h("h4", { class: "tl-title" },
           tf(it, "title"),
-          it.featured ? h("span", { class: "tl-star", role: "img", "aria-label": T.hl_star, title: T.hl_star }, "★") : null),
+          it.featured ? h("span", { class: "tl-star", role: "img", "aria-label": T.hl_star, title: T.hl_star, html: STAR }) : null),
         h("div", { class: "tl-org" },
           tf(it, "org") || "",
           loc ? [h("span", { class: "sep" }, " · "), h("span", { class: "tl-loc" }, loc)] : null)));
@@ -666,12 +760,14 @@
     var card = h("div", { class: "tl-card" }, head, rec.toggle, rec.details);
     var marker = h("div", { class: "tl-marker", html: icon(it.kind) });
     // tabindex lets a jump from a highlight tile or the map move keyboard focus here
-    rec.el = h("li", { class: "tl-item reveal lvl-0", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
+    rec.el = h("li", { class: "tl-item lvl-0", id: rec.id, tabindex: "-1", style: "--cat:" + color }, marker, card);
     return rec.el;
   }
 
   function setLevel(r, level) {
     if (!r || !r.el) return;
+    if (r.anim) { r.anim.cancel(); r.anim = null; r.details.style.overflow = ""; }   // e.g. Expand all during a card's close
+    r.closing = false;
     level = Math.max(0, Math.min(2, level | 0));
     r.level = level;
     r.el.classList.remove("lvl-0", "lvl-1", "lvl-2");
@@ -680,12 +776,75 @@
     r.toggle.querySelector(".tl-more-label").textContent = level > 0 ? T.less : T.more;
     if (level > 0 && peekRec === r) hidePeek();
   }
-  /* "More" / a click on the card head: mouse and keyboard go straight to full
+  /* "Details" / a click on the card head: mouse and keyboard go straight to full
      details; a touch tap opens the preview first, with "Full details" inside. */
   function toggleCard(r, touch) {
     hidePeek();
-    setLevel(r, r.level > 0 ? 0 : (touch ? 1 : 2));
+    var closing = r.level > 0 && !r.closing;   // a card already folding away counts as closed
+    // closed by hand: no preview popping back up under a pointer that hasn't moved off it
+    if (closing) peekDismissed = r;
+    morphLevel(r, closing ? 0 : (touch ? 1 : 2));
     updateExpandAll();
+  }
+  /* setLevel, animated, for one card a visitor opens or closes (bulk changes
+     such as Expand all stay instant). Opening, the details unfold from the
+     card's edge: hinged at the top, tipped back in 3D, while their height
+     grows so the cards below slide rather than jump. Closing folds them away,
+     faster, and only then drops the level. Preview → full grows smoothly.
+     Reduced motion keeps the change as a short fade. */
+  function morphLevel(r, level) {
+    var el = r.details, cur = null;
+    if (r.anim) {   // interrupted mid-way: carry on from where it had got to
+      var cs = window.getComputedStyle(el);
+      cur = { h: parseFloat(cs.height) || 0, o: parseFloat(cs.opacity), m: cs.marginTop };
+      r.anim.cancel();
+      r.anim = null;
+      el.style.overflow = "";
+    }
+    r.closing = false;
+    if (!el.animate || r.el.hidden) { setLevel(r, level); return; }
+    var reduce = reduceMotion();
+    var from = cur ? cur.h : (r.level > 0 ? el.offsetHeight : 0);
+    /* finish/cancel events arrive asynchronously: an animation only tidies up
+       if it is still the card's current one, never after its successor */
+    function track(anim, done) {
+      r.anim = anim;
+      function end(finished) {
+        if (r.anim !== anim) return;
+        el.style.overflow = ""; r.anim = null; r.closing = false;
+        if (finished && done) done();
+      }
+      anim.onfinish = function () { end(true); };
+      anim.oncancel = function () { end(false); };
+    }
+    if (level === 0) {
+      if (!from || !r.level) { setLevel(r, 0); return; }
+      var m0 = cur ? cur.m : window.getComputedStyle(el).marginTop, o0 = cur ? cur.o : 1;
+      el.style.overflow = "hidden";
+      r.closing = true;
+      r.toggle.setAttribute("aria-expanded", "false");          // the control answers at once
+      r.toggle.querySelector(".tl-more-label").textContent = T.more;
+      track(el.animate(reduce
+        ? [{ opacity: o0 }, { opacity: 0 }]
+        : [{ height: from + "px", marginTop: m0, opacity: o0, transform: "none" },
+           { height: "0px", marginTop: "0px", opacity: 0, transform: "perspective(900px) rotateX(-14deg)" }],
+        { duration: reduce ? 120 : 240, easing: "cubic-bezier(.4, 0, 1, 1)" }),
+        function () { setLevel(r, 0); updateExpandAll(); });
+      return;
+    }
+    setLevel(r, level);
+    var to = el.offsetHeight;
+    if (to === from && !cur) return;
+    var m1 = window.getComputedStyle(el).marginTop;
+    el.style.overflow = "hidden";
+    var frames = from === 0
+      ? (reduce
+          ? [{ opacity: 0 }, { opacity: 1 }]
+          : [{ height: "0px", marginTop: "0px", opacity: 0, transform: "perspective(900px) rotateX(-18deg)" },
+             { height: to + "px", marginTop: m1, opacity: 1, transform: "none" }])
+      : [{ height: from + "px", marginTop: cur ? cur.m : m1, opacity: cur ? cur.o : 1 },
+         { height: to + "px", marginTop: m1, opacity: 1 }];
+    track(el.animate(frames, { duration: reduce ? 150 : (from === 0 ? 440 : 300), easing: "cubic-bezier(.16, 1, .3, 1)" }));
   }
   /* "Expand all" acts on the cards currently visible, and flips to "Collapse all"
      once they're all fully open. */
@@ -753,8 +912,11 @@
           label = h("h3", { class: "tl-tier" }, T.tiers[gk]);
         }
         // role="list" because Safari drops list semantics from unstyled lists
-        var body = h("ul", { class: "tl-items", role: "list" });
-        g = { section: h("div", { class: "tl-group", "data-group": String(gk) }, label, body), items: [], body: body, pill: pill };
+        var foldable = SORT !== "date" && gk === "other";
+        var body = h("ul", { class: "tl-items", role: "list", id: foldable ? "tl-items-other" : null });
+        var fold = foldable ? buildFold(body.id) : null;
+        g = { key: String(gk), section: h("div", { class: "tl-group", "data-group": String(gk) }, label, fold, body),
+              items: [], body: body, pill: pill, fold: fold };
         groupEls.push(g);
         list.appendChild(g.section);
       }
@@ -765,6 +927,47 @@
     });
     list.classList.toggle("by-date", SORT === "date");
     list.classList.toggle("by-importance", SORT !== "date");
+  }
+  /* The fold under the "Other activities" heading: one button, and a hint at
+     what's behind it (the tier's most common categories). */
+  function buildFold(controlsId) {
+    var counts = {};
+    records.forEach(function (r) {
+      if (tierOf(r.it) !== "other") return;
+      (r.it.categories || []).forEach(function (c) { counts[c] = (counts[c] || 0) + 1; });
+    });
+    var top = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 3).map(catLabel);
+    var btn = h("button", { class: "tl-fold-btn", type: "button", "aria-controls": controlsId, "aria-expanded": "false" },
+      h("span", { class: "tl-fold-label" }), h("span", { class: "tl-more-ico", html: CHEVRON }));
+    btn.addEventListener("click", function () { setFold(!FOLD); });
+    return h("div", { class: "tl-fold" }, btn, top.length ? h("p", { class: "tl-fold-hint" }, top.join(" · ")) : null);
+  }
+  function setFold(fold) {
+    FOLD = fold;
+    applyFilters();
+    if (!fold) { dealIn(ordered.filter(function (r) { return tierOf(r.it) === "other"; })); return; }
+    // folding from further down: bring the tier's heading back into view
+    var g = $("#tl-items-other"), sec = g && g.closest(".tl-group");
+    if (sec && sec.getBoundingClientRect().top < jumpOffset()) scrollToEl(sec);
+  }
+  /* Cards dealt onto the table one after another, when a list appears as a
+     whole (the other activities unfolding, a new sort or view): only those on
+     screen, at most ten, 45ms apart. Nothing is hidden beforehand. Cards in
+     the band at the bottom of the screen are left to the scroll-linked rise
+     (styles.css "Card motion"), which owns them there; dealing them too would
+     end on a jump back to that half-risen state. */
+  function dealIn(recs) {
+    if (reduceMotion() || !document.body.animate) return;
+    var vh = window.innerHeight, n = 0;
+    recs.forEach(function (r) {
+      if (n >= 10 || r.el.hidden) return;
+      var card = r.el.querySelector(".tl-card"), b = card.getBoundingClientRect();
+      if (b.bottom < 0 || b.top > vh - 240) return;
+      card.animate([
+        { opacity: 0, transform: "perspective(1000px) translateY(28px) rotateX(16deg) scale(.97)" },
+        { opacity: 1, transform: "none" }
+      ], { duration: 480, delay: n++ * 45, easing: "cubic-bezier(.16, 1, .3, 1)", fill: "backwards" });
+    });
   }
   function setPressedPair(a, b, firstOn) {
     var x = $(a), y = $(b);
@@ -852,7 +1055,7 @@
       var t = ev.target, r = recOf(t);
       if (!r) return;
       var touch = ev.detail !== 0 && lastPointer === "touch";
-      if (t.closest(".tl-full")) { hidePeek(); setLevel(r, 2); updateExpandAll(); return; }
+      if (t.closest(".tl-full")) { hidePeek(); morphLevel(r, 2); updateExpandAll(); return; }
       if (t.closest(".tl-more")) { toggleCard(r, touch); return; }
       if (t.closest(".tl-head") && !t.closest("a, button")) {
         if (window.getSelection && String(window.getSelection())) return;   // selecting text, not toggling
@@ -871,12 +1074,19 @@
     return s;
   }
   function pressed(sel) { var b = $(sel); return b && b.getAttribute("aria-pressed") === "true"; }
+  /* nothing narrows the list: no search, skill or quick filter, every category on */
+  function filtersAtDefault() {
+    if (($("#search").value || "").trim() || activeSkill || pressed("#only-featured") || pressed("#only-present")) return false;
+    return $$("#filters .chip").every(function (c) { return c.getAttribute("aria-pressed") === "true"; });
+  }
   function applyFilters() {
     var active = activeSet();
     var q = norm(($("#search").value || "").trim());
     var onlyFeatured = pressed("#only-featured");
     var onlyPresent = pressed("#only-present");
     var skill = activeSkill && SKILL_INDEX[activeSkill];
+    var foldable = SORT !== "date" && filtersAtDefault();
+    var folding = FOLD && foldable;
     var shown = 0, i, r;
     for (i = 0; i < records.length; i++) {
       r = records[i];
@@ -886,16 +1096,24 @@
       var okPresent = !onlyPresent || r.present;
       var okSkill = !skill || skill.re.test(r.textAll);
       var vis = okCat && okQ && okFeatured && okPresent && okSkill;
-      r.el.hidden = !vis;
-      if (r.mark) r.mark.classList.toggle("is-dim", !vis);
-      if (!vis && peekRec === r) hidePeek();
+      var folded = vis && folding && tierOf(r.it) === "other";
+      r.el.hidden = !vis || folded;
+      if (r.mark) r.mark.classList.toggle("is-dim", !vis);   // folded isn't filtered out: its bar stays lit
+      if (r.el.hidden && peekRec === r) hidePeek();
       // a search hit in text a compact card doesn't show shouldn't need a click to find
       if (vis && q && r.level < 2 && r.compactText.indexOf(q) === -1 && r.detailText.indexOf(q) !== -1) setLevel(r, 2);
-      if (vis) shown++;
+      if (!r.el.hidden) shown++;
     }
     for (i = 0; i < groupEls.length; i++) {
-      var any = groupEls[i].items.some(function (el) { return !el.hidden; });
-      groupEls[i].section.hidden = !any;
+      var g = groupEls[i];
+      var any = g.items.some(function (el) { return !el.hidden; });
+      g.section.hidden = !any && !(g.fold && folding);
+      if (g.fold) {
+        g.fold.hidden = !foldable;
+        var fb = g.fold.querySelector(".tl-fold-btn");
+        fb.setAttribute("aria-expanded", FOLD ? "false" : "true");
+        fb.querySelector(".tl-fold-label").textContent = FOLD ? T.fold_show(g.items.length) : T.fold_hide;
+      }
     }
     $("#result-count").textContent = T.shown(shown, records.length);
     $("#empty-state").hidden = shown !== 0;
@@ -995,10 +1213,13 @@
     wireToggle("#only-featured");
     wireToggle("#only-present");
     $("#filters-toggle").addEventListener("click", function () { setPanel($("#filters-panel").hidden); });
-    $("#view-grid").addEventListener("click", function () { setView("grid"); syncUrl(); });
-    $("#view-list").addEventListener("click", function () { setView("list"); syncUrl(); });
-    $("#sort-importance").addEventListener("click", function () { setSort("importance"); applyFilters(); });
-    $("#sort-date").addEventListener("click", function () { setSort("date"); applyFilters(); });
+    // a new view or order re-deals the cards on screen, so the change reads as one
+    function viewTo(v) { var ch = v !== VIEW; setView(v); syncUrl(); if (ch) dealIn(ordered); }
+    function sortTo(v) { var ch = v !== SORT; setSort(v); applyFilters(); if (ch) dealIn(ordered); }
+    $("#view-grid").addEventListener("click", function () { viewTo("grid"); });
+    $("#view-list").addEventListener("click", function () { viewTo("list"); });
+    $("#sort-importance").addEventListener("click", function () { sortTo("importance"); });
+    $("#sort-date").addEventListener("click", function () { sortTo("date"); });
 
     var ex = $("#expand-all");
     if (ex) ex.addEventListener("click", function () {
@@ -1110,11 +1331,10 @@
   function focusEntry(id, instant) {
     var r = recordById[id];
     if (!r) return;
-    if (r.el.hidden) resetAll();
+    if (r.el.hidden) { FOLD = false; resetAll(); }   // filtered out, or in the folded tier
     hidePeek();
     setLevel(r, 2);
     updateExpandAll();
-    r.el.classList.add("in");                      // skip the scroll-reveal fade
     try { history.replaceState(null, "", location.pathname + location.search + "#" + id); } catch (e) {}
     scrollToEl(r.el, instant);
     r.el.focus({ preventScroll: true });
@@ -1148,7 +1368,7 @@
     feat.forEach(function (r) {
       var it = r.it, summary = tf(it, "summary"), org = tf(it, "org");
       grid.appendChild(h("a", {
-        class: "hl-tile reveal", href: "#" + r.id, style: "--cat:" + catColor((it.categories || [])[0]),
+        class: "hl-tile", href: "#" + r.id, style: "--cat:" + catColor((it.categories || [])[0]),
         onclick: jumpHandler(r.id)
       },
         h("div", { class: "hl-top" },
@@ -1236,7 +1456,8 @@
       var track = h("div", { class: "map-track", style: row + ";height:" + (lanes[name].rows * MAP_ROW + 8) + "px" });
       lanes[name].forEach(function (sp) {
         var r = sp.r, it = r.it;
-        var style = "--c:" + catColor((it.categories || [])[0]) + ";top:" + (4 + sp.row * MAP_ROW) + "px;left:" + pct(sp.s) + "%";
+        var style = "--c:" + catColor((it.categories || [])[0]) + ";top:" + (4 + sp.row * MAP_ROW) + "px;left:" + pct(sp.s) + "%" +
+                    ";--d:" + Math.round(pct(sp.s) * 4 + i * 25) + "ms";   // draw-in delay: earlier starts first
         if (sp.kind !== "point") style += ";width:" + (pct(sp.e) - pct(sp.s)) + "%";
         var m = h("a", {
           class: "map-mark is-" + sp.kind + (sp.s < FROM ? " is-clipped" : ""),
@@ -1255,6 +1476,28 @@
     // where the map has to scroll (phones), start at the recent end, not in 2021
     inner.parentNode.scrollLeft = inner.parentNode.scrollWidth;
     updateMapEdges();
+    drawMapOnce();
+  }
+  /* The first time the map comes into view, its bars draw along the time axis
+     (styles.css, .map.is-drawing). They wait drawn-in-reverse (.is-pending)
+     only while the map is still below the fold; it is decorative, and hidden
+     from assistive tech, so nothing is withheld. Once per page load. */
+  var mapDrawn = false, mapIO = null;
+  function drawMapOnce() {
+    var map = $("#career-map");
+    if (!map || mapDrawn || mapIO || reduceMotion() || !("IntersectionObserver" in window)) return;
+    var b = map.getBoundingClientRect();
+    if (b.top < window.innerHeight * 0.8) { mapDrawn = true; return; }   // already in view: no replay of what's seen
+    map.classList.add("is-pending");
+    mapIO = new IntersectionObserver(function (entries) {
+      if (!entries.some(function (e) { return e.isIntersecting; })) return;
+      mapIO.disconnect();
+      mapDrawn = true;
+      map.classList.remove("is-pending");
+      map.classList.add("is-drawing");
+      setTimeout(function () { map.classList.remove("is-drawing"); }, 1600);
+    }, { threshold: 0.3 });
+    mapIO.observe(map);
   }
   /* fade the side(s) of the map that have more to scroll to */
   function updateMapEdges() {
@@ -1361,7 +1604,7 @@
     empty(grid);   // drops the static copy from index.html
     (DATA.skills || []).forEach(function (g) {
       var n = (g.items || []).length;
-      grid.appendChild(h("div", { class: "skill-group reveal" },
+      grid.appendChild(h("div", { class: "skill-group" },
         h("h3", {},
           h("span", {}, tf(g, "group")),
           h("span", { class: "skill-count" }, String(n), h("span", { class: "sr-only" }, " " + T.skills_word))),
@@ -1378,20 +1621,13 @@
     });
   }
 
-  /* ------------------------------- REVEAL --------------------------------- */
-  function revealAll() { $$(".reveal").forEach(function (e) { e.classList.add("in"); }); }
-  function initReveal() {
-    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      revealAll();
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
-    $$(".reveal").forEach(function (e) { io.observe(e); });
-  }
-
   /* -------------------------------- INIT ---------------------------------- */
+  /* Motion, in one place: the intro hands over to the header mark (index.html);
+     the player card is revealed, then tilts under the mouse (renderCard,
+     initCardTilt); cards rise in 3D as they scroll in (pure CSS, styles.css
+     "Card motion"); a card's details unfold when opened (morphLevel); lists
+     are dealt in when they appear whole (dealIn); the map draws itself once
+     (drawMapOnce). Every piece has a reduced-motion path. */
   /* Everything that reads content out of data.js, re-run on a language swap.
      Anything rendered into a container here must also be in setLang()'s
      list of containers to empty. */
@@ -1417,7 +1653,7 @@
     records.forEach(function (r) { if (!r.el.hidden) setLevel(r, 2); });
     updateExpandAll();
   }
-  initReveal();
+  initCardTilt();
   initChrome();
   // the page body was kept unpainted until now (html.app-pending in styles.css):
   // it appears already rendered, with no static-to-interactive swap or layout shift

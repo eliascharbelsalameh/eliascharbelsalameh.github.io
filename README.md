@@ -70,15 +70,21 @@ notable** (3 and 4) and **Other activities** (1 and 2). Visitors can switch to
 **Date** order, which brings back the year groups. Change an entry's number to move
 it; nothing else needs editing. Featured entries should be 5.
 
+In the default view, **Other activities** starts folded behind one "Show the N
+other activities" button, so a first read is the key work and what's notable.
+Any search, filter or skill, the Date order, or a link to one of those entries
+shows them all; printing always prints every entry.
+
 ### Views and the three levels of detail
 Visitors pick **Grid** (cards, two columns; one on phones) or **List** (one compact
 row per entry). Either way each card starts compact: dates, title and organisation.
 
-- **Preview:** resting the mouse on a card for a moment, or reaching its **More**
+- **Preview:** resting the mouse on a card for a moment, or reaching its **Details**
   button with the keyboard, shows the summary, the tags and the first two bullets,
   laid over the cards below so nothing moves. `Esc` dismisses it.
-- **Full details:** clicking **More** (or the card's title area) opens everything:
-  all bullets, image, categories and links.
+- **Full details:** clicking **Details** (or the card's title area) opens everything:
+  all bullets, image, categories and links. The details unfold from the card and
+  the cards below slide down; **Close** folds them away.
 - **On touch screens** there is no hover, so the first tap opens the preview in
   place, with a **Full details** button inside it.
 
@@ -305,8 +311,9 @@ don't). Add `id: "phd"` to an entry in `data.js` to pin it to `#entry-phd` inste
 The first time someone opens the site in a browser session, an intro plays for
 about 2.2 seconds: your initials "ecs" are drawn in outline, fill with colour from
 below, extrude into 3D and catch a sweep of light, with your name underneath, then
-the screen fades to the page. While it plays the page can't be scrolled, clicked
-or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early.
+the mark flies into the header's "ecs" logo while the page appears behind it
+(about 2.5 seconds in all). While it plays the page can't be scrolled, clicked
+or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fade.
 
 - **Once per session:** going to a blog post and back, or reloading, doesn't replay
   it. A new tab or a new browser session does.
@@ -319,6 +326,20 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early.
   commented) and the "Intro splash" section of `styles.css`, in the site's own
   colours for each theme. To turn it off, delete the `#splash` block and the two
   scripts marked "Intro splash".
+
+### The other animations
+- **Player card:** turns face-up into place on each page load, then the ratings
+  count up as their bars fill and a band of light crosses it. With a mouse, it
+  tilts toward the pointer.
+- **Cards** rise into place in 3D as you scroll to them (browsers without
+  scroll-driven animations, such as Firefox, simply show them). Re-sorting,
+  switching view or unfolding Other activities deals the visible cards in.
+- **The map** draws its bars along the time axis the first time it comes into view.
+- **Reduced motion:** visitors who ask their system for less motion get none of
+  the movement, only short fades where they show a change.
+
+All of it is plain CSS and JavaScript (styles.css "Card motion" and "Player card",
+app.js `morphLevel`, `dealIn`, `revealCard`, `initCardTilt`, `drawMapOnce`).
 
 ---
 

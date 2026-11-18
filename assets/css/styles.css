@@ -66,6 +66,8 @@
   --radius-sm: 6px;
   --wrap: 1080px;
   --ease: cubic-bezier(.22, .61, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);      /* confident arrivals: reveals, unfolds, the card */
+  --ease-in: cubic-bezier(.4, 0, 1, 1);         /* exits: folding away */
 }
 
 html[data-theme="dark"] {
@@ -103,6 +105,12 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+/* the browser's own surfaces in the site's colours (both themes) */
+html {
+  accent-color: var(--accent); caret-color: var(--accent);
+  scrollbar-color: color-mix(in srgb, var(--text) 30%, transparent) var(--bg);
+}
+::selection { background: color-mix(in srgb, var(--accent) 26%, transparent); }
 button, input { font: inherit; }
 
 h1, h2, h3, h4 { font-family: var(--font-mono); line-height: 1.2; letter-spacing: -.02em; margin: 0; }
@@ -139,7 +147,9 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
   border: 1.5px solid transparent; transition: transform .15s var(--ease), background .15s, box-shadow .15s;
   white-space: nowrap;
 }
-.btn:hover { text-decoration: none; transform: translateY(-1px); }
+/* hover never moves the button out from under the pointer; a press gives way a little */
+.btn:hover { text-decoration: none; }
+.btn:active { transform: scale(.97); transition-duration: .06s; }
 .btn-primary { background: var(--accent); color: var(--accent-ink); }
 .btn-primary:hover { box-shadow: var(--shadow-md); }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
@@ -166,10 +176,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 .brand { display: inline-flex; align-items: center; gap: .6rem; color: var(--text); font-weight: 700; flex: none; }
 .brand:hover { text-decoration: none; }
 .brand-mark {
-  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px;
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; flex: none;
   background: var(--primary); color: var(--primary-ink);
-  font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-micro); letter-spacing: .02em;
 }
+/* the same vector "ecs" as the intro, which lands here (see "Intro splash") */
+.brand-mark svg { width: 25px; height: auto; fill: currentColor; stroke: none; overflow: visible; }
 .brand-name { font-family: var(--font-mono); font-size: var(--fs-body); letter-spacing: -.02em; }
 .site-nav { display: flex; gap: 1.3rem; margin-left: auto; }
 .site-nav a { position: relative; display: inline-flex; align-items: center; min-height: 32px; color: var(--text-muted); font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-ui); }
@@ -212,12 +223,12 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
   gap: 1.25rem;
 }
 .hero-stats { grid-area: stats; }
-.hero-eyebrow {
-  margin: 0 0 .6rem; font-family: var(--font-mono); font-weight: 600; font-size: var(--fs-meta);
-  letter-spacing: .06em; text-transform: uppercase; line-height: 1.5;
-  color: var(--accent);
+.hero-name { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -.035em; line-height: 1.1; margin-bottom: .55rem; }
+/* the role, right under the name: who, then what, read as one statement */
+.hero-role {
+  margin: 0 0 .6rem; font-weight: 600; font-size: var(--fs-body); line-height: 1.45;
+  color: var(--accent); text-wrap: balance;
 }
-.hero-name { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -.035em; line-height: 1.1; margin-bottom: .6rem; }
 .hero-loc {
   display: inline-flex; align-items: center; gap: .35rem;
   margin: 0 0 .7rem; color: var(--text-muted); font-size: var(--fs-ui); font-weight: 500;
@@ -252,13 +263,63 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
   --cut: 18px;                                   /* size of the clipped corners */
   --bar-on: var(--primary);                      /* filled segments: navy / near-white */
   --bar-off: color-mix(in srgb, var(--text) 11%, transparent);
+  --rx: 0deg; --ry: 0deg;                        /* tilt, set by app.js while a mouse is over it */
   position: relative; isolation: isolate;
   width: 100%; max-width: 23rem; margin: 0;
   padding: 1.15rem 1.25rem 1rem;
   filter: drop-shadow(0 10px 22px rgba(16, 28, 46, .10));
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform .7s var(--ease-out);     /* the slow settle back when the mouse leaves */
 }
+.pcard.is-tilting { transition-duration: .16s; transition-timing-function: linear; }
 html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .45)); }
 .pcard[hidden] { display: none; }
+
+/* light on the card: layers in the card's clipped shape. The shade (the side
+   turned away from the mouse) and the glare (the light under the pointer)
+   sit between the card's face and its content, so they light the surface but
+   never wash out a letter: every label keeps its contrast while tilted. The
+   sweep, the reveal's one passing band of light, goes over everything. */
+.pcard::before, .pcard::after { z-index: -2; }
+.pcard-shade, .pcard-glare, .pcard-sweep {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
+  opacity: 0; transition: opacity .5s var(--ease);
+}
+.pcard-sweep { z-index: 2; }
+.pcard-shade { background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), transparent 35%, rgba(16, 28, 46, .08) 100%); }
+.pcard-glare { background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), color-mix(in srgb, var(--accent) 11%, transparent), transparent 55%); }
+html[data-theme="dark"] .pcard-shade { background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), transparent 35%, rgba(0, 0, 0, .3) 100%); }
+html[data-theme="dark"] .pcard-glare { background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, .11), transparent 55%); }
+/* Shade and glare stay off for now: measured with the pointer on a grey label,
+   they took it from 4.7:1 to 2.9:1 (light) and 6:1 to 4:1 (dark). The tilt
+   alone keeps every label readable. To try them again, give them opacity: 1
+   under .pcard.is-tilting and re-check the contrast. */
+.pcard-sweep {
+  background: linear-gradient(105deg, transparent 36%, rgba(255, 255, 255, .8) 50%, transparent 64%) 130% 0 / 260% 100% no-repeat;
+  mix-blend-mode: overlay;
+}
+html[data-theme="dark"] .pcard-sweep {
+  background-image: linear-gradient(105deg, transparent 36%, rgba(255, 255, 255, .2) 50%, transparent 64%);
+  mix-blend-mode: screen;
+}
+
+/* the reveal (app.js adds .is-revealing once per page load, after the intro if
+   it plays): the card turns face-up into place like one dealt from a pack,
+   the ratings fill, then a band of light runs across the finished card
+   (.is-gleaming), catching the navy bars and the photo. The turn ends exactly
+   on the resting transform, so the tilt takes over seamlessly. */
+.pcard.is-revealing { animation: pcard-reveal .9s var(--ease-out) var(--reveal-delay, 0ms) backwards; }
+.pcard.is-gleaming .pcard-sweep { animation: pcard-sweep .9s cubic-bezier(.4, 0, .2, 1) var(--gleam-delay, 0ms) both; }
+@keyframes pcard-reveal {
+  from { opacity: 0; transform: perspective(900px) translateY(22px) rotateX(12deg) rotateY(-86deg) scale(.9); }
+  50%  { opacity: 1; }
+  to   { opacity: 1; transform: perspective(900px) rotateX(0deg) rotateY(0deg); }
+}
+@keyframes pcard-sweep {
+  from { opacity: 1; background-position: 130% 0; }
+  to   { opacity: 1; background-position: -30% 0; }
+}
 /* frame (::before) and face (::after) share the clipped shape */
 .pcard::before, .pcard::after {
   content: ""; position: absolute; z-index: -1;
@@ -328,7 +389,7 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
 }
 .pcard.is-filling .pa-seg i {
   animation: pa-fill .3s var(--ease) both;
-  animation-delay: calc(200ms + var(--i, 0) * 90ms + var(--k, 0) * 30ms);
+  animation-delay: calc(var(--fill-delay, 200ms) + var(--i, 0) * 90ms + var(--k, 0) * 30ms);
 }
 @keyframes pa-fill { from { transform: scaleX(0); } }
 .pcard-note {
@@ -423,8 +484,11 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   border: 1.5px solid var(--border-strong);
   transition: transform .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
 }
-.qbtn:hover { transform: translateY(-1px); }
-.qbtn .qbtn-ico { line-height: 1; }
+.qbtn:hover { border-color: color-mix(in srgb, var(--qc) 55%, var(--border-strong)); }
+.qbtn:active, .chip:active, .skill-link:active { transform: scale(.96); transition-duration: .06s; }
+.qbtn .qbtn-ico { display: inline-flex; line-height: 1; }
+/* the star: drawn, not a font glyph (★ isn't in the self-hosted subset) */
+.qbtn-ico svg, .tl-star svg { width: 1em; height: 1em; fill: currentColor; stroke: none; }
 .qbtn .qbtn-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; flex: none; }
 .qbtn[aria-pressed="true"], .qbtn.skill-active {
   color: color-mix(in srgb, var(--qc) var(--ink-mix), var(--text));
@@ -444,7 +508,7 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   border: 1.5px solid var(--border-strong);
   transition: background .15s, color .15s, border-color .15s, transform .12s var(--ease);
 }
-.chip:hover { transform: translateY(-1px); }
+.chip:hover { border-color: color-mix(in srgb, var(--cat) 60%, var(--border-strong)); }
 .chip .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--cat); background: transparent; flex: none; }
 .chip[aria-pressed="true"] {
   color: color-mix(in srgb, var(--cat) var(--ink-mix), var(--text));
@@ -498,6 +562,24 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   font-size: var(--fs-title); font-weight: 700;
 }
 .tl-tier::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* "Other activities" starts folded in the default view (importance order, no
+   filter): one clear control, and what's inside it, instead of 20 more cards */
+.tl-fold { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem 1rem; margin: -.15rem 0 1rem; }
+.tl-fold[hidden] { display: none; }
+.tl-fold-btn {
+  display: inline-flex; align-items: center; gap: .45rem; min-height: 38px; padding: 0 .95rem 0 1.05rem;
+  border-radius: 999px; cursor: pointer;
+  font-family: var(--font-mono); font-size: var(--fs-ui); font-weight: 600;
+  color: var(--accent); background: var(--surface);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+  transition: border-color .15s, background .15s, transform .15s var(--ease);
+}
+.tl-fold-btn:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+.tl-fold-btn:active { transform: scale(.97); transition-duration: .06s; }
+.tl-fold-btn svg { transition: transform .25s var(--ease-out); }
+.tl-fold-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.tl-fold-hint { margin: 0; font-size: var(--fs-meta); color: var(--text-muted); }
 
 /* the cards of one group (a list) */
 .tl-items { list-style: none; margin: 0; padding: 0; }
@@ -557,7 +639,7 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
 }
 .tl-title { font-size: var(--fs-body); font-weight: 600; letter-spacing: -.02em; line-height: 1.35; margin: .3rem 0 .2rem; }
 /* inline, so it follows the last word when a title wraps */
-.tl-star { margin-left: .4rem; color: color-mix(in srgb, var(--star) var(--star-mix), var(--text)); white-space: nowrap; }
+.tl-star { display: inline-block; margin-left: .4rem; vertical-align: -.1em; color: color-mix(in srgb, var(--star) var(--star-mix), var(--text)); white-space: nowrap; }
 .tl-org { color: var(--text); font-weight: 500; font-size: var(--fs-ui); }
 /* long words ("Hyperdimensional", "pluridisciplinaire") break instead of spilling on phones */
 .tl-title, .tl-org, .tl-summary, .tl-highlights { overflow-wrap: break-word; }
@@ -574,8 +656,14 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
 }
 .tl-more:hover, .tl-full:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .tl-more-ico { display: inline-flex; }
-.tl-more-ico svg { transition: transform .2s var(--ease); }
+.tl-more-ico svg { transition: transform .25s var(--ease-out); }
 .tl-more[aria-expanded="true"] .tl-more-ico svg { transform: rotate(180deg); }
+/* the whole card head opens it, so pointing anywhere on the card lights the
+   Details control and nudges its chevron (the card itself stays still) */
+@media (hover: hover) {
+  .tl-card:hover .tl-more { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+  .tl-card:hover .tl-more[aria-expanded="false"] .tl-more-ico svg { transform: translateY(2px); }
+}
 .tl-full { display: none; margin-top: .8rem; }
 
 /* list view: one compact row per entry (dates | title + organisation | More) */
@@ -588,8 +676,10 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
 .view-list .tl-more { margin-top: 0; }
 .view-list .tl-details { grid-column: 1 / -1; }
 
-/* the three levels: compact (default) / .lvl-1 preview inline (touch) / .lvl-2 full */
-.tl-details { display: none; }
+/* the three levels: compact (default) / .lvl-1 preview inline (touch) / .lvl-2 full.
+   Opening and closing one card animates in app.js (morphLevel): the details
+   unfold from the card's edge, hinged at the top. */
+.tl-details { display: none; transform-origin: 50% 0; }
 .tl-item.lvl-1 .tl-details, .tl-item.lvl-2 .tl-details { display: block; margin-top: .75rem; }
 .tl-item.lvl-1 .tl-full { display: inline-flex; }
 .tl-item:not(.lvl-2) .tl-x { display: none; }
@@ -604,10 +694,11 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   padding: .85rem 1.15rem 1rem;
   background: var(--surface); border: 1px solid var(--border-strong); border-top: 0;
   border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-md);
-  animation: peek-in .14s var(--ease);
+  animation: peek-in .26s var(--ease-out);
 }
 .tl-item.is-peek .tl-card { border-color: var(--border-strong); border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: var(--shadow-md); }
-@keyframes peek-in { from { opacity: 0; transform: translateY(-4px); } }
+/* the preview folds down out of the card, like a flap */
+@keyframes peek-in { from { opacity: 0; transform: perspective(700px) rotateX(-24deg); } }
 
 .tl-summary { margin: 0; color: var(--text); }
 .tl-highlights { margin: .6rem 0 0; padding-left: 1.1rem; color: var(--text-muted); }
@@ -680,7 +771,7 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   transition: background .15s, color .15s, transform .12s var(--ease);
 }
 /* hover strengthens the outline, not the tint, so the blue text keeps 4.5:1 */
-.skill-link:hover { border-color: var(--accent); transform: translateY(-1px); }
+.skill-link:hover { border-color: var(--accent); }
 .skill-link[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
 /* ------------------------------- Footer ----------------------------------- */
@@ -698,9 +789,10 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   padding: 1.05rem 1.15rem 1rem; color: var(--text);
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow-sm);
-  transition: transform .18s var(--ease), box-shadow .18s;
+  transition: box-shadow .2s var(--ease), border-color .2s;
 }
-.hl-tile:hover { text-decoration: none; transform: translateY(-3px); box-shadow: var(--shadow-md); }
+/* hover deepens the shadow and sends the arrow on; the tile itself stays put */
+.hl-tile:hover { text-decoration: none; border-color: var(--border-strong); box-shadow: var(--shadow-md); }
 .hl-top { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
 .hl-ico {
   flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
@@ -719,8 +811,8 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
   display: inline-flex; align-items: center; gap: .3rem;
   font-family: var(--font-mono); font-size: var(--fs-meta); font-weight: 600; color: var(--accent);
 }
-.hl-go-ico { display: inline-flex; transition: transform .18s var(--ease); }
-.hl-tile:hover .hl-go-ico { transform: translateX(3px); }
+.hl-go-ico { display: inline-flex; transition: transform .25s var(--ease-out); }
+.hl-tile:hover .hl-go-ico { transform: translateX(4px); }
 
 /* ----------------------------- Career map --------------------------------- */
 /* sits on the page background between two hairlines: no box of its own */
@@ -783,6 +875,14 @@ html[data-theme="dark"] .pcard { filter: drop-shadow(0 12px 26px rgba(0, 0, 0, .
           mask-image: linear-gradient(90deg, transparent, #000 1.2rem);
 }
 .map-mark.is-dim { opacity: .16; }
+/* first time the map scrolls into view (app.js), each bar draws along the time
+   axis from its start date, earliest first: the overview reads as time passing */
+.map.is-pending .map-mark { transform: scaleX(0); }
+.map.is-pending .map-mark.is-point { transform: scale(0); }
+.map.is-drawing .map-mark { transform-origin: 0 50%; animation: map-draw .6s var(--ease-out) var(--d, 0ms) backwards; }
+.map.is-drawing .map-mark.is-point { transform-origin: 50% 50%; animation-name: map-pop; animation-duration: .45s; }
+@keyframes map-draw { from { transform: scaleX(0); } }
+@keyframes map-pop { from { transform: scale(0); } }
 .map-tip {
   position: absolute; z-index: 20; transform: translateX(-50%); pointer-events: none;
   max-width: 18rem; padding: .45rem .65rem; border-radius: 8px;
@@ -833,19 +933,57 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
 .feed-link { white-space: nowrap; }
 .feed-link svg { display: inline-block; vertical-align: -2px; margin-right: .25rem; }
 
-/* ----------------------------- Reveal anim -------------------------------- */
-.reveal { opacity: 0; transform: translateY(14px); }
-.reveal.in { opacity: 1; transform: none; transition: opacity .5s var(--ease), transform .5s var(--ease); }
+/* ------------------------------ Card motion ------------------------------- */
+/* Timeline cards and Highlight tiles rise onto the page as they scroll in:
+   tipped back in 3D, then flat, tied to the scroll position itself. It's pure
+   CSS: where scroll-driven animations aren't supported (or motion is reduced)
+   the cards are simply there, and nothing is ever hidden waiting for a
+   script. Only the short stretch where a card enters animates. */
+@keyframes card-rise {
+  from { opacity: 0; transform: perspective(1100px) translateY(44px) rotateX(20deg) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .tl-card {
+      transform-origin: 50% 100%;
+      animation: card-rise linear backwards; animation-timeline: view(); animation-range: entry 0% entry 160px;
+    }
+    /* the grid's right-hand column lags a little: a row arrives as a pair, not a slab */
+    @media (min-width: 641px) {
+      .view-grid .tl-item:nth-child(2n) .tl-card { animation-range: entry 36px entry 196px; }
+    }
+    /* (on phones the tiles are a sideways strip, which keeps them still) */
+    @media (min-width: 561px) {
+      .hl-tile {
+        transform-origin: 50% 100%;
+        animation: card-rise linear backwards; animation-timeline: view(); animation-range: entry 0% entry 170px;
+      }
+      .hl-tile:nth-child(3n + 2) { animation-range: entry 30px entry 200px; }
+      .hl-tile:nth-child(3n) { animation-range: entry 60px entry 230px; }
+    }
+  }
+}
+
+/* Reduced motion: nothing travels, tilts or flips. What carries meaning stays,
+   as a change of colour or opacity: the open/close of a card and its preview
+   fade, the chevrons still point the right way, the pulse on a card you jumped
+   to becomes a steady ring. */
 @media (prefers-reduced-motion: reduce) {
   .to-top { animation: none; }
-  .reveal, .reveal.in { opacity: 1; transform: none; transition: none; }
-  .btn:hover, .chip:hover, .qbtn:hover, .hl-tile:hover, .skill-link:hover { transform: none; }
-  .hl-tile:hover .hl-go-ico, .map-mark:hover { transform: none; }
-  .tl-more-ico svg { transition: none; }
-  .tl-item.is-peek .tl-details { animation: none; }
+  .hl-tile:hover .hl-go-ico, .map-mark:hover, .map-mark.is-point:hover { transform: none; }
+  .btn:active, .qbtn:active, .chip:active, .skill-link:active, .tl-fold-btn:active { transform: none; }
+  .tl-more-ico svg, .tl-fold-btn svg { transition: none; }
+  @media (hover: hover) { .tl-card:hover .tl-more[aria-expanded="false"] .tl-more-ico svg { transform: none; } }
+  .tl-item.is-peek .tl-details { animation: fade-in .15s ease-out; }
   .tl-item.is-flash .tl-card { animation: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat) 60%, transparent); }
   .pcard.is-filling .pa-seg i { animation: none; }
+  .pcard, .pcard.is-revealing, .pcard.is-gleaming .pcard-sweep { animation: none; transition: none; transform: none; }
+  .map.is-pending .map-mark, .map.is-pending .map-mark.is-point { transform: none; }
+  .map.is-drawing .map-mark { animation: none; }
+  .brand-mark.is-landing { animation: none; }
 }
+@keyframes fade-in { from { opacity: 0; } }
 
 /* ------------------------- Touch: 44px hit areas -------------------------- */
 @media (pointer: coarse) {
@@ -938,9 +1076,11 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
    only. The inline script in <head> decides before first paint and adds
    html.splash-on; without that class (no JS, reduced motion, repeat visit,
    crawlers) the splash keeps its [hidden] attribute and never shows.
-   Timeline, about 2.2s: outlines draw (0 to .8s), colour floods each letter
+   Timeline, about 2.5s: outlines draw (0 to .8s), colour floods each letter
    from below (.3 to 1s), the letters extrude into 3D (.95 to 1.45s), a light
-   sweeps across them (1.3 to 1.75s), then the whole screen fades out. */
+   sweeps across them (1.3 to 1.75s), then (script) the mark tilts away and
+   flies into the header's brand mark while the backdrop fades and the page
+   settles in behind it (1.75 to 2.5s). Ended early, it just fades. */
 /* the scrollbar's space stays reserved (html.js: home page only), so locking
    the scroll and unlocking it never changes the page width */
 html.js { scrollbar-gutter: stable; }
@@ -955,12 +1095,20 @@ html.splash-on .splash {
   --sp-glow: color-mix(in srgb, var(--accent) 9%, var(--bg));
   position: fixed; inset: 0; z-index: 1000;
   display: grid; place-items: center; align-content: center; gap: 1.4rem;
-  background: radial-gradient(circle at 50% 46%, var(--sp-glow), var(--bg) min(46vmax, 560px)), var(--bg);
   cursor: default; touch-action: none; user-select: none; -webkit-user-select: none;
   transition: opacity .42s var(--ease), visibility 0s linear .42s;
   /* backstop: even if every script stalls, the splash takes itself away */
   animation: sp-failsafe .3s linear 4.5s forwards;
 }
+/* the backdrop is its own layer, so it can fade while the mark flies over the page */
+.sp-bg {
+  position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(circle at 50% 46%, var(--sp-glow), var(--bg) min(46vmax, 560px)), var(--bg);
+}
+/* the header's mark waits, hidden, until the flying letters reach it */
+html.splash-on .brand-mark:not(.is-landing) { opacity: 0; }
+.brand-mark.is-landing { animation: mark-land .5s var(--ease-out) both; }
+@keyframes mark-land { from { opacity: 0; transform: scale(.62); } 35% { opacity: 1; } }
 html[data-theme="dark"].splash-on .splash {
   --sp-face-hi: color-mix(in srgb, var(--accent) 58%, #ffffff);
   --sp-face-lo: color-mix(in srgb, var(--accent) 80%, #0a1633);
@@ -1046,9 +1194,10 @@ html[data-theme="dark"].splash-on .splash {
     --shadow-sm: none; --shadow-md: none;
   }
   .site-header, .controls, .theme-toggle, .lang-toggle, .hero-cta, .footer-links, .skip-link, .to-top,
-  .highlights-section, .map, .tl-more, .tl-full { display: none !important; }
-  /* the scroll-reveal never ran on cards below the fold: show everything */
-  .reveal, .reveal.in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .highlights-section, .map, .tl-more, .tl-full, .tl-fold,
+  .pcard-shade, .pcard-glare, .pcard-sweep { display: none !important; }
+  /* cards print flat and fully there, wherever the scroll-linked rise stood */
+  .tl-card, .hl-tile, .pcard { animation: none !important; opacity: 1 !important; transform: none !important; }
   /* every card prints with its full details */
   .tl-details { display: block !important; position: static !important; margin-top: .6rem !important;
                 padding: 0 !important; border: 0 !important; box-shadow: none !important; animation: none !important; }

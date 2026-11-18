@@ -209,21 +209,27 @@
       } catch (e) { return; }   // no session storage: skip it rather than replay it on every page
       d.classList.add("splash-on");
       function cleanup() {
-        d.classList.remove("splash-on", "splash-out");
+        d.classList.remove("splash-on", "splash-out", "splash-flying");
         var held = document.querySelectorAll("[data-splash-inert]");
         for (var i = 0; i < held.length; i++) { held[i].inert = false; held[i].removeAttribute("data-splash-inert"); }
         var s = document.getElementById("splash");
         if (s && s.parentNode) s.parentNode.removeChild(s);
       }
-      // fade out (about .45s), then remove; app.js listens for "ecs:intro-end"
-      window.ecsIntroEnd = function (now) {
-        if (ended) return;
+      // Ends the intro: at once (now), by flying the mark into the header
+      // (`fly` is part 2's flight, about .75s; it returns false if it can't
+      // run), or with a short fade (about .45s). app.js listens for
+      // "ecs:intro-end" to deal the player card in.
+      window.ecsIntroEnd = function (now, fly) {
+        if (ended) { if (now) cleanup(); return; }
         ended = true;
+        var s = document.getElementById("splash"), flying = false;
         d.classList.add("splash-out");
-        var s = document.getElementById("splash");
-        if (s) s.classList.add("is-leaving");
-        try { document.dispatchEvent(new Event("ecs:intro-end")); } catch (e) {}
-        setTimeout(cleanup, now || !s ? 0 : 450);
+        if (!now && s && fly) { try { flying = !!fly(cleanup); } catch (e) {} }
+        try { document.dispatchEvent(new CustomEvent("ecs:intro-end", { detail: { flying: flying } })); } catch (e) {}
+        if (flying) return;
+        if (now || !s) { cleanup(); return; }
+        s.classList.add("is-leaving");
+        setTimeout(cleanup, 450);
       };
       setTimeout(function () { try { window.ecsIntroEnd(true); } catch (e) {} cleanup(); }, 4000);
     })();
@@ -232,8 +238,10 @@
 <body>
   <!-- Intro splash: "ecs" in Roboto Mono Bold, as vector outlines (so it can't
        flash a fallback font), drawn, filled and extruded by CSS (styles.css,
-       "Intro splash"). Removed from the page once it has played. -->
+       "Intro splash"), then flown into the header's brand mark (the script at
+       the end of <body>). Removed from the page once it has played. -->
   <div class="splash" id="splash" role="img" aria-label="Elias Charbel Salameh" hidden>
+    <div class="sp-bg" aria-hidden="true"></div>
     <svg class="sp-art" viewBox="-12 -18 368 172" aria-hidden="true" focusable="false">
       <defs>
         <path id="sp-e" pathLength="1" d="M55.4 112.2Q71.1 112.2 82.6 106.1Q94.1 100 99.4 92.5L85.5 77.5Q80.7 83.7 73 86.8Q65.3 89.9 57.1 89.9Q51.3 89.9 46.4 88.1Q41.5 86.3 37.7 83Q34 79.8 31.8 75.8Q29.6 71.9 28.2 65.4V65.1H101.6V53.3Q101.6 41.4 98.3 31.6Q95 21.7 88.7 14.7Q82.3 7.7 73.2 3.9Q64 0 52.3 0Q41 0 31.4 4.1Q21.8 8.2 14.8 15.6Q7.8 23 3.9 33.2Q0 43.5 0 55.9V59.9Q0 70.8 4 80.3Q7.9 89.9 15.2 96.9Q22.5 104 32.7 108.1Q42.9 112.2 55.4 112.2ZM52.1 22.5Q57.4 22.5 61.5 24.1Q65.5 25.8 68.3 28.6Q71.1 31.5 72.7 35.4Q74.3 39.3 74.3 43.7V45.9H28.7Q29.7 40.6 31.7 36.3Q33.7 32 36.7 28.9Q39.6 25.8 43.5 24.1Q47.4 22.5 52.1 22.5Z"/>
@@ -273,7 +281,8 @@
   <header class="site-header" id="top">
     <div class="wrap header-inner">
       <a class="brand" href="#top">
-        <span class="brand-mark">ECS</span>
+        <!-- the "ecs" mark: the same vector letters as the intro, which lands here -->
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 331.5 112.3" focusable="false"><path d="M55.4 112.2Q71.1 112.2 82.6 106.1Q94.1 100 99.4 92.5L85.5 77.5Q80.7 83.7 73 86.8Q65.3 89.9 57.1 89.9Q51.3 89.9 46.4 88.1Q41.5 86.3 37.7 83Q34 79.8 31.8 75.8Q29.6 71.9 28.2 65.4V65.1H101.6V53.3Q101.6 41.4 98.3 31.6Q95 21.7 88.7 14.7Q82.3 7.7 73.2 3.9Q64 0 52.3 0Q41 0 31.4 4.1Q21.8 8.2 14.8 15.6Q7.8 23 3.9 33.2Q0 43.5 0 55.9V59.9Q0 70.8 4 80.3Q7.9 89.9 15.2 96.9Q22.5 104 32.7 108.1Q42.9 112.2 55.4 112.2ZM52.1 22.5Q57.4 22.5 61.5 24.1Q65.5 25.8 68.3 28.6Q71.1 31.5 72.7 35.4Q74.3 39.3 74.3 43.7V45.9H28.7Q29.7 40.6 31.7 36.3Q33.7 32 36.7 28.9Q39.6 25.8 43.5 24.1Q47.4 22.5 52.1 22.5Z"/><path d="M166.7 90Q160 90 155.7 87.3Q151.3 84.6 148.8 80.1Q146.2 75.7 145.2 69.8Q144.2 64 144.2 57.7V54.7Q144.2 48.5 145.2 42.7Q146.3 36.9 148.9 32.4Q151.4 27.9 155.7 25.2Q160 22.5 166.6 22.5Q171.1 22.5 174.9 24Q178.7 25.6 181.4 28.2Q184.1 30.8 185.5 34.4Q186.9 38 186.7 42H212.9Q213.1 32.4 209.7 24.6Q206.3 16.9 200.2 11.4Q194 6 185.5 3Q177 0 167 0Q154.5 0 145.1 4.3Q135.6 8.6 129.2 16Q122.8 23.4 119.6 33.3Q116.4 43.3 116.4 54.7V57.7Q116.4 69.1 119.7 79Q122.9 89 129.3 96.4Q135.6 103.8 145.1 108Q154.6 112.3 167.2 112.3Q176.5 112.3 184.8 109.3Q193.2 106.4 199.5 101.2Q205.8 96 209.5 88.8Q213.1 81.6 212.9 73.2H186.7Q186.9 77 185.4 80.1Q183.8 83.2 181 85.4Q178.2 87.6 174.5 88.8Q170.8 90 166.7 90Z"/><path d="M304.5 80.5Q304.5 83 303.2 85.1Q302 87.2 299.5 88.8Q296.9 90.4 292.9 91.3Q288.8 92.3 283.4 92.3Q278.9 92.3 274.7 91.4Q270.4 90.5 267.1 88.5Q263.8 86.6 261.7 83.4Q259.6 80.3 259.3 75.9H232.8Q232.8 82.5 236.1 89Q239.3 95.6 245.6 100.7Q251.9 105.9 261.2 109.1Q270.6 112.3 282.8 112.3Q293.9 112.3 302.9 109.8Q311.9 107.4 318.3 103Q324.6 98.6 328.1 92.5Q331.5 86.5 331.5 79.3Q331.5 71.5 328.1 65.8Q324.6 60.2 318.5 56.2Q312.4 52.3 304 49.8Q295.6 47.3 285.8 45.7Q279 44.7 274.6 43.4Q270.2 42 267.7 40.3Q265.1 38.7 264.1 36.6Q263.1 34.6 263.1 32.2Q263.1 29.8 264.2 27.6Q265.4 25.5 267.6 23.9Q270 22.1 273.8 21.1Q277.6 20.1 282.7 20.1Q288.7 20.1 293 21.6Q297.2 23.1 299.7 25.6Q301.5 27.5 302.4 29.9Q303.3 32.2 303.3 34.9H331.1Q331.1 27.4 327.8 21Q324.5 14.6 318.3 9.9Q312 5.3 303 2.6Q294 0 282.7 0Q271.9 0 263.3 2.7Q254.7 5.4 248.7 10Q242.7 14.6 239.5 20.7Q236.3 26.8 236.3 33.5Q236.3 40.4 239.5 45.7Q242.6 51 248.2 55Q253.8 59.1 261.6 62Q269.5 64.8 279 66.7Q286.5 68.1 291.4 69.5Q296.3 70.9 299.3 72.5Q302.2 74.2 303.4 76.1Q304.5 78 304.5 80.5Z"/></svg></span>
         <span class="brand-name">Elias&nbsp;Charbel&nbsp;Salameh</span>
       </a>
       <!-- section links: inline on wide screens, a drop-down behind #menu-toggle on phones -->
@@ -316,8 +325,8 @@
       <div class="wrap hero-inner">
         <div class="hero-text">
           <!-- build:hero -->
-          <p class="hero-eyebrow" id="hero-role">R&amp;D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS</p>
           <h1 class="hero-name" id="hero-name">Elias Charbel SALAMEH</h1>
+          <p class="hero-role" id="hero-role">R&amp;D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS</p>
           <p class="hero-loc" id="hero-loc"><span>Bordeaux, France</span></p>
           <p class="hero-tagline" id="hero-tagline">Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.</p>
           <p class="hero-summary" id="hero-summary">Hands-on experience across control systems, computer vision, SLAM and deep learning.</p>
@@ -364,7 +373,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2 data-i18n="timeline_h">Timeline of efforts</h2>
-          <p class="section-sub" data-i18n="timeline_sub">Every role, project, award and contribution. Filter, sort or switch the view to whatever you care about.</p>
+          <p class="section-sub" data-i18n="timeline_sub">Every role, project, award and contribution, most important first. Open any card for its details, or filter and sort to focus on what you care about.</p>
         </div>
 
         <!-- Career map: every entry as a bar in its lane, rendered by app.js.
@@ -424,7 +433,7 @@
           <div class="filters-panel" id="filters-panel" hidden>
             <div class="quick-filters" role="group" aria-label="Quick filters" data-i18n-aria="quick_label">
               <button class="qbtn" id="only-featured" type="button" aria-pressed="false" style="--qc:var(--star)">
-                <span class="qbtn-ico" aria-hidden="true">★</span>
+                <span class="qbtn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg></span>
                 <span data-i18n="featured_only">Highlights</span>
               </button>
               <button class="qbtn" id="only-present" type="button" aria-pressed="false" style="--qc:var(--ok)">
@@ -817,8 +826,10 @@
   </button>
 
   <!-- Intro splash, part 2: while it plays, everything behind it is inert (no
-       focus, clicks or screen-reader browsing), then it ends on its own timeline
-       (about 2.2s). A click, Esc, Enter or Space ends it early. -->
+       focus, clicks or screen-reader browsing). At about 1.75s the finished
+       mark flies into the header's brand mark while the page appears behind
+       it (about .75s more). A click, Esc, Enter or Space ends it early with a
+       short fade instead. -->
   <script>
     (function () {
       var d = document.documentElement, s = document.getElementById("splash");
@@ -842,7 +853,55 @@
       if (document.fonts && document.fonts.load) {
         document.fonts.load('600 13px "Roboto Mono"', "E").then(function () { s.classList.add("has-font"); }, function () {});
       }
-      setTimeout(end, 1750);
+      setTimeout(function () { window.ecsIntroEnd(false, fly); }, 1750);
+
+      /* The flight: the 3D letters tilt away, shed their depth and shrink onto
+         the header's mark (FLIP: measured once, then one transform), the
+         backdrop fades so the page is there underneath, and the mark settles
+         in as the letters arrive. Returns false (so the splash just fades)
+         if anything it needs is missing. */
+      function fly(done) {
+        var art = s.querySelector(".sp-art"), word = s.querySelector(".sp-line"),
+            mark = document.querySelector(".site-header .brand-mark"),
+            glyphs = mark && mark.querySelector("svg");
+        if (!art || !word || !glyphs || !art.animate) return false;
+        var a = art.getBoundingClientRect(), w = word.getBoundingClientRect(), g = glyphs.getBoundingClientRect();
+        if (!w.width || !g.width || g.bottom < 0) return false;
+        var k = g.width / w.width,
+            cx = w.left + w.width / 2, cy = w.top + w.height / 2,
+            tx = g.left + g.width / 2 - cx, ty = g.top + g.height / 2 - cy,
+            T = 720, p = "perspective(900px) ";
+        function at(f, s2, rx, ry) {
+          return p + "translate(" + (tx * f).toFixed(1) + "px," + (ty * f).toFixed(1) + "px) scale(" + s2.toFixed(4) + ") rotateX(" + rx + "deg) rotateY(" + ry + "deg)";
+        }
+        d.classList.add("splash-flying");
+        art.style.transformOrigin = (cx - a.left).toFixed(1) + "px " + (cy - a.top).toFixed(1) + "px";
+        var flight = art.animate([
+          { transform: at(0, 1, 0, 0), opacity: 1, easing: "cubic-bezier(.55, 0, .75, .25)" },
+          { transform: at(.22, 1 + (k - 1) * .3, 20, -26), opacity: 1, offset: .38, easing: "cubic-bezier(.2, .7, .25, 1)" },
+          { transform: at(1, k, 0, 0), opacity: 1, offset: .74 },
+          { transform: at(1, k, 0, 0), opacity: 0 }
+        ], { duration: T, fill: "forwards" });
+        function fade(sel, ms, delay) {
+          var el = s.querySelector(sel);
+          if (el) el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, delay: delay || 0, easing: "ease-out", fill: "forwards" });
+        }
+        fade(".sp-depth", 300); fade(".sp-floor", 220); fade(".sp-name", 180); fade(".sp-bg", 520, 140);
+        var hero = document.querySelector(".hero-inner");
+        if (hero) hero.animate([
+          { transform: "perspective(1400px) translateY(28px) rotateX(5deg)" }, { transform: "none" }
+        ], { duration: 900, delay: 120, easing: "cubic-bezier(.16, 1, .3, 1)" });
+        // the mark takes over as the letters arrive (a short cross-fade)
+        setTimeout(function () {
+          mark.classList.add("is-landing");
+          mark.addEventListener("animationend", function () { mark.classList.remove("is-landing"); }, { once: true });
+        }, T * .58);
+        var over = false;
+        function finish() { if (over) return; over = true; done(); }
+        flight.finished.then(finish, finish);
+        setTimeout(finish, T + 300);
+        return true;
+      }
     })();
   </script>
 

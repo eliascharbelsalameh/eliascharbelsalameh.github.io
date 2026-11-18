@@ -417,6 +417,9 @@ const THEME_SCRIPT = `  <!-- Set saved theme before first paint to avoid a flash
 const ICON_MAIL = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/></svg>`;
 const ICON_SUN = `<svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8" stroke-linecap="round"/></svg>`;
 const ICON_MOON = `<svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>`;
+/* the header's "ecs" mark (vector letters), copied from index.html's header so
+   the two never drift apart; the plain text is only a fallback */
+const BRAND_MARK = (read("index.html").match(/<span class="brand-mark"[^>]*>[\s\S]*?<\/svg><\/span>/) || [`<span class="brand-mark" aria-hidden="true">ecs</span>`])[0];
 const ICON_FEED = `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8" stroke-linecap="round"/><circle cx="6" cy="18" r="1.3"/></svg>`;
 
 function pageHead(o, P) {
@@ -474,7 +477,7 @@ function pageHeader(rel, current) {
   <header class="site-header" id="top">
     <div class="wrap header-inner">
       <a class="brand" href="${rel}">
-        <span class="brand-mark">ECS</span>
+        ${BRAND_MARK}
         <span class="brand-name">Elias&nbsp;Charbel&nbsp;Salameh</span>
       </a>
       <nav class="site-nav blog-nav" aria-label="Site">
@@ -590,8 +593,8 @@ const imp = (t) => { const v = +t.importance; return v >= 1 && v <= 5 ? Math.rou
 function homeRegions(D, P) {
   const I = (n) => " ".repeat(n);
   const hero = [
-    `<p class="hero-eyebrow" id="hero-role">${esc(P.role)}</p>`,
     `<h1 class="hero-name" id="hero-name">${esc(P.name)}</h1>`,
+    `<p class="hero-role" id="hero-role">${esc(P.role)}</p>`,
     P.location ? `<p class="hero-loc" id="hero-loc"><span>${esc(P.location)}</span></p>` : `<p class="hero-loc" id="hero-loc" hidden></p>`,
     `<p class="hero-tagline" id="hero-tagline">${esc(P.tagline)}</p>`,
     `<p class="hero-summary" id="hero-summary">${esc(P.summary)}</p>`,
