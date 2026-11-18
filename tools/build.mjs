@@ -533,6 +533,17 @@ const WEBSITE_ID = `${SITE}/#website`;
 const BLOG_ID = `${SITE}/${BLOG_DIR}/#blog`;
 const personRef = (P) => ({ "@type": "Person", "@id": PERSON_ID, name: P.displayName, url: `${SITE}/` });
 
+/* "YYYY-MM-DD" -> "YYYY-MM-DDT00:00:00+01:00": midnight in Paris with that
+   day's offset (+01:00 in winter, +02:00 in summer). Google's ProfilePage
+   rejects a bare date for dateModified. Derived from the date alone (not the
+   build time or git), so rebuilding gives the same output and --check holds. */
+function parisDateTime(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) return undefined;
+  const tz = new Intl.DateTimeFormat("en", { timeZone: "Europe/Paris", timeZoneName: "longOffset" })
+    .formatToParts(new Date(`${date}T00:00:00Z`)).find((p) => p.type === "timeZoneName").value;
+  return `${date}T00:00:00${tz.replace("GMT", "") || "+00:00"}`;
+}
+
 /* The full Person, built from data.js only:
    - jobTitle / description: profile.role, profile.tagline + summary
    - worksFor: ongoing (end: "present") experience entries of importance 5
@@ -633,7 +644,7 @@ function homeRegions(D, P) {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "WebSite", "@id": WEBSITE_ID, url: `${SITE}/`, name: P.displayName, description: P.pageDescription, inLanguage: "en", publisher: { "@id": PERSON_ID } },
-      { "@type": "ProfilePage", "@id": `${SITE}/#profile`, url: `${SITE}/`, name: P.pageTitle, inLanguage: "en", isPartOf: { "@id": WEBSITE_ID }, mainEntity: { "@id": PERSON_ID }, dateModified: P.updated || undefined },
+      { "@type": "ProfilePage", "@id": `${SITE}/#profile`, url: `${SITE}/`, name: P.pageTitle, inLanguage: "en", isPartOf: { "@id": WEBSITE_ID }, mainEntity: { "@id": PERSON_ID }, dateModified: parisDateTime(P.updated) },
       personFull(D, P)
     ]
   };
