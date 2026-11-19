@@ -30,6 +30,8 @@
       map_h: "At a glance",
       map_hint: "Each bar is an entry below. Select one to open it.",
       map_today: "Today",
+      mirror_since: function (y) { return "since " + y; },
+      mirror_before: function (y) { return "before " + y; },
       lanes: { work: "Work & research", education: "Education", projects: "Projects",
                leadership: "Leadership", awards: "Awards & certificates", personal: "Personal" },
       more: "Details", less: "Close", full: "Full details",
@@ -82,6 +84,8 @@
       map_h: "En un coup d'œil",
       map_hint: "Chaque barre est une entrée ci-dessous. Sélectionnez-en une pour l'ouvrir.",
       map_today: "Aujourd'hui",
+      mirror_since: function (y) { return "depuis " + y; },
+      mirror_before: function (y) { return "avant " + y; },
       lanes: { work: "Travail & recherche", education: "Formation", projects: "Projets",
                leadership: "Leadership", awards: "Prix & certificats", personal: "Personnel" },
       more: "Détails", less: "Fermer", full: "Tout le détail",
@@ -1204,9 +1208,21 @@
   var focusRec = null, focusTimer = 0;
   var WARM_DELAY = 90;      // ms of resting on the next card while one is projected
   var FOCUS_LINGER = 260;   // ms the veil waits for the next card after the pointer leaves one
+  var PEEK_MARGIN = 8;      // px kept clear of the screen's edges and of the sticky bars
+  /* the entry an element belongs to: a card's own, or, for the mirror shown
+     beside a card, that card's */
   function recOf(el) {
     var item = el && el.closest ? el.closest(".tl-item") : null;
-    return item ? recordById[item.id] : null;
+    if (item) return recordById[item.id];
+    return mirror && el && el.closest && el.closest(".mirror") ? mirror.lit : null;
+  }
+  /* where the pointer may rest without ending r's projection: the card, or the
+     mirror shown for it */
+  function holds(r, node) {
+    return !!node && (r.el.contains(node) || (!!mirror && mirror.lit === r && mirror.el.contains(node)));
+  }
+  function hovered(r) {
+    return r.el.matches(":hover") || (!!mirror && mirror.lit === r && mirror.el.matches(":hover"));
   }
   function showPeek(r, by) {
     pendingRec = null;
@@ -1217,16 +1233,49 @@
     peekBy = by || "pointer";
     r.el.classList.add("is-peek");
     r.details.setAttribute("aria-hidden", "true");
+    project(r);   // the veil, the map bar and the mirror (placed below, once the preview's size is known)
+    placePeek(r);
+    // projected while still gliding after a filter or sort change: place
+    // again once it has landed, or the mirror would stay where it was mid-flight
+    var moving = r.el.getAnimations ? r.el.getAnimations().filter(function (a) { return a.playState === "running"; }) : [];
+    if (moving.length && window.Promise) Promise.all(moving.map(function (a) { return a.finished.catch(function () {}); }))
+      .then(function () { if (peekRec === r) placePeek(r); });
+  }
+  function placePeek(r) {
     // the preview opens downward, or upward when it would run off the bottom
     // of the screen and fits whole between the card and the header / filter
-    // bar. If it fits neither way it opens downward: what's cut off is then
-    // its last tags, never its summary.
+    // bar (which counts only where it sticks). If it fits neither way it opens
+    // downward: what's cut off is then its last tags, never its summary. A
+    // mirror docked to the preview adds its own height to the preview's. (All
+    // the measuring comes first, so the page lays out once; then the changes.)
     var card = r.el.querySelector(".tl-card").getBoundingClientRect();
     var hd = $(".site-header"), ctl = $(".controls");
-    var ceiling = Math.max(hd ? hd.getBoundingClientRect().bottom : 0, ctl ? ctl.getBoundingClientRect().bottom : 0) + 8;
-    var need = r.details.offsetHeight + 12;
-    r.el.classList.toggle("peek-up", need > window.innerHeight - card.bottom && need <= card.top - ceiling);
-    project(r);
+    var stuck = ctl && window.getComputedStyle(ctl).position === "sticky";
+    var ceiling = Math.max(hd ? hd.getBoundingClientRect().bottom : 0, stuck ? ctl.getBoundingClientRect().bottom : 0) + PEEK_MARGIN;
+    var below = window.innerHeight - card.bottom, above = card.top - ceiling, need = r.details.offsetHeight + 12;
+    var shown = !!mirror && mirror.lit === r && !!mirror.el.parentNode, g = null, plan = null, up, over = false;
+    if (shown) {
+      mirror.h = mirror.el.offsetHeight;
+      g = peekGeometry(r, ceiling);
+      plan = mirrorPlan(g);
+    }
+    if (plan && plan.at === "dock") {
+      // preview and mirror stack, in this order of preference: both below the
+      // card; both above it; the preview below and the mirror above; the
+      // preview above and the mirror below. If there's room for only one, the
+      // preview keeps its place and the mirror is left out.
+      var mh = g.S.dock + mirror.h;
+      if (need + mh <= below) { up = false; over = false; }
+      else if (need + mh <= above) { up = true; over = true; }
+      else if (need <= below && mh <= above) { up = false; over = true; }
+      else if (need <= above && mh <= below) { up = true; over = false; }
+      else { up = need > below && need <= above; plan = null; }
+    } else {
+      up = need > below && need <= above;
+    }
+    r.el.classList.toggle("peek-up", up);
+    if (plan) mirrorPlace(plan, up, over, g);
+    else if (shown) mirrorHide(true);
   }
   /* linger: the pointer left for another card, maybe; let the veil wait for it */
   function hidePeek(linger) {
@@ -1240,7 +1289,8 @@
     }
     unproject(linger);
   }
-  /* the veil over the rest of the timeline and the card's bar on the map */
+  /* the veil over the rest of the timeline, the card's bar on the map, and its
+     place in the mirror beside the card (which lingers with the veil) */
   function project(r) {
     clearTimeout(focusTimer);
     if (focusRec && focusRec !== r && focusRec.mark) focusRec.mark.classList.remove("is-focus");
@@ -1249,6 +1299,7 @@
     if (list) list.classList.add("is-focus");
     if (map) map.classList.add("has-focus");
     if (r.mark) r.mark.classList.add("is-focus");
+    mirrorShow(r);
   }
   function unproject(linger) {
     clearTimeout(focusTimer);
@@ -1258,6 +1309,7 @@
     if (list) list.classList.remove("is-focus");
     if (map) map.classList.remove("has-focus");
     if (focusRec.mark) focusRec.mark.classList.remove("is-focus");
+    mirrorHide();
     focusRec = null;
   }
   function initPeek() {
@@ -1275,7 +1327,7 @@
     });
     list.addEventListener("pointerout", function (ev) {
       var r = recOf(ev.target);
-      if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;   // still on the card or its preview
+      if (!r || holds(r, ev.relatedTarget)) return;   // still on the card, its preview or its mirror
       if (pendingRec === r) { clearTimeout(peekTimer); pendingRec = null; }
       if (peekDismissed === r) peekDismissed = null;
       if (peekRec === r && (peekBy !== "keyboard" || !r.el.contains(document.activeElement))) hidePeek(true);
@@ -1289,8 +1341,10 @@
       var r = recOf(ev.target);
       if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;
       if (peekDismissed === r) peekDismissed = null;
-      if (peekRec === r && (peekBy === "keyboard" || !r.el.matches(":hover"))) hidePeek();
+      if (peekRec === r && (peekBy === "keyboard" || !hovered(r))) hidePeek();
     });
+    // a window resized under a projection (a rotated tablet, say) lays it out again
+    window.addEventListener("resize", function () { if (peekRec) showPeek(peekRec, peekBy); }, { passive: true });
     // the card controls, delegated so a language re-render needs no re-wiring
     list.addEventListener("click", function (ev) {
       var t = ev.target, r = recOf(t);
@@ -1341,6 +1395,7 @@
       var folded = vis && folding && tierOf(r.it) === "other";
       r.el.hidden = !vis || folded;
       if (r.mark) r.mark.classList.toggle("is-dim", !vis);   // folded isn't filtered out: its bar stays lit
+      if (r.mini) r.mini.classList.toggle("is-dim", !vis);   // and so does its mark in the mirror
       if (r.el.hidden && peekRec === r) hidePeek();
       // a search hit in text a compact card doesn't show shouldn't need a click to find
       if (vis && q && r.level < 2 && r.compactText.indexOf(q) === -1 && r.detailText.indexOf(q) !== -1) setLevel(r, 2);
@@ -1686,9 +1741,10 @@
     return { experience: "work", research: "work", education: "education", project: "projects",
              leadership: "leadership", honor: "awards", certification: "awards" }[it.kind] || "projects";
   }
-  function renderMap() {
-    var inner = $("#map-inner");
-    if (!inner || !records.length) return;
+  /* The map's arithmetic, worked out once per render and shared by the big map
+     and the mirror (see "THE MIRROR"): the time axis (months since year 0),
+     each entry's span on it, and the lanes with their packed rows. */
+  function mapModel() {
     var now = new Date();
     var NOW = now.getFullYear() * 12 + now.getMonth() + (now.getDate() - 1) / 31;
     var years = records.filter(function (r) { return r.it.start !== "upcoming"; })
@@ -1725,16 +1781,31 @@
       });
       lanes[name].rows = rowEnds.length;
     });
+    return { NOW: NOW, FROM: FROM, TO: TO, fromY: fromY, pct: pct, lanes: lanes, used: used };
+  }
+  /* one span's place on the axis, in % of its width (a one-off point has no width) */
+  function spanBox(M, sp) {
+    var l = M.pct(sp.s);
+    return { l: l, w: sp.kind === "point" ? 0 : M.pct(sp.e) - l };
+  }
+  /* each year on the axis, with the part of it that falls inside the axis (months) */
+  function mapYears(M, fn) {
+    for (var y = M.fromY; y * 12 < M.TO; y++) fn(y, Math.max(M.FROM, y * 12), Math.min(M.TO, (y + 1) * 12));
+  }
+
+  function renderMap() {
+    var inner = $("#map-inner");
+    if (!inner || !records.length) return;
+    var M = mapModel(), pct = M.pct, used = M.used, lanes = M.lanes, FROM = M.FROM;
 
     // axis: each year's label centred in its span, a line where each new one starts
     var axis = h("div", { class: "map-axis" });
     var lines = h("div", { class: "map-lines", style: "grid-row:2 / span " + used.length });
-    for (var y = fromY; y * 12 < TO; y++) {
-      var a = Math.max(FROM, y * 12), b = Math.min(TO, (y + 1) * 12);
+    mapYears(M, function (y, a, b) {
       if (b - a >= 3) axis.appendChild(h("span", { style: "left:" + pct((a + b) / 2) + "%" }, String(y)));
-      if (y > fromY) lines.appendChild(h("span", { class: "map-yr", style: "left:" + pct(y * 12) + "%" }));
-    }
-    lines.appendChild(h("span", { class: "map-now", style: "left:" + pct(NOW) + "%" }));
+      if (y > M.fromY) lines.appendChild(h("span", { class: "map-yr", style: "left:" + pct(y * 12) + "%" }));
+    });
+    lines.appendChild(h("span", { class: "map-now", style: "left:" + pct(M.NOW) + "%" }));
     // blank corners keep the sticky label column opaque above and below the lanes,
     // so year labels don't show through it when the map scrolls sideways
     inner.appendChild(h("div", { class: "map-corner", style: "grid-row:1" }));
@@ -1747,10 +1818,10 @@
       inner.appendChild(h("div", { class: "map-label", style: row }, T.lanes[name]));
       var track = h("div", { class: "map-track", style: row + ";height:" + (lanes[name].rows * MAP_ROW + 8) + "px" });
       lanes[name].forEach(function (sp) {
-        var r = sp.r, it = r.it;
-        var style = "--c:" + catColor((it.categories || [])[0]) + ";top:" + (4 + sp.row * MAP_ROW) + "px;left:" + pct(sp.s) + "%" +
-                    ";--d:" + Math.round(pct(sp.s) * 4 + i * 25) + "ms";   // draw-in delay: earlier starts first
-        if (sp.kind !== "point") style += ";width:" + (pct(sp.e) - pct(sp.s)) + "%";
+        var r = sp.r, it = r.it, box = spanBox(M, sp);
+        var style = "--c:" + catColor((it.categories || [])[0]) + ";top:" + (4 + sp.row * MAP_ROW) + "px;left:" + box.l + "%" +
+                    ";--d:" + Math.round(box.l * 4 + i * 25) + "ms";   // draw-in delay: earlier starts first
+        if (sp.kind !== "point") style += ";width:" + box.w + "%";
         var m = h("a", {
           class: "map-mark is-" + sp.kind + (sp.s < FROM ? " is-clipped" : ""),
           href: "#" + r.id, tabindex: "-1", style: style,
@@ -1764,11 +1835,12 @@
       inner.appendChild(track);
     });
     inner.appendChild(h("div", { class: "map-foot", style: "grid-row:" + (used.length + 2) },
-      h("span", { style: "left:" + pct(NOW) + "%" }, T.map_today)));
+      h("span", { style: "left:" + pct(M.NOW) + "%" }, T.map_today)));
     // where the map has to scroll (phones), start at the recent end, not in 2021
     inner.parentNode.scrollLeft = inner.parentNode.scrollWidth;
     updateMapEdges();
     drawMapOnce();
+    renderMirror(M);
   }
   /* The first time the map comes into view, its bars draw along the time axis
      (styles.css, .map.is-drawing). They wait drawn-in-reverse (.is-pending)
@@ -1813,6 +1885,218 @@
     tip.style.top = (m.top - b.top - tip.offsetHeight - 8) + "px";
   }
   function hideTip() { var t = $("#map-tip"); if (t) t.hidden = true; }
+
+  /* ------------------------------ THE MIRROR ------------------------------ */
+  /* A small copy of the "At a glance" map that appears next to the projected
+     card with that entry lit, so a visitor sees where it sits in time even
+     when the real map is far above (a lower tier, an older entry in date
+     order). It is the same chart in miniature: the same lanes, colours, time
+     axis and packing, drawn from the same model (mapModel), with the year
+     labels, the Today line and, across all lanes, a band over the entry's
+     dates to show what ran in parallel.
+     It is built once per render, one mark per entry. There is a single
+     element. It lives in #timeline-list, beside the cards and not in one of
+     them: a card that has let go of its lift drops under the veil and under
+     the next card, and the mirror must stay put and sharp while the
+     projection is handed on. project() (via mirrorShow) lights the entry's
+     mark and brings the element in; showPeek() places it once the preview's
+     size is known (mirrorPlace). What changes per card is only its place, its
+     colour (--cat), two CSS variables and which mark is lit, never the chart.
+     For the pointer it counts as part of the card it shows (recOf, holds).
+     It is decorative and hidden from assistive tech (the card says its
+     dates); styles.css "The mirror" draws and animates it. The list is
+     emptied by a language switch, so renderMirror drops the old element and
+     builds a new one. */
+  var MIRROR_W = 300, MIRROR_MIN = 250;   // px: how wide it is drawn, and the least it is drawn at
+  var MIRROR_LABEL_MIN = 6;               // months of a year that must be on the axis for it to get a label
+  /* one small icon per lane in place of its name (the same icons the cards carry) */
+  var LANE_ICON = { work: "experience", education: "education", projects: "project",
+                    leadership: "leadership", awards: "honor", personal: "fitness" };
+  var mirror = null;   // { el, h (its height), timer, leaving, leftAt, from (where it was, for the glide), lit (the record shown) }
+
+  /* The projection's measurements are defined in styles.css (:root --peek-scale,
+     --peek-lap, --mirror-gap, --mirror-dock) so the CSS and the placement code
+     below can't drift apart; read once, on first use. */
+  var peekSizes = null;
+  function cssNumber(name) { return parseFloat(window.getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
+  function sizes() {
+    if (!peekSizes) peekSizes = { scale: cssNumber("--peek-scale") || 1, lap: cssNumber("--peek-lap"),
+                                  gap: cssNumber("--mirror-gap"), dock: cssNumber("--mirror-dock") };
+    return peekSizes;
+  }
+
+  function dropMirror() {
+    if (!mirror) return;
+    clearTimeout(mirror.timer);
+    if (mirror.el.parentNode) mirror.el.parentNode.removeChild(mirror.el);
+    mirror = null;
+  }
+  function renderMirror(M) {
+    dropMirror();
+    var n = M.used.length, pct = M.pct;
+    var axis = h("div", { class: "mirror-axis" });
+    var lines = h("div", { class: "mirror-lines", style: "grid-row:2 / span " + n });
+    mapYears(M, function (y, a, b) {
+      if (b - a >= MIRROR_LABEL_MIN) axis.appendChild(h("span", { style: "left:" + pct((a + b) / 2) + "%" }, String(y)));
+      if (y > M.fromY) lines.appendChild(h("span", { class: "mirror-yr", style: "left:" + pct(y * 12) + "%" }));
+    });
+    lines.appendChild(h("span", { class: "mirror-band" }));   // placed per card by mirrorShow
+    lines.appendChild(h("span", { class: "mirror-now", style: "left:" + pct(M.NOW) + "%" }));
+    var foot = h("div", { class: "mirror-foot", style: "grid-row:" + (n + 2) });
+    var grid = h("div", { class: "mirror-grid" }, axis, lines);
+
+    M.used.forEach(function (name, i) {
+      var row = "grid-row:" + (i + 2);
+      grid.appendChild(h("span", { class: "mirror-ico", style: row, html: icon(LANE_ICON[name]) }));
+      var track = h("div", { class: "mirror-track", style: row + ";--rows:" + M.lanes[name].rows });
+      M.lanes[name].forEach(function (sp) {
+        var r = sp.r, it = r.it, box = spanBox(M, sp), color = catColor((it.categories || [])[0]);
+        var clipped = sp.s < M.FROM;
+        var style = "--c:" + color + ";--row:" + sp.row + ";left:" + box.l + "%";
+        if (sp.kind !== "point") style += ";width:" + box.w + "%";
+        r.mini = h("span", { class: "mirror-mark is-" + sp.kind + (clipped ? " is-clipped" : ""), style: style });
+        track.appendChild(r.mini);
+        // the band across all lanes: the entry's own dates (a one-off point: its month)
+        var half = sp.kind === "point" ? 0.5 : 0, bl = pct(sp.s - half);
+        r.band = { l: bl, w: pct(sp.e + half) - bl };
+        // an entry that starts before the axis does is cut off at its left edge:
+        // a note under the chart says where it really begins
+        r.cue = null;
+        if (clipped) {
+          r.cue = h("span", { class: "mirror-cue", style: "--c:" + color },
+            sp.e <= M.FROM ? T.mirror_before(M.fromY) : T.mirror_since(parseInt(it.start, 10)));
+          foot.appendChild(r.cue);
+        }
+      });
+      grid.appendChild(track);
+    });
+    foot.appendChild(h("span", { class: "mirror-today" }, T.map_today));
+    grid.appendChild(foot);
+    mirror = { el: h("div", { class: "mirror", "aria-hidden": "true" }, grid), h: 0, timer: 0, leaving: false, leftAt: 0, from: null, lit: null };
+  }
+
+  /* an entry's mark (and its "since …" note) lit, or not */
+  function mirrorLight(r, on) {
+    if (r.mini) r.mini.classList.toggle("is-focus", on);
+    if (r.cue) r.cue.classList.toggle("is-on", on);
+  }
+  /* Into the timeline, lit for r. From nothing, it fades up beside the card (the
+     CSS animation starts as it enters the page); handed on from another card,
+     it stays at full strength and glides across (mirrorPlace), so switching
+     between cards never blinks. */
+  function mirrorShow(r) {
+    var m = mirror, el = m && m.el, list = $("#timeline-list");
+    if (!m || !list || !r.band) return;
+    clearTimeout(m.timer);
+    // (one that only just started to leave, e.g. Tab from one card to the next, counts as still there)
+    var warm = !!el.parentNode && (!m.leaving || Date.now() - m.leftAt < 50);
+    m.from = warm && m.lit !== r ? el.getBoundingClientRect() : null;
+    m.leaving = false;
+    el.classList.remove("is-leaving");
+    el.classList.toggle("is-in", !warm);
+    if (m.lit && m.lit !== r) mirrorLight(m.lit, false);
+    mirrorLight(r, true);
+    m.lit = r;
+    el.style.setProperty("--cat", r.el.style.getPropertyValue("--cat"));
+    el.style.setProperty("--bl", r.band.l + "%");
+    el.style.setProperty("--bw", r.band.w + "%");
+    if (el.parentNode !== list) list.appendChild(el);
+  }
+  /* fades out, then leaves the page and the entry is unlit (so its mark stays
+     lit while the mirror fades); now: at once, no fade */
+  function mirrorHide(now) {
+    var m = mirror;
+    if (!m || !m.el.parentNode) return;
+    function gone() {
+      if (m.el.parentNode) m.el.parentNode.removeChild(m.el);
+      m.el.classList.remove("is-leaving");
+      m.leaving = false;
+      if (m.lit) mirrorLight(m.lit, false);
+      m.lit = null;
+    }
+    if (now) { clearTimeout(m.timer); gone(); return; }
+    if (m.leaving) return;
+    m.leaving = true;
+    m.leftAt = Date.now();
+    m.el.classList.add("is-leaving");
+    clearTimeout(m.timer);
+    m.timer = setTimeout(gone, 140);
+  }
+  /* Where r's card stands, measured by showPeek and worked out for the lift: a
+     projected card scales about its own centre, so any point (x, y) of it,
+     counted from its top-left corner, ends up at liftX(x), liftY(y), in the
+     timeline's own coordinates (which the mirror is placed in). It's taken
+     from the layout (offsets), not from where the card is drawn, so a card
+     still gliding to its place counts where it will be. */
+  function offsetIn(el, root) {
+    var x = 0, y = 0;
+    while (el && el !== root) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; }
+    return { x: x, y: y };
+  }
+  function peekGeometry(r, ceiling) {
+    var list = $("#timeline-list"), lr = list.getBoundingClientRect(), at = offsetIn(r.el, list), card = r.el.querySelector(".tl-card");
+    var S = sizes(), g = { S: S, K: reduceMotion() ? 1 : S.scale,
+      lw: r.el.offsetWidth, hc: r.el.offsetHeight, flap: r.details.offsetHeight,   // the entry's box, and its preview's height
+      cardL: card.offsetLeft, cardW: card.offsetWidth, listW: list.offsetWidth,
+      listLeft: lr.left, listTop: lr.top, ceil: ceiling,                           // the timeline on the screen, and the lowest the mirror may go up to
+      vw: document.documentElement.clientWidth, vh: window.innerHeight };
+    g.cx = at.x + g.lw / 2;
+    g.cy = at.y + g.hc / 2;
+    return g;
+  }
+  function liftX(g, x) { return g.cx + (x - g.lw / 2) * g.K; }
+  function liftY(g, y) { return g.cy + (y - g.hc / 2) * g.K; }
+
+  /* Where it goes: beside the card, over the neighbouring column toward the
+     middle of the page, when the grid has two columns and the room is there
+     (counted as it will be once the card has lifted); otherwise docked to the
+     preview (see showPeek and mirrorPlace). null: too narrow a screen to be
+     legible. */
+  function mirrorPlan(g) {
+    var w;
+    if (g.cardW < g.listW * 0.7) {   // two columns, not a full-width row
+      var leftColumn = g.cx < g.listW / 2;
+      w = leftColumn ? g.vw - PEEK_MARGIN - (g.listLeft + liftX(g, g.lw)) - g.S.gap
+                     : g.listLeft + liftX(g, 0) - g.S.gap - PEEK_MARGIN;
+      w = Math.min(MIRROR_W, w);
+      if (w >= MIRROR_MIN) return { at: leftColumn ? "right" : "left", w: w };
+    }
+    w = Math.min(MIRROR_W, g.cardW);
+    return w >= MIRROR_MIN ? { at: "dock", w: w } : null;
+  }
+  /* Beside: level with the card's top edge. Docked: hung off the preview's far
+     edge (the preview overlaps the card a little, --peek-lap) or, where the
+     preview and the mirror go on opposite sides of the card, off the card's
+     own edge. over: it sits above what it hangs off. Either way kept on
+     screen, and below the header and the filter bar, whatever the card's own
+     place. Then, if it came from another card, it glides from there
+     (transform only). */
+  function mirrorPlace(plan, up, over, g) {
+    var m = mirror, el = m.el, S = g.S, x, y;
+    if (plan.at === "dock") {
+      var onPreview = up === over;
+      var edge = over ? (onPreview ? S.lap - g.flap : 0)                 // the top of the preview, or of the card
+                      : (onPreview ? g.hc - S.lap + g.flap : g.hc);      // the bottom of the preview, or of the card
+      y = over ? liftY(g, edge) - S.dock - m.h : liftY(g, edge) + S.dock;
+      x = liftX(g, g.cardL);
+    } else {
+      y = liftY(g, 0);
+      x = plan.at === "right" ? liftX(g, g.lw) + S.gap : liftX(g, 0) - S.gap - plan.w;
+    }
+    y = Math.max(g.ceil - g.listTop, Math.min(y, g.vh - PEEK_MARGIN - m.h - g.listTop));
+    el.setAttribute("data-at", plan.at);
+    el.setAttribute("data-up", over ? "1" : "0");
+    el.style.setProperty("--mw", plan.w + "px");
+    el.style.left = x.toFixed(1) + "px";
+    el.style.top = y.toFixed(1) + "px";
+    if (!m.from) return;
+    var to = el.getBoundingClientRect(), dx = m.from.left - to.left, dy = m.from.top - to.top;
+    m.from = null;
+    if ((Math.abs(dx) > 1 || Math.abs(dy) > 1) && el.animate && !reduceMotion()) {
+      el.animate([{ transform: "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px)" }, { transform: "none" }],
+        { duration: 240, easing: "cubic-bezier(.16, 1, .3, 1)" });
+    }
+  }
 
   /* Structured data (schema.org Person, WebSite, ProfilePage) is written into
      index.html by tools/build.mjs from data.js, so crawlers that don't run

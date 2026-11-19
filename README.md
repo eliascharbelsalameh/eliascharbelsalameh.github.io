@@ -86,9 +86,16 @@ row per entry). Either way each card starts compact: dates, title and organisati
   over the cards below (or above them, when the card sits low on the screen and
   the preview wouldn't fit underneath). The rest of the timeline blurs and fades
   behind it, and the entry's bar on the "At a glance" map lights up while the
-  others dim. Moving on to the next card hands the projection over at once,
-  without the page flashing back into focus in between. Nothing moves under the
-  pointer, and `Esc` dismisses it.
+  others dim. Because that map is far above the lower cards, a small copy of it
+  (the **mirror**) appears right beside the projected card, with that entry lit
+  and a faint band across every lane showing what else was going on at the same
+  time. In the grid it sits over the neighbouring column, toward the middle of
+  the page; in the list views, where there is no column beside the card, it hangs
+  off the preview. It is built from the same data as the big map, so it needs no
+  editing, and it leaves itself out when the window is too small to read it.
+  Moving on to the next card hands the projection over at once, without the page
+  flashing back into focus in between (the mirror glides across to the new card).
+  Nothing moves under the pointer, and `Esc` dismisses it.
 - **Full details:** clicking **Details** (or the card's title area) opens everything:
   all bullets, image, categories and links. The details unfold from the card and
   the cards below slide down; **Close** folds them away.
@@ -119,7 +126,9 @@ shared time axis. You don't edit it directly. Its lane comes from the entry:
 | Personal | anything in the `personal` category (overrides the above) |
 
 The axis covers roughly the last five years. Anything older is cut off at the left
-edge rather than squashing everything else.
+edge rather than squashing everything else. (The small copy of this map that
+appears beside a projected card shows an entry that starts before the axis with an
+arrow and a note such as "since 2006".)
 
 ### Skills that link to your work
 A skill in the `skills` array becomes a clickable filter when it appears, as a
@@ -348,6 +357,9 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   they stood, so you can follow what changed. Typing in the search box updates the
   list at once. Switching between Grid and List deals the visible cards in.
 - **Resting on a card projects it** (see "Views and the three levels of detail").
+  The mirror fades up beside the card just after it lifts, and the lit bar and the
+  band across the lanes draw along the time axis, like the big map's. Moving to
+  another card makes the mirror glide across to it rather than blink out and back.
 - **The map** draws its bars along the time axis the first time it comes into view.
 - **Theme and language:** the new theme spreads from the toggle in a circle as its
   icon turns; switching language cross-fades the page instead of flashing it. Both
@@ -362,10 +374,11 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   (nothing on the page keeps moving for more than 5 seconds).
 - **Reduced motion:** visitors who ask their system for less motion get none of
   the movement, only short fades where they show a change. The projection still
-  blurs the rest of the timeline, without the lift.
+  blurs the rest of the timeline, without the lift, and the mirror just fades in.
 
 All of it is plain CSS and JavaScript (styles.css "Card motion", "Player card",
-"The projection" and "Theme switch"; app.js `showPeek`, `project`,
+"The projection", "The mirror" and "Theme switch"; app.js `showPeek`, `project`,
+`renderMirror`, `mirrorPlace`,
 `animateLayout`, `morphLevel`, `dealIn`, `revealCard`, `revealStats`,
 `initCardTilt`, `initSpotlight`, `drawMapOnce`, `switchTheme`, `placeInk`).
 

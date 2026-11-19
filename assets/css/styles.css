@@ -68,6 +68,14 @@
   --shadow-lift: 0 26px 52px -18px rgba(16, 28, 46, .34), 0 10px 22px -10px rgba(16, 28, 46, .20);   /* a projected card */
   --radius: 10px;
   --radius-sm: 6px;
+  /* the projection's measurements, shared with app.js (showPeek, mirrorPlace),
+     which reads them from here so the page and the placement code agree: how
+     far a projected card lifts, how far its preview tucks under the card, and
+     the gaps of the mirror (to the card beside it; to the preview it hangs off) */
+  --peek-scale: 1.02;
+  --peek-lap: 6px;
+  --mirror-gap: 14px;
+  --mirror-dock: 8px;
   --wrap: 1080px;
   --ease: cubic-bezier(.22, .61, .36, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);      /* confident arrivals: reveals, unfolds, the card */
@@ -754,7 +762,7 @@ html[data-theme="dark"] .pcard-sweep {
 .tl-item.is-peek { z-index: 20; }
 .tl-item.is-peek .tl-details {
   display: block; position: absolute; z-index: 20;
-  top: calc(100% - 6px); left: -1px; right: -1px; margin-top: 0;   /* flush with the card's 1px border */
+  top: calc(100% - var(--peek-lap)); left: -1px; right: -1px; margin-top: 0;   /* flush with the card's 1px border */
   grid-column: auto;
   padding: .85rem 1.15rem 1rem;
   background: var(--surface); border: 1px solid var(--peek-edge); border-top: 0;
@@ -778,7 +786,7 @@ html[data-theme="dark"] .pcard-sweep {
 /* upward: the preview sits on top of the card and folds up out of it */
 .tl-item.is-peek.peek-up .tl-card { border-radius: 0 0 var(--radius) var(--radius); }
 .tl-item.is-peek.peek-up .tl-details {
-  top: auto; bottom: calc(100% - 6px);
+  top: auto; bottom: calc(100% - var(--peek-lap));
   padding: 1rem 1.15rem .85rem;
   border-top-width: 1px; border-top-style: solid; border-bottom: 0;
   border-radius: var(--radius) var(--radius) 0 0;
@@ -793,7 +801,7 @@ html[data-theme="dark"] .pcard-sweep {
 /* the lift (scaling up only grows the card around the pointer, never away from it) */
 @media (prefers-reduced-motion: no-preference) {
   .tl-item { transition: transform .32s var(--ease-out); }
-  .tl-item.is-peek { transform: scale(1.02); }
+  .tl-item.is-peek { transform: scale(var(--peek-scale)); }
 }
 /* the veil over the rest of the timeline; the projected card sits above it,
    and it never takes the pointer, so moving onto another card projects that one */
@@ -811,6 +819,113 @@ html[data-theme="dark"] .pcard-sweep {
 /* a card gliding to a place below the screen stays visible on the way
    (its scroll-linked rise would already have faded it out there) */
 .tl-item.is-flying .tl-card { animation: none; }
+
+/* The mirror. Beside a projected card, a small copy of the "At a glance" map
+   with that entry lit: the same lanes (a small icon each), colours, time axis
+   and packing, so a visitor sees where the entry sits in time even when the
+   real map is far above. The entry's bar is at full strength, ringed, and
+   draws along the axis; the rest are dimmed; a faint band across all lanes
+   spans its dates, to show what ran in parallel. app.js builds it once
+   ("THE MIRROR") and keeps the single element in the timeline's own box, a
+   sibling of the cards rather than a child of one: it stays above the veil
+   (and the next card) while a projection is handed over, and doesn't lift
+   with the card. It takes its colour from the card it belongs to (--cat, set
+   by app.js) and counts as part of that card for the pointer, so resting on
+   it keeps the projection. data-at: "right" / "left" beside the card, over
+   the neighbouring column; "dock", hung off the preview (under it, or over it
+   when data-up="1") where there is no column beside the card. app.js sets its
+   left, top and --mw. It is a picture, hidden from assistive tech. */
+.mirror {
+  --mirror-row: 6px;   /* one packed row */
+  --mgap: var(--mirror-gap);
+  --peek-edge: color-mix(in srgb, var(--cat) 55%, var(--border-strong));
+  position: absolute; z-index: 21; width: var(--mw);
+  padding: 8px 9px 6px;
+  background: linear-gradient(var(--cat), var(--cat)) 0 0 / 100% 3px no-repeat border-box, var(--surface);
+  border: 1px solid var(--peek-edge); border-top-color: var(--cat); border-radius: var(--radius);
+  box-shadow: var(--shadow-lift);
+  cursor: default; -webkit-user-select: none; user-select: none;
+}
+.mirror[data-at="right"] { --from: translateX(-14px); }
+.mirror[data-at="left"]  { --from: translateX(14px); }
+.mirror[data-at="dock"]  { --from: translateY(-10px); --mgap: var(--mirror-dock); }
+.mirror[data-at="dock"][data-up="1"] { --from: translateY(10px); }
+/* an invisible bridge over the gap to the card (or preview), so the pointer
+   never leaves the projected card's area on its way onto the mirror */
+.mirror::before { content: ""; position: absolute; }
+.mirror[data-at="right"]::before { top: 0; bottom: 0; right: 100%; width: calc(var(--mgap) + 1px); }
+.mirror[data-at="left"]::before  { top: 0; bottom: 0; left: 100%;  width: calc(var(--mgap) + 1px); }
+.mirror[data-at="dock"]::before  { left: 0; right: 0; bottom: 100%; height: calc(var(--mgap) + 1px); }
+.mirror[data-at="dock"][data-up="1"]::before { bottom: auto; top: 100%; }
+/* it appears just after the card lifts: a fade and a short slide out from the
+   card, the colour bar sweeping across its top like the card's. Handed on
+   from another card it has no .is-in: it glides (app.js mirrorPlace) */
+.mirror.is-in { animation: mirror-in .26s var(--ease-out) .08s backwards, beam-in .6s var(--ease-out) .14s backwards; }
+.mirror.is-leaving { animation: mirror-out .12s var(--ease-in) forwards; pointer-events: none; }
+@keyframes mirror-in { from { opacity: 0; transform: var(--from, none); } }
+@keyframes mirror-out { to { opacity: 0; } }
+
+/* the chart: icon column | plot, the year labels above and "Today" under it */
+.mirror-grid { position: relative; display: grid; grid-template-columns: 17px minmax(0, 1fr); }
+.mirror-axis, .mirror-lines, .mirror-track, .mirror-foot { grid-column: 2; position: relative; }
+.mirror-axis { grid-row: 1; height: 12px; }
+.mirror-foot { height: 13px; padding-top: 1px; }
+.mirror-axis span, .mirror-today, .mirror-cue {
+  position: absolute; white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600; line-height: 12px;
+  font-variant-numeric: tabular-nums; color: var(--text-muted);
+}
+.mirror-axis span { bottom: 0; transform: translateX(-50%); }
+/* right-aligned: "Aujourd'hui" is wider than the room left of the line */
+.mirror-today { right: 0; top: 1px; color: var(--accent); }
+.mirror-ico { grid-column: 1; display: flex; align-items: center; padding-right: 6px; border-top: 1px solid var(--border); }
+.mirror-ico svg { width: 11px; height: 11px; stroke: var(--text-muted); stroke-width: 2.3; }
+.mirror-track { height: calc(var(--rows) * var(--mirror-row) + 1px); border-top: 1px solid var(--border); }
+.mirror-lines { pointer-events: none; }
+.mirror-yr, .mirror-now, .mirror-band { position: absolute; top: 0; bottom: 0; }
+.mirror-yr { width: 1px; background: var(--border); }
+.mirror-now { border-left: 1px dashed color-mix(in srgb, var(--accent) 75%, transparent); }
+/* what ran in parallel: the lit entry's dates, across every lane */
+.mirror-band {
+  left: var(--bl, 0%); width: var(--bw, 0%); min-width: 4px;
+  background: color-mix(in srgb, var(--cat) 15%, transparent);
+  border-inline: 1px solid color-mix(in srgb, var(--cat) 40%, transparent);
+  transform-origin: 0 50%;
+  animation: mirror-draw .45s var(--ease-out) .16s backwards;
+}
+/* the marks: dimmed unless lit (and dimmer still when filtered out, as on the map) */
+.mirror-mark {
+  position: absolute; top: calc(var(--row) * var(--mirror-row) + 1px); height: 4px; min-width: 4px;
+  border-radius: 999px; background: var(--c); opacity: .34;
+}
+.mirror-mark.is-point { width: 5px; height: 5px; min-width: 0; margin: -.5px 0 0 -2.5px; border-radius: 50%; }
+.mirror-mark.is-upcoming { background: color-mix(in srgb, var(--c) 18%, transparent); border: 1px dashed var(--c); }
+.mirror-mark.is-dim { opacity: .12; }
+/* started before the axis does: flat at the left edge, with an arrow pointing off it */
+.mirror-mark.is-clipped { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.mirror-mark.is-clipped::before, .mirror-cue::before {
+  content: ""; position: absolute; top: 50%; margin-top: -3px;
+  border: 3px solid transparent; border-left-width: 0; border-right: 4px solid var(--c);
+}
+.mirror-mark.is-clipped::before { right: 100%; }
+.mirror-mark.is-focus {
+  opacity: 1; z-index: 2; height: 6px; margin-top: -1px;
+  box-shadow: 0 0 0 1.5px var(--surface), 0 0 0 3px var(--c);
+  transform-origin: 0 50%; animation: mirror-draw .5s var(--ease-out) .2s backwards;
+}
+.mirror-mark.is-point.is-focus {
+  width: 7px; height: 7px; margin: -1.5px 0 0 -3.5px;
+  transform-origin: 50% 50%; animation: mirror-pop .4s var(--ease-out) .2s backwards;
+}
+/* where a cut-off entry really starts (under the chart, left of "Today") */
+.mirror-cue { display: none; left: 0; top: 1px; padding-left: 8px; color: color-mix(in srgb, var(--c) var(--ink-mix), var(--text)); }
+.mirror-cue::before { left: 0; }
+.mirror-cue.is-on { display: block; }
+/* handed on from another card it glides in (no .is-in), so the bar draws as soon as it lands */
+.mirror:not(.is-in) .mirror-band { animation-delay: .06s; }
+.mirror:not(.is-in) .mirror-mark.is-focus { animation-delay: .1s; }
+@keyframes mirror-draw { from { transform: scaleX(0); } }
+@keyframes mirror-pop { from { transform: scale(0); } }
 
 .tl-summary { margin: 0; color: var(--text); }
 .tl-highlights { margin: .6rem 0 0; padding-left: 1.1rem; color: var(--text-muted); }
@@ -1118,6 +1233,9 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   .map.is-pending .map-mark, .map.is-pending .map-mark.is-point { transform: none; }
   .map.is-drawing .map-mark { animation: none; }
   .brand-mark.is-landing { animation: none; }
+  /* the mirror just fades in; its lit bar and band are there, not drawn */
+  .mirror.is-in:not(.is-leaving) { animation: fade-in .15s ease-out; }
+  .mirror-band, .mirror-mark.is-focus, .mirror-mark.is-point.is-focus { animation: none; }
 }
 @keyframes fade-in { from { opacity: 0; } }
 
@@ -1331,7 +1449,7 @@ html[data-theme="dark"].splash-on .splash {
   }
   .site-header, .controls, .theme-toggle, .lang-toggle, .hero-cta, .footer-links, .skip-link, .to-top,
   .highlights-section, .map, .tl-more, .tl-full, .tl-fold,
-  .pcard-shade, .pcard-glare, .pcard-sweep, .tl-ghost, .timeline::before { display: none !important; }
+  .pcard-shade, .pcard-glare, .pcard-sweep, .tl-ghost, .mirror, .timeline::before { display: none !important; }
   .tl-item { transform: none !important; transition: none !important; }
   /* cards print flat and fully there, wherever the scroll-linked rise stood */
   .tl-card, .hl-tile, .pcard { animation: none !important; opacity: 1 !important; transform: none !important; }
