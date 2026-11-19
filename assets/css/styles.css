@@ -59,9 +59,13 @@
      same mix darkens them in light mode and lightens them in dark mode). */
   --ink-mix: 55%;
   --star-mix: 45%;   /* the gold is lighter than the other hues, so it needs a deeper mix */
+  /* the light that follows the mouse over a Highlights tile: at its brightest,
+     the faintest text on a tile keeps 4.5:1 with any category colour */
+  --glow: 8%;
 
   --shadow-sm: 0 1px 2px rgba(16, 28, 46, .06), 0 2px 8px rgba(16, 28, 46, .05);
   --shadow-md: 0 6px 22px rgba(16, 28, 46, .10);
+  --shadow-lift: 0 26px 52px -18px rgba(16, 28, 46, .34), 0 10px 22px -10px rgba(16, 28, 46, .20);   /* a projected card */
   --radius: 10px;
   --radius-sm: 6px;
   --wrap: 1080px;
@@ -84,8 +88,10 @@ html[data-theme="dark"] {
   --accent: #6f9bff;
   --accent-ink: #0d1220;
   --ink-mix: 55%;
+  --glow: 13%;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3), 0 2px 10px rgba(0, 0, 0, .25);
   --shadow-md: 0 8px 28px rgba(0, 0, 0, .4);
+  --shadow-lift: 0 28px 60px -16px rgba(0, 0, 0, .7), 0 10px 24px -10px rgba(0, 0, 0, .5);
 }
 
 /* ------------------------------- Base ------------------------------------- */
@@ -190,6 +196,28 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
   height: 2px; border-radius: 2px; background: var(--accent);
 }
+/* On the home page one underline (app.js adds it) slides to whichever
+   section you're reading instead of jumping between the links. It is 100px
+   wide and scaled to the link, so it moves on transforms only. */
+.nav-ink {
+  position: absolute; left: 0; bottom: -1px; width: 100px; height: 2px; border-radius: 2px;
+  background: var(--accent); transform-origin: 0 50%; opacity: 0; pointer-events: none;
+  transition: transform .45s var(--ease-out), opacity .2s var(--ease);
+}
+@media (min-width: 981px) {
+  .site-nav.has-ink { position: relative; }
+  .site-nav.has-ink a[aria-current="true"]::after { content: none; }
+}
+/* reading progress: a hairline under the header that fills as you scroll
+   (tied to the scroll position itself; nothing to run where it's unsupported) */
+@supports (animation-timeline: scroll()) {
+  .site-header::after {
+    content: ""; position: absolute; left: 0; bottom: -1px; width: 100%; height: 2px;
+    background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none;
+    animation: read-progress linear both; animation-timeline: scroll(root);
+  }
+}
+@keyframes read-progress { to { transform: scaleX(1); } }
 .header-actions { display: flex; align-items: center; gap: .55rem; margin-left: 1.2rem; }
 .header-contact { flex: none; }
 
@@ -209,6 +237,21 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 .lang-toggle:hover { background: var(--surface-2); }
 html[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
 html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+/* the icon of the theme you switched to turns in (app.js / site.js add .is-turning) */
+.theme-toggle.is-turning svg { animation: icon-turn .55s var(--ease-out); }
+@keyframes icon-turn { from { opacity: 0; transform: rotate(-110deg) scale(.45); } }
+
+/* Theme switch: the new theme spreads from the button in a circle. It's a
+   view transition (app.js / site.js put html.vt-theme and the circle's centre
+   and radius on <html> first); without support, or under reduced motion, the
+   theme simply switches. */
+html.vt-theme::view-transition-old(root),
+html.vt-theme::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html.vt-theme::view-transition-new(root) { animation: theme-reveal .62s cubic-bezier(.4, 0, .2, 1); }
+@keyframes theme-reveal {
+  from { clip-path: circle(0 at var(--vt-x, 100%) var(--vt-y, 0)); }
+  to   { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 100%) var(--vt-y, 0)); }
+}
 
 /* -------------------------------- Hero ------------------------------------ */
 .hero { padding: clamp(2rem, 5vw, 4rem) 0 clamp(2rem, 4vw, 3rem); }
@@ -601,7 +644,8 @@ html[data-theme="dark"] .pcard-sweep {
   content: ""; position: absolute; left: 27px; top: 0; bottom: -2px; width: 2px;
   background: var(--border-strong);
 }
-.by-date.view-list .tl-group:last-child .tl-item:last-child::before { bottom: 50%; }
+/* (the last group, whatever fading copies app.js has put after it for a moment) */
+.by-date.view-list .tl-group:nth-last-child(1 of .tl-group) .tl-item:last-child::before { bottom: 50%; }
 .by-date.view-list .tl-marker {
   position: relative; z-index: 2;
   width: 44px; height: 44px; margin-top: .15rem;
@@ -632,11 +676,24 @@ html[data-theme="dark"] .pcard-sweep {
 .tl-kind svg { width: 17px; height: 17px; stroke: var(--cat); stroke-width: 2.1; }
 .by-date.view-list .tl-kind { display: none; }   /* the spine marker shows it there */
 .tl-now {
+  position: relative; display: inline-flex; align-items: center; gap: .32rem;
   font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
   color: color-mix(in srgb, var(--ok) var(--ink-mix), var(--text));
   background: color-mix(in srgb, var(--ok) 16%, transparent);
   padding: .05rem .45rem; border-radius: 999px;
 }
+/* a "live" dot; it sends out two rings when the badge appears, then rests
+   (all over in under 5 seconds, so nothing keeps moving: WCAG 2.2.2) */
+.tl-now::before, .tl-now::after {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none;
+}
+.tl-now::after {
+  position: absolute; left: .45rem; top: 50%; margin-top: -3px; opacity: 0; pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tl-now::after { animation: live-ping 2.2s cubic-bezier(0, 0, .2, 1) .4s 2; }
+}
+@keyframes live-ping { from { opacity: .6; transform: scale(1); } 75%, to { opacity: 0; transform: scale(2.8); } }
 .tl-title { font-size: var(--fs-body); font-weight: 600; letter-spacing: -.02em; line-height: 1.35; margin: .3rem 0 .2rem; }
 /* inline, so it follows the last word when a title wraps */
 .tl-star { display: inline-block; margin-left: .4rem; vertical-align: -.1em; color: color-mix(in srgb, var(--star) var(--star-mix), var(--text)); white-space: nowrap; }
@@ -684,21 +741,76 @@ html[data-theme="dark"] .pcard-sweep {
 .tl-item.lvl-1 .tl-full { display: inline-flex; }
 .tl-item:not(.lvl-2) .tl-x { display: none; }
 
-/* the hover / keyboard-focus preview: same content as .lvl-1, laid OVER the
-   cards below instead of pushing them down, so nothing moves under the pointer */
+/* The projection. Resting the mouse on a compact card, or reaching its
+   Details button with the keyboard, projects it out of the timeline: the
+   card lifts toward you, ringed in its category's colour, a bar of that
+   colour sweeps across its top edge, and its preview (summary, tags, first
+   bullets) unfolds over the cards below, or above them when it wouldn't fit
+   on screen (.peek-up). Everything else in the timeline recedes behind a
+   blurred veil, and the entry's bar on the "At a glance" map lights up while
+   the others dim. The preview is laid OVER the cards instead of pushing them
+   down, so nothing moves under the pointer. app.js: showPeek, project. */
+.tl-item { --peek-edge: color-mix(in srgb, var(--cat) 55%, var(--border-strong)); }
 .tl-item.is-peek { z-index: 20; }
 .tl-item.is-peek .tl-details {
   display: block; position: absolute; z-index: 20;
   top: calc(100% - 6px); left: -1px; right: -1px; margin-top: 0;   /* flush with the card's 1px border */
   grid-column: auto;
   padding: .85rem 1.15rem 1rem;
-  background: var(--surface); border: 1px solid var(--border-strong); border-top: 0;
-  border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-md);
-  animation: peek-in .26s var(--ease-out);
+  background: var(--surface); border: 1px solid var(--peek-edge); border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow-lift);
+  /* its shadow falls outward, never back across the card (the 1px it trims
+     at the joint sits over the card anyway, and stops a hairline of shadow) */
+  clip-path: inset(1px -80px -100px -80px);
+  animation: peek-in .3s var(--ease-out);
 }
-.tl-item.is-peek .tl-card { border-color: var(--border-strong); border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: var(--shadow-md); }
-/* the preview folds down out of the card, like a flap */
+.tl-item.is-peek .tl-card {
+  animation: none;   /* fully there, wherever its scroll-linked rise had got to */
+  border-color: var(--peek-edge); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+  box-shadow: var(--shadow-lift);
+}
+/* the colour bar: a 3px background band, so it follows the rounded corners */
+.tl-item.is-peek:not(.peek-up) .tl-card, .tl-item.is-peek.peek-up .tl-details {
+  border-top-color: var(--cat);
+  background: linear-gradient(var(--cat), var(--cat)) 0 0 / 100% 3px no-repeat border-box, var(--surface);
+}
+.tl-item.is-peek:not(.peek-up) .tl-card { animation: beam-in .6s var(--ease-out) .04s both; }
+/* upward: the preview sits on top of the card and folds up out of it */
+.tl-item.is-peek.peek-up .tl-card { border-radius: 0 0 var(--radius) var(--radius); }
+.tl-item.is-peek.peek-up .tl-details {
+  top: auto; bottom: calc(100% - 6px);
+  padding: 1rem 1.15rem .85rem;
+  border-top-width: 1px; border-top-style: solid; border-bottom: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  clip-path: inset(-100px -80px 1px -80px);
+  transform-origin: 50% 100%;
+  animation: peek-in-up .3s var(--ease-out), beam-in .6s var(--ease-out) .04s both;
+}
+/* the preview folds down (or up) out of the card, like a flap */
 @keyframes peek-in { from { opacity: 0; transform: perspective(700px) rotateX(-24deg); } }
+@keyframes peek-in-up { from { opacity: 0; transform: perspective(700px) rotateX(24deg); } }
+@keyframes beam-in { from { background-size: 0% 3px; } }
+/* the lift (scaling up only grows the card around the pointer, never away from it) */
+@media (prefers-reduced-motion: no-preference) {
+  .tl-item { transition: transform .32s var(--ease-out); }
+  .tl-item.is-peek { transform: scale(1.02); }
+}
+/* the veil over the rest of the timeline; the projected card sits above it,
+   and it never takes the pointer, so moving onto another card projects that one */
+.timeline::before {
+  content: ""; position: absolute; z-index: 15; inset: -10px -12px; border-radius: var(--radius); pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 46%, transparent);
+  -webkit-backdrop-filter: blur(3px) saturate(.7);
+  backdrop-filter: blur(3px) saturate(.7);
+  opacity: 0; visibility: hidden;
+  transition: opacity .32s var(--ease), visibility 0s linear .32s;
+}
+.timeline.is-focus::before { opacity: 1; visibility: visible; transition: opacity .24s var(--ease), visibility 0s; }
+/* a card filtered out fades where it stood (a copy app.js removes afterwards) */
+.tl-ghost { z-index: -1; list-style: none; }
+/* a card gliding to a place below the screen stays visible on the way
+   (its scroll-linked rise would already have faded it out there) */
+.tl-item.is-flying .tl-card { animation: none; }
 
 .tl-summary { margin: 0; color: var(--text); }
 .tl-highlights { margin: .6rem 0 0; padding-left: 1.1rem; color: var(--text-muted); }
@@ -740,6 +852,7 @@ html[data-theme="dark"] .pcard-sweep {
   100%    { box-shadow: none; }
 }
 .empty-state { text-align: center; color: var(--text-muted); padding: 2.5rem 0; }
+.empty-state:not([hidden]) { animation: fade-in .3s var(--ease); }
 
 /* ------------------------------- Skills ----------------------------------- */
 /* groups are just labelled sets of chips: a hairline and a heading, no box */
@@ -785,6 +898,7 @@ html[data-theme="dark"] .pcard-sweep {
 .highlights-section { padding: clamp(2rem, 5vw, 3.5rem) 0; border-top: 1px solid var(--border); }
 .hl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; }
 .hl-tile {
+  position: relative; isolation: isolate;
   display: flex; flex-direction: column; gap: .3rem;
   padding: 1.05rem 1.15rem 1rem; color: var(--text);
   background: var(--surface); border: 1px solid var(--border);
@@ -793,6 +907,20 @@ html[data-theme="dark"] .pcard-sweep {
 }
 /* hover deepens the shadow and sends the arrow on; the tile itself stays put */
 .hl-tile:hover { text-decoration: none; border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+/* with a mouse, a soft light in the tile's category colour follows the pointer
+   (app.js sets --mx / --my). It sits under the text, and is faint enough that
+   every label keeps its contrast. */
+.hl-tile::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(24rem circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--cat) var(--glow), transparent), transparent 62%);
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+.hl-ico { transition: background-color .3s var(--ease); }
+@media (hover: hover) {
+  .hl-tile:hover::before { opacity: 1; }
+  .hl-tile:hover { border-color: color-mix(in srgb, var(--cat) 45%, var(--border-strong)); }
+  .hl-tile:hover .hl-ico { background-color: color-mix(in srgb, var(--cat) 12%, transparent); }
+}
 .hl-top { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
 .hl-ico {
   flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
@@ -875,6 +1003,10 @@ html[data-theme="dark"] .pcard-sweep {
           mask-image: linear-gradient(90deg, transparent, #000 1.2rem);
 }
 .map-mark.is-dim { opacity: .16; }
+/* a projected card (see "The projection") lights up its own bar */
+.map.has-focus .map-mark { opacity: .2; }
+.map.has-focus .map-mark.is-focus { opacity: 1; z-index: 2; transform: scaleY(1.6); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--c); }
+.map.has-focus .map-mark.is-point.is-focus { transform: scale(1.5); }
 /* first time the map scrolls into view (app.js), each bar draws along the time
    axis from its start date, earliest first: the overview reads as time passing */
 .map.is-pending .map-mark { transform: scaleX(0); }
@@ -975,7 +1107,11 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   .btn:active, .qbtn:active, .chip:active, .skill-link:active, .tl-fold-btn:active { transform: none; }
   .tl-more-ico svg, .tl-fold-btn svg { transition: none; }
   @media (hover: hover) { .tl-card:hover .tl-more[aria-expanded="false"] .tl-more-ico svg { transform: none; } }
-  .tl-item.is-peek .tl-details { animation: fade-in .15s ease-out; }
+  .tl-item.is-peek .tl-details, .tl-item.is-peek.peek-up .tl-details { animation: fade-in .15s ease-out; }
+  .tl-item.is-peek:not(.peek-up) .tl-card { animation: none; }
+  .map.has-focus .map-mark.is-focus, .map.has-focus .map-mark.is-point.is-focus { transform: none; }
+  .nav-ink { transition: opacity .2s; }
+  .theme-toggle.is-turning svg { animation: none; }
   .tl-item.is-flash .tl-card { animation: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat) 60%, transparent); }
   .pcard.is-filling .pa-seg i { animation: none; }
   .pcard, .pcard.is-revealing, .pcard.is-gleaming .pcard-sweep { animation: none; transition: none; transform: none; }
@@ -1195,7 +1331,8 @@ html[data-theme="dark"].splash-on .splash {
   }
   .site-header, .controls, .theme-toggle, .lang-toggle, .hero-cta, .footer-links, .skip-link, .to-top,
   .highlights-section, .map, .tl-more, .tl-full, .tl-fold,
-  .pcard-shade, .pcard-glare, .pcard-sweep { display: none !important; }
+  .pcard-shade, .pcard-glare, .pcard-sweep, .tl-ghost, .timeline::before { display: none !important; }
+  .tl-item { transform: none !important; transition: none !important; }
   /* cards print flat and fully there, wherever the scroll-linked rise stood */
   .tl-card, .hl-tile, .pcard { animation: none !important; opacity: 1 !important; transform: none !important; }
   /* every card prints with its full details */

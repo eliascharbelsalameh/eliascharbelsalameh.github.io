@@ -172,6 +172,9 @@
   function empty(el) { while (el && el.firstChild) el.removeChild(el.firstChild); }
   /* read at the moment of each animation, so a change of the setting applies at once */
   function reduceMotion() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+  /* crawlers and link previews get the finished page at once (no count-ups),
+     as they get no intro (same test as the intro's, in index.html) */
+  var BOT = /bot|crawl|spider|slurp|preview|lighthouse|pagespeed|headless/i.test(navigator.userAgent || "");
 
   /* lowercase + strip accents, so "compiegne" finds "Compiègne" */
   function norm(s) {
@@ -285,7 +288,7 @@
     var t = $("#theme-toggle");
     if (t) t.addEventListener("click", function () {
       var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      setTheme(next);
+      switchTheme(next, t);
       try { localStorage.setItem("theme", next); } catch (e) {}
     });
 
@@ -295,6 +298,28 @@
       try { explicit = localStorage.getItem("theme"); } catch (err) {}
       if (!explicit) setTheme(e.matches ? "dark" : "light");
     });
+  }
+  /* A click on the toggle: the new theme spreads from the button in a circle
+     (a view transition, styles.css "Theme switch") while the button's icon
+     turns in. Without view transitions, or under reduced motion, the theme
+     simply switches. site.js does the same on the blog pages. */
+  function switchTheme(next, btn) {
+    var d = document.documentElement;
+    if (reduceMotion()) { setTheme(next); return; }
+    btn.classList.remove("is-turning");
+    void btn.offsetWidth;                          // restart the turn on a quick second click
+    btn.classList.add("is-turning");
+    clearTimeout(btn.turnTimer);
+    btn.turnTimer = setTimeout(function () { btn.classList.remove("is-turning"); }, 700);
+    if (!document.startViewTransition) { setTheme(next); return; }
+    var b = btn.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
+    d.style.setProperty("--vt-x", x.toFixed(0) + "px");
+    d.style.setProperty("--vt-y", y.toFixed(0) + "px");
+    d.style.setProperty("--vt-r", Math.ceil(Math.sqrt(Math.pow(Math.max(x, innerWidth - x), 2) + Math.pow(Math.max(y, innerHeight - y), 2))) + "px");
+    d.classList.add("vt-theme");
+    var vt = document.startViewTransition(function () { setTheme(next); });
+    function done() { d.classList.remove("vt-theme"); }
+    vt.finished.then(done, done);
   }
 
   /* ------------------------------ LANGUAGE -------------------------------- */
@@ -358,11 +383,17 @@
     writeState(saved);
     Object.keys(levels).forEach(function (id) { setLevel(recordById[id], levels[id]); });
     applyFilters();
+    placeInk(true);   // the section links changed width with their labels
   }
   function initLang() {
     applyStaticStrings();
     var btn = $("#lang-toggle");
-    if (btn) btn.addEventListener("click", function () { setLang(LANG === "fr" ? "en" : "fr"); });
+    // the page cross-fades into the other language (a view transition) rather than flashing
+    if (btn) btn.addEventListener("click", function () {
+      var next = LANG === "fr" ? "en" : "fr";
+      if (document.startViewTransition && !reduceMotion()) document.startViewTransition(function () { setLang(next); });
+      else setLang(next);
+    });
   }
 
   /* ------------------------------- HEADER --------------------------------- */
@@ -396,6 +427,7 @@
     return a;
   }
 
+  var firstHero = true;   // the first render, not a language switch
   function renderHero() {
     var p = DATA.profile || {};
     $("#hero-role").textContent = tf(p, "role") || "";
@@ -419,12 +451,13 @@
     cta.appendChild(h("a", { class: "hero-explore", href: "#timeline" },
       T.explore, h("span", { class: "hero-explore-ico", html: SOCIAL.arrow })));
 
-    // stats
-    var stats = $("#hero-stats");
-    empty(stats);   // drops the static copy from index.html
+    // key figures (on the first render they're set up to count up, see prepStats)
+    var box = $("#hero-stats");
+    empty(box);   // drops the static copy from index.html
     (p.stats || []).forEach(function (s) {
-      stats.appendChild(h("li", {}, h("span", { class: "stat-value" }, tf(s, "value")), h("span", { class: "stat-label" }, tf(s, "label"))));
+      box.appendChild(h("li", {}, h("span", { class: "stat-value" }, tf(s, "value")), h("span", { class: "stat-label" }, tf(s, "label"))));
     });
+    if (firstHero) { firstHero = false; prepStats(); }
 
     // footer
     var fl = $("#footer-links");
@@ -475,7 +508,7 @@
     var p = DATA.profile || {};
     var rated = (DATA.skills || []).filter(function (g) { return ratingOf(g) !== null; });
     card.hidden = !rated.length && !p.photo;
-    if (card.hidden) return;
+    if (card.hidden) { revealStats(0); return; }
 
     // photo: a real <img>; the capital initials only appear if it fails to load
     var initials = h("span", { class: "pcard-initials", "aria-hidden": "true" }, String(p.initials || "").toUpperCase());
@@ -547,15 +580,76 @@
      the ratings fill as their numbers count up, then a band of light runs
      across the finished card. Under reduced motion it is simply there, filled. */
   function revealCard(card, delay) {
-    if (reduceMotion()) return;
+    if (reduceMotion() || BOT) return;
     var fill = delay + 640, gleam = fill + 1000;   // the last bar is full about .93s after the fill starts
     card.style.setProperty("--reveal-delay", delay + "ms");
     card.style.setProperty("--fill-delay", fill + "ms");
     card.style.setProperty("--gleam-delay", gleam + "ms");
     card.classList.add("is-revealing", "is-filling", "is-gleaming");
     countUp(card, fill);
+    revealStats(fill + 120);   // the key figures tick up with the ratings
     setTimeout(function () { card.classList.remove("is-revealing"); }, delay + 950);   // the turn is over: the tilt may start
     setTimeout(function () { card.classList.remove("is-gleaming"); }, gleam + 1000);
+  }
+
+  /* The key figures under the hero count up once per page load, alongside the
+     card's ratings, or when they first scroll into view (phones). Only the
+     first number in each value moves ("0/990" to "990/990", "0 kg" to
+     "166 kg"), in the value's own format (5,0 in French). They are set to
+     zero on the first render, before the page is painted, so a figure is
+     never seen jumping back; assistive tech reads the real value from a
+     hidden copy meanwhile, and at the end each figure is plain text again.
+     Not under reduced motion, nor for crawlers. A language switch before the
+     count simply shows the figures. */
+  var stats = null;
+  function prepStats() {
+    if (stats || reduceMotion() || BOT || !window.requestAnimationFrame) return;
+    stats = $$("#hero-stats .stat-value").map(function (el, i) {
+      var full = el.textContent, m = full.match(/\d+(?:[.,]\d+)?/);
+      if (!m) return null;
+      var it = {
+        el: el, full: full, vis: h("span", { "aria-hidden": "true" }), lag: i * 70,
+        goal: parseFloat(m[0].replace(",", ".")), dec: (m[0].split(/[.,]/)[1] || "").length,
+        sep: m[0].indexOf(",") !== -1 ? "," : ".", pre: full.slice(0, m.index), post: full.slice(m.index + m[0].length)
+      };
+      empty(el);
+      el.appendChild(it.vis);
+      el.appendChild(h("span", { class: "sr-only" }, full));
+      showStat(it, 0);
+      return it;
+    }).filter(Boolean);
+  }
+  function showStat(it, p) {
+    it.vis.textContent = it.pre + (it.goal * (1 - Math.pow(1 - p, 3))).toFixed(it.dec).replace(".", it.sep) + it.post;
+  }
+  function revealStats(delay) {
+    var box = $("#hero-stats");
+    if (!stats || stats.started || !box) return;
+    stats.started = true;
+    var b = box.getBoundingClientRect();
+    if (b.top < window.innerHeight && b.bottom > 0) { setTimeout(runStats, delay); return; }
+    if (!("IntersectionObserver" in window)) { runStats(); return; }
+    var io = new IntersectionObserver(function (en) {
+      if (!en.some(function (e) { return e.isIntersecting; })) return;
+      io.disconnect();
+      runStats();
+    }, { threshold: 0.5 });
+    io.observe(box);
+  }
+  function runStats() {
+    var t0 = 0, D = 900;
+    function step(now) {
+      if (!t0) t0 = now;
+      var more = false;
+      stats.forEach(function (it) {
+        if (!it.vis.isConnected) return;            // finished, or re-rendered by a language switch
+        var p = Math.max(0, Math.min(1, (now - t0 - it.lag) / D));
+        if (p < 1) { more = true; showStat(it, p); }
+        else it.el.textContent = it.full;
+      });
+      if (more) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
   /* the visible numbers tick up with their bars; assistive tech reads the
      real values from the sr-only text all along */
@@ -635,16 +729,18 @@
         class: "chip", type: "button", "aria-pressed": "true",
         dataset: { cat: c.id }, style: "--cat:" + c.color,
         onclick: function (ev) {
-          // plain click toggles; ⌘/Ctrl-click isolates this one category
-          if (ev.metaKey || ev.ctrlKey) {
-            var only = this.dataset.cat;
-            $$("#filters .chip").forEach(function (ch) {
-              ch.setAttribute("aria-pressed", ch.dataset.cat === only ? "true" : "false");
-            });
-          } else {
-            this.setAttribute("aria-pressed", this.getAttribute("aria-pressed") === "true" ? "false" : "true");
-          }
-          applyFilters();
+          var chip = this, isolate = ev.metaKey || ev.ctrlKey;
+          animateLayout(function () {
+            // plain click toggles; ⌘/Ctrl-click isolates this one category
+            if (isolate) {
+              $$("#filters .chip").forEach(function (ch) {
+                ch.setAttribute("aria-pressed", ch.dataset.cat === chip.dataset.cat ? "true" : "false");
+              });
+            } else {
+              chip.setAttribute("aria-pressed", chip.getAttribute("aria-pressed") === "true" ? "false" : "true");
+            }
+            applyFilters();
+          });
         }
       },
         h("span", { class: "dot" }),
@@ -943,19 +1039,116 @@
     return h("div", { class: "tl-fold" }, btn, top.length ? h("p", { class: "tl-fold-hint" }, top.join(" · ")) : null);
   }
   function setFold(fold) {
-    FOLD = fold;
-    applyFilters();
-    if (!fold) { dealIn(ordered.filter(function (r) { return tierOf(r.it) === "other"; })); return; }
+    animateLayout(function () { FOLD = fold; applyFilters(); });   // unfolding deals the new cards in
+    if (!fold) return;
     // folding from further down: bring the tier's heading back into view
     var g = $("#tl-items-other"), sec = g && g.closest(".tl-group");
     if (sec && sec.getBoundingClientRect().top < jumpOffset()) scrollToEl(sec);
   }
+
+  /* A filter, the sort, the fold or clearing the search changes which cards
+     show and in what order. animateLayout(change) runs the change and
+     animates it, so the eye can follow what happened (FLIP: measure, change,
+     measure, animate the difference):
+     - cards that stay glide from where they were to where they land, and so
+       do the group headings and the fold;
+     - cards that appear are dealt in one after another;
+     - cards that go fade out where they stood (a short-lived, inert copy,
+       since the real card is gone at once).
+     Only what's on screen (or about to be) moves, at most FLIP_MAX things;
+     everything else just takes its place. Measuring includes any move still
+     in flight, so a quick second change carries on from where the first had
+     got to. The cards themselves (li) move, never their .tl-card, which the
+     scroll-linked rise owns. Reduced motion: nothing moves; appearing cards
+     fade in. */
+  var flips = [], FLIP_MAX = 40;
+  function onScreen(b, vh) { return b.width > 0 && b.bottom > -60 && b.top < vh + 60; }
+  function movers() {
+    return records.filter(function (r) { return !r.el.hidden; }).map(function (r) { return r.el; })
+      .concat($$("#timeline-list .tl-tier, #timeline-list .tl-year, #timeline-list .tl-fold:not([hidden])"));
+  }
+  /* an instant change (typing, a new view, a jump to an entry) first ends any
+     move still in flight, so nothing glides toward a place that's gone */
+  function stopFlips() { flips.slice().forEach(function (a) { a.cancel(); }); }
+  function track(a, after) {
+    flips.push(a);
+    a.onfinish = a.oncancel = function () {
+      var i = flips.indexOf(a);
+      if (i !== -1) flips.splice(i, 1);
+      if (after) after();
+    };
+    return a;
+  }
+  function animateLayout(change) {
+    var list = $("#timeline-list");
+    hidePeek();
+    if (!list || !list.animate) { change(); return; }
+    var reduce = reduceMotion(), vh = window.innerHeight, before = new Map();
+    movers().forEach(function (el) { var b = el.getBoundingClientRect(); if (onScreen(b, vh)) before.set(el, b); });
+    stopFlips();   // after measuring: moves in flight carry on from where they had got to
+    change();
+    var n = 0, dealt = 0, lb = list.getBoundingClientRect();
+    // where everything is now (a heading whose group was filtered out counts
+    // as gone), top to bottom, so arrivals are dealt in reading order
+    var now = movers().map(function (el) { return { el: el, b: el.getBoundingClientRect() }; })
+      .filter(function (o) { return o.b.width > 0; })
+      .sort(function (p, q) { return (p.b.top - q.b.top) || (p.b.left - q.b.left); });
+    var stay = new Set(now.map(function (o) { return o.el; }));
+    if (!reduce) before.forEach(function (b, el) {
+      if (!stay.has(el) && n++ < FLIP_MAX) ghost(el, b, list, lb);   // a card, or a heading the new order replaced
+    });
+    now.forEach(function (o) {
+      var el = o.el, b = o.b, was = before.get(el);
+      if (was) {
+        var dx = was.left - b.left, dy = was.top - b.top;
+        if (reduce || (Math.abs(dx) < 1 && Math.abs(dy) < 1) || n++ >= FLIP_MAX) return;
+        // a card landing below the screen would already be faded out by its
+        // scroll-linked rise (it reads the new place): keep it there as it goes
+        var away = el.classList.contains("tl-item") && b.top >= vh;
+        if (away) el.classList.add("is-flying");
+        // a card just let go of by the projection is still easing back to
+        // size; transitions outrank animations, so end that first
+        if (el.getAnimations) el.getAnimations().forEach(function (a) { if (a.transitionProperty === "transform") a.finish(); });
+        track(el.animate([{ transform: "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px)" }, { transform: "none" }],
+          { duration: 460, easing: "cubic-bezier(.2, .8, .2, 1)" }), away ? function () { el.classList.remove("is-flying"); } : null);
+      } else if (onScreen(b, vh) && n++ < FLIP_MAX) {
+        // the bottom band of the screen belongs to the scroll-linked rise
+        var card = el.classList.contains("tl-item") && b.top < vh - 200;
+        track(el.animate(reduce || !card
+          ? [{ opacity: 0 }, { opacity: 1 }]
+          : [{ opacity: 0, transform: "perspective(1000px) translateY(26px) rotateX(14deg) scale(.97)" }, { opacity: 1, transform: "none" }],
+          { duration: reduce ? 180 : card ? 480 : 320, delay: reduce ? 0 : 80 + Math.min(dealt++, 10) * 40,
+            easing: "cubic-bezier(.16, 1, .3, 1)", fill: "backwards" }));
+      }
+    });
+  }
+  /* a card (or heading) that went, fading where it stood: a copy of it, inert
+     and hidden from assistive tech, with no ids, removed once it has faded */
+  function ghost(el, b, list, lb) {
+    var g = el.cloneNode(true);
+    ["id", "hidden", "tabindex"].forEach(function (a) { g.removeAttribute(a); });
+    Array.prototype.forEach.call(g.querySelectorAll("[id], [aria-controls]"), function (x) {
+      x.removeAttribute("id"); x.removeAttribute("aria-controls");
+    });
+    g.classList.remove("is-peek", "peek-up", "is-flash", "is-flying");
+    g.classList.add("tl-ghost");
+    g.setAttribute("aria-hidden", "true");
+    g.inert = true;
+    var s = g.style;   // keeps the card's --cat
+    s.position = "absolute"; s.margin = "0"; s.pointerEvents = "none";
+    s.left = (b.left - lb.left).toFixed(1) + "px"; s.top = (b.top - lb.top).toFixed(1) + "px";
+    s.width = b.width.toFixed(1) + "px"; s.height = b.height.toFixed(1) + "px";
+    list.appendChild(g);
+    track(g.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "scale(.95)" }],
+      { duration: 240, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" }), function () { g.remove(); });
+  }
+
   /* Cards dealt onto the table one after another, when a list appears as a
-     whole (the other activities unfolding, a new sort or view): only those on
-     screen, at most ten, 45ms apart. Nothing is hidden beforehand. Cards in
-     the band at the bottom of the screen are left to the scroll-linked rise
-     (styles.css "Card motion"), which owns them there; dealing them too would
-     end on a jump back to that half-risen state. */
+     whole in a new layout (switching between the grid and the list view):
+     only those on screen, at most ten, 45ms apart. Nothing is hidden
+     beforehand. Cards in the band at the bottom of the screen are left to
+     the scroll-linked rise (styles.css "Card motion"), which owns them there;
+     dealing them too would end on a jump back to that half-risen state. */
   function dealIn(recs) {
     if (reduceMotion() || !document.body.animate) return;
     var vh = window.innerHeight, n = 0;
@@ -975,6 +1168,7 @@
     if (y) y.setAttribute("aria-pressed", firstOn ? "false" : "true");
   }
   function setView(v) {
+    stopFlips();
     VIEW = v === "list" ? "list" : "grid";
     var list = $("#timeline-list");
     if (list) {
@@ -992,32 +1186,79 @@
     if (changed || !groupEls.length) arrangeTimeline();
   }
 
-  /* ---------------------------- HOVER PREVIEW ----------------------------- */
-  /* WCAG 1.4.13: the preview appears on hover (after PEEK_DELAY) or on keyboard
-     focus of "More", stays while the pointer is over the card or the preview
-     itself, and Escape dismisses it without moving the pointer or focus. It is
-     a visual aid only (aria-hidden): the same content is reachable through
-     "More", which opens the card in place. */
-  var peekRec = null, pendingRec = null, peekTimer = 0, peekDismissed = null, lastPointer = "mouse";
+  /* ------------------------ HOVER PREVIEW: PROJECTION ---------------------- */
+  /* Resting the mouse on a compact card (PEEK_DELAY), or reaching its Details
+     button with the keyboard, projects the card: it lifts out of the timeline
+     with its preview unfolded, the rest of the timeline recedes behind a
+     blurred veil, and its bar on the map lights up (styles.css "The
+     projection"). While one card is projected, or its veil is still fading,
+     resting on the next card takes over after only WARM_DELAY, and the veil
+     stays up in between, so moving across the timeline never flashes.
+     WCAG 1.4.13: the preview stays while the pointer is over the card or the
+     preview itself, and Escape dismisses it without moving the pointer or
+     focus. It's a visual aid (aria-hidden): the same content is reachable
+     through Details, which opens the card in place. A preview the pointer
+     opened closes when the pointer leaves; one opened from the keyboard
+     closes when focus leaves the card. */
+  var peekRec = null, pendingRec = null, peekTimer = 0, peekDismissed = null, lastPointer = "mouse", peekBy = "";
+  var focusRec = null, focusTimer = 0;
+  var WARM_DELAY = 90;      // ms of resting on the next card while one is projected
+  var FOCUS_LINGER = 260;   // ms the veil waits for the next card after the pointer leaves one
   function recOf(el) {
     var item = el && el.closest ? el.closest(".tl-item") : null;
     return item ? recordById[item.id] : null;
   }
-  function showPeek(r) {
+  function showPeek(r, by) {
     pendingRec = null;
+    clearTimeout(peekTimer);
     if (!r || r.level > 0 || r.el.hidden) return;
     if (peekRec && peekRec !== r) hidePeek();
     peekRec = r;
+    peekBy = by || "pointer";
     r.el.classList.add("is-peek");
     r.details.setAttribute("aria-hidden", "true");
+    // the preview opens downward, or upward when it would run off the bottom
+    // of the screen and fits whole between the card and the header / filter
+    // bar. If it fits neither way it opens downward: what's cut off is then
+    // its last tags, never its summary.
+    var card = r.el.querySelector(".tl-card").getBoundingClientRect();
+    var hd = $(".site-header"), ctl = $(".controls");
+    var ceiling = Math.max(hd ? hd.getBoundingClientRect().bottom : 0, ctl ? ctl.getBoundingClientRect().bottom : 0) + 8;
+    var need = r.details.offsetHeight + 12;
+    r.el.classList.toggle("peek-up", need > window.innerHeight - card.bottom && need <= card.top - ceiling);
+    project(r);
   }
-  function hidePeek() {
+  /* linger: the pointer left for another card, maybe; let the veil wait for it */
+  function hidePeek(linger) {
     clearTimeout(peekTimer);
     pendingRec = null;
-    if (!peekRec) return;
-    peekRec.el.classList.remove("is-peek");
-    peekRec.details.removeAttribute("aria-hidden");
-    peekRec = null;
+    if (peekRec) {
+      peekRec.el.classList.remove("is-peek", "peek-up");
+      peekRec.details.removeAttribute("aria-hidden");
+      peekRec = null;
+      peekBy = "";
+    }
+    unproject(linger);
+  }
+  /* the veil over the rest of the timeline and the card's bar on the map */
+  function project(r) {
+    clearTimeout(focusTimer);
+    if (focusRec && focusRec !== r && focusRec.mark) focusRec.mark.classList.remove("is-focus");
+    focusRec = r;
+    var list = $("#timeline-list"), map = $("#career-map");
+    if (list) list.classList.add("is-focus");
+    if (map) map.classList.add("has-focus");
+    if (r.mark) r.mark.classList.add("is-focus");
+  }
+  function unproject(linger) {
+    clearTimeout(focusTimer);
+    if (!focusRec) return;
+    if (linger) { focusTimer = setTimeout(function () { unproject(); }, FOCUS_LINGER); return; }
+    var list = $("#timeline-list"), map = $("#career-map");
+    if (list) list.classList.remove("is-focus");
+    if (map) map.classList.remove("has-focus");
+    if (focusRec.mark) focusRec.mark.classList.remove("is-focus");
+    focusRec = null;
   }
   function initPeek() {
     var list = $("#timeline-list");
@@ -1030,25 +1271,25 @@
       if (!r || r === peekRec || r === pendingRec || r.level > 0 || r === peekDismissed) return;
       clearTimeout(peekTimer);
       pendingRec = r;
-      peekTimer = setTimeout(function () { showPeek(r); }, PEEK_DELAY);
+      peekTimer = setTimeout(function () { showPeek(r, "pointer"); }, focusRec ? WARM_DELAY : PEEK_DELAY);
     });
     list.addEventListener("pointerout", function (ev) {
       var r = recOf(ev.target);
       if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;   // still on the card or its preview
       if (pendingRec === r) { clearTimeout(peekTimer); pendingRec = null; }
       if (peekDismissed === r) peekDismissed = null;
-      if (peekRec === r && !r.el.contains(document.activeElement)) hidePeek();
+      if (peekRec === r && (peekBy !== "keyboard" || !r.el.contains(document.activeElement))) hidePeek(true);
     });
     list.addEventListener("focusin", function (ev) {
       var r = recOf(ev.target);
       if (peekRec && peekRec !== r) hidePeek();
-      if (r && ev.target === r.toggle && lastPointer === "keyboard" && r.level === 0 && peekDismissed !== r) showPeek(r);
+      if (r && ev.target === r.toggle && lastPointer === "keyboard" && r.level === 0 && peekDismissed !== r) showPeek(r, "keyboard");
     });
     list.addEventListener("focusout", function (ev) {
       var r = recOf(ev.target);
       if (!r || (ev.relatedTarget && r.el.contains(ev.relatedTarget))) return;
       if (peekDismissed === r) peekDismissed = null;
-      if (peekRec === r && !r.el.matches(":hover")) hidePeek();
+      if (peekRec === r && (peekBy === "keyboard" || !r.el.matches(":hover"))) hidePeek();
     });
     // the card controls, delegated so a language re-render needs no re-wiring
     list.addEventListener("click", function (ev) {
@@ -1080,6 +1321,7 @@
     return $$("#filters .chip").every(function (c) { return c.getAttribute("aria-pressed") === "true"; });
   }
   function applyFilters() {
+    stopFlips();
     var active = activeSet();
     var q = norm(($("#search").value || "").trim());
     var onlyFeatured = pressed("#only-featured");
@@ -1193,8 +1435,10 @@
   function wireToggle(sel) {
     var b = $(sel);
     if (b) b.addEventListener("click", function () {
-      this.setAttribute("aria-pressed", this.getAttribute("aria-pressed") === "true" ? "false" : "true");
-      applyFilters();
+      animateLayout(function () {
+        b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+        applyFilters();
+      });
     });
   }
   function clearToggles() {
@@ -1205,17 +1449,20 @@
   /* resets the filters only: the view and the sort are the visitor's choice */
   function resetAll() { setAllChips(true); clearToggles(); setSkill(""); $("#search").value = ""; applyFilters(); }
   function wireControls() {
+    // every deliberate change to what's shown is animated (animateLayout): the
+    // cards glide, arrive and leave. Typing isn't: each letter can open or
+    // close a dozen cards, and the list simply keeps up with the keyboard.
     $("#search").addEventListener("input", applyFilters);
-    $("#select-all").addEventListener("click", function () { setAllChips(true); applyFilters(); });
-    $("#clear-all").addEventListener("click", function () { setAllChips(false); applyFilters(); });
-    $("#reset").addEventListener("click", resetAll);
-    $("#empty-reset").addEventListener("click", resetAll);
+    $("#select-all").addEventListener("click", function () { animateLayout(function () { setAllChips(true); applyFilters(); }); });
+    $("#clear-all").addEventListener("click", function () { animateLayout(function () { setAllChips(false); applyFilters(); }); });
+    $("#reset").addEventListener("click", function () { animateLayout(resetAll); });
+    $("#empty-reset").addEventListener("click", function () { animateLayout(resetAll); });
     wireToggle("#only-featured");
     wireToggle("#only-present");
     $("#filters-toggle").addEventListener("click", function () { setPanel($("#filters-panel").hidden); });
-    // a new view or order re-deals the cards on screen, so the change reads as one
+    // a new view re-deals the cards on screen; a new order slides each card to its new place
     function viewTo(v) { var ch = v !== VIEW; setView(v); syncUrl(); if (ch) dealIn(ordered); }
-    function sortTo(v) { var ch = v !== SORT; setSort(v); applyFilters(); if (ch) dealIn(ordered); }
+    function sortTo(v) { if (v === SORT) return; animateLayout(function () { setSort(v); applyFilters(); }); }
     $("#view-grid").addEventListener("click", function () { viewTo("grid"); });
     $("#view-list").addEventListener("click", function () { viewTo("list"); });
     $("#sort-importance").addEventListener("click", function () { sortTo("importance"); });
@@ -1229,7 +1476,7 @@
       updateExpandAll();
     });
     var sk = $("#skill-active");
-    if (sk) sk.addEventListener("click", function () { setSkill(""); applyFilters(); });
+    if (sk) sk.addEventListener("click", function () { animateLayout(function () { setSkill(""); applyFilters(); }); });
     var ms = $(".map-scroll");
     if (ms) ms.addEventListener("scroll", function () { hideTip(); updateMapEdges(); }, { passive: true });
 
@@ -1242,7 +1489,7 @@
         if (peekRec) { peekDismissed = peekRec; hidePeek(); return; }
         if (menuOpen()) { closeMenu(); $("#menu-toggle").focus(); return; }
         if (el === $("#search")) {
-          if ($("#search").value) { $("#search").value = ""; applyFilters(); }
+          if ($("#search").value) animateLayout(function () { $("#search").value = ""; applyFilters(); });
           else el.blur();
         }
       } else if (ev.key === "/" && !typing && !ev.metaKey && !ev.ctrlKey) {
@@ -1283,6 +1530,7 @@
         if (en.isIntersecting) {
           $$('.site-nav a[href^="#"]').forEach(function (x) { x.removeAttribute("aria-current"); });
           a.setAttribute("aria-current", "true");
+          placeInk();
         }
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
@@ -1290,6 +1538,30 @@
       var sec = document.getElementById(id);
       if (sec) io.observe(sec);
     });
+    window.addEventListener("resize", function () { placeInk(true); }, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { placeInk(true); });
+  }
+  /* One underline slides to whichever section you're reading, instead of the
+     current link's own underline jumping (styles.css .nav-ink). It's added
+     here, so the blog pages and visitors without JavaScript keep the plain
+     underline. instant: move without sliding (first placement, a resize, the
+     labels changing language). */
+  var ink = null;
+  function placeInk(instant) {
+    var nav = $("#site-nav");
+    if (!nav) return;
+    if (!ink) {
+      ink = h("span", { class: "nav-ink", "aria-hidden": "true" });
+      nav.appendChild(ink);
+      nav.classList.add("has-ink");
+    }
+    var a = nav.querySelector('a[aria-current="true"]');
+    if (!a || !a.offsetWidth) { ink.style.opacity = "0"; return; }
+    var still = instant || ink.style.opacity !== "1";
+    if (still) ink.style.transition = "none";
+    ink.style.transform = "translateX(" + a.offsetLeft + "px) scaleX(" + (a.offsetWidth / 100).toFixed(3) + ")";
+    ink.style.opacity = "1";
+    if (still) { void ink.offsetWidth; ink.style.transition = ""; }
   }
 
   /* ------------------------- JUMPING TO AN ENTRY -------------------------- */
@@ -1379,6 +1651,26 @@
         org ? h("p", { class: "hl-org" }, org) : null,
         summary ? h("p", { class: "hl-sum" }, summary) : null,
         h("span", { class: "hl-go" }, T.hl_open, h("span", { class: "hl-go-ico", html: SOCIAL.arrow }))));
+    });
+  }
+
+  /* With a mouse, a soft light follows the pointer across a Highlights tile
+     (styles.css .hl-tile::before): one listener on the grid, one update of
+     two CSS variables per frame. The grid survives re-renders. */
+  function initSpotlight() {
+    var grid = $("#highlights-grid");
+    if (!grid || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    var raf = 0, tile = null, x = 0, y = 0;
+    grid.addEventListener("pointermove", function (ev) {
+      var t = ev.target.closest && ev.target.closest(".hl-tile");
+      if (!t || ev.pointerType === "touch") return;
+      tile = t; x = ev.clientX; y = ev.clientY;
+      if (!raf) raf = requestAnimationFrame(function () {
+        raf = 0;
+        var b = tile.getBoundingClientRect();
+        tile.style.setProperty("--mx", (x - b.left).toFixed(0) + "px");
+        tile.style.setProperty("--my", (y - b.top).toFixed(0) + "px");
+      });
     });
   }
 
@@ -1623,11 +1915,18 @@
 
   /* -------------------------------- INIT ---------------------------------- */
   /* Motion, in one place: the intro hands over to the header mark (index.html);
-     the player card is revealed, then tilts under the mouse (renderCard,
-     initCardTilt); cards rise in 3D as they scroll in (pure CSS, styles.css
-     "Card motion"); a card's details unfold when opened (morphLevel); lists
-     are dealt in when they appear whole (dealIn); the map draws itself once
-     (drawMapOnce). Every piece has a reduced-motion path. */
+     the player card is revealed, its ratings and the key figures count up,
+     then it tilts under the mouse (renderCard, revealStats, initCardTilt);
+     cards rise in 3D as they scroll in (pure CSS, styles.css "Card motion");
+     resting on a card projects it, blurring the rest (showPeek, project); a
+     card's details unfold when opened (morphLevel); filtering, searching,
+     sorting and the fold glide the cards to their new places (animateLayout);
+     a new view deals them in (dealIn); the map draws itself once
+     (drawMapOnce); the theme spreads from its button and the language
+     cross-fades (switchTheme, initLang); the header's underline follows the
+     section you're in (placeInk) and a hairline under it shows how far down
+     the page you are (CSS); a light follows the mouse over the Highlights
+     (initSpotlight). Every piece has a reduced-motion path. */
   /* Everything that reads content out of data.js, re-run on a language swap.
      Anything rendered into a container here must also be in setLang()'s
      list of containers to empty. */
@@ -1654,6 +1953,7 @@
     updateExpandAll();
   }
   initCardTilt();
+  initSpotlight();
   initChrome();
   // the page body was kept unpainted until now (html.app-pending in styles.css):
   // it appears already rendered, with no static-to-interactive swap or layout shift

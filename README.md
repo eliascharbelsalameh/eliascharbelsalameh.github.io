@@ -79,9 +79,16 @@ shows them all; printing always prints every entry.
 Visitors pick **Grid** (cards, two columns; one on phones) or **List** (one compact
 row per entry). Either way each card starts compact: dates, title and organisation.
 
-- **Preview:** resting the mouse on a card for a moment, or reaching its **Details**
-  button with the keyboard, shows the summary, the tags and the first two bullets,
-  laid over the cards below so nothing moves. `Esc` dismisses it.
+- **Preview, "projected":** resting the mouse on a card for a moment, or reaching
+  its **Details** button with the keyboard, projects the card out of the timeline.
+  It lifts toward the visitor, ringed in its category's colour, a bar of that
+  colour sweeps across its top, and its summary, tags and first two bullets unfold
+  over the cards below (or above them, when the card sits low on the screen and
+  the preview wouldn't fit underneath). The rest of the timeline blurs and fades
+  behind it, and the entry's bar on the "At a glance" map lights up while the
+  others dim. Moving on to the next card hands the projection over at once,
+  without the page flashing back into focus in between. Nothing moves under the
+  pointer, and `Esc` dismisses it.
 - **Full details:** clicking **Details** (or the card's title area) opens everything:
   all bullets, image, categories and links. The details unfold from the card and
   the cards below slide down; **Close** folds them away.
@@ -331,15 +338,36 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
 - **Player card:** turns face-up into place on each page load, then the ratings
   count up as their bars fill and a band of light crosses it. With a mouse, it
   tilts toward the pointer.
+- **Key figures** count up alongside the ratings (on phones, when you first scroll
+  to them). Screen readers hear the real values throughout, and search engines
+  never see a half-counted number.
 - **Cards** rise into place in 3D as you scroll to them (browsers without
-  scroll-driven animations, such as Firefox, simply show them). Re-sorting,
-  switching view or unfolding Other activities deals the visible cards in.
+  scroll-driven animations, such as Firefox, simply show them).
+- **Filtering, re-sorting and the fold are animated:** the cards that stay glide
+  to their new places, new ones are dealt in, and the ones filtered out fade where
+  they stood, so you can follow what changed. Typing in the search box updates the
+  list at once. Switching between Grid and List deals the visible cards in.
+- **Resting on a card projects it** (see "Views and the three levels of detail").
 - **The map** draws its bars along the time axis the first time it comes into view.
+- **Theme and language:** the new theme spreads from the toggle in a circle as its
+  icon turns; switching language cross-fades the page instead of flashing it. Both
+  need a browser with view transitions (recent Chrome, Edge, Safari and Firefox);
+  elsewhere they simply switch.
+- **Header:** the underline under the section links slides to the section you're
+  reading, and a hairline under the header fills as you scroll down the page
+  (also on the blog, where it shows how far through a post you are).
+- **Highlights:** with a mouse, a soft light in the tile's category colour
+  follows the pointer.
+- **"Ongoing" badges** send out two pulses from a small live dot, then rest
+  (nothing on the page keeps moving for more than 5 seconds).
 - **Reduced motion:** visitors who ask their system for less motion get none of
-  the movement, only short fades where they show a change.
+  the movement, only short fades where they show a change. The projection still
+  blurs the rest of the timeline, without the lift.
 
-All of it is plain CSS and JavaScript (styles.css "Card motion" and "Player card",
-app.js `morphLevel`, `dealIn`, `revealCard`, `initCardTilt`, `drawMapOnce`).
+All of it is plain CSS and JavaScript (styles.css "Card motion", "Player card",
+"The projection" and "Theme switch"; app.js `showPeek`, `project`,
+`animateLayout`, `morphLevel`, `dealIn`, `revealCard`, `revealStats`,
+`initCardTilt`, `initSpotlight`, `drawMapOnce`, `switchTheme`, `placeInk`).
 
 ---
 
@@ -401,9 +429,12 @@ overly long titles or descriptions.
 | `blog/index.html` | the listing, newest first |
 | `blog/feed.xml` | Atom feed (readers find it from every page's `<head>`) |
 | `sitemap.xml` | home, blog and every post, each with its `<lastmod>` |
+| `404.html` | the "page not found" page GitHub Pages shows for any address that doesn't exist, in the site's own look, with links back (not indexed by search engines) |
 
 Commit these generated files: GitHub Pages serves them as they are. Don't edit
-them by hand; the next build overwrites them. Deleting or renaming a post and
+them by hand; the next build overwrites them. (The local preview server shows its
+own error page for a missing address; open `http://localhost:4321/404.html` to see
+the site's.) Deleting or renaming a post and
 rebuilding removes its old page. Posts are in English for now; nothing in the
 layout stops a French version later.
 
@@ -451,7 +482,7 @@ portfolio/
 │   ├── js/
 │   │   ├── data.js         # ← YOUR CONTENT lives here
 │   │   ├── app.js          # renders + filters (rarely edited)
-│   │   └── site.js         # theme toggle on blog pages
+│   │   └── site.js         # theme toggle on the blog and 404 pages
 │   ├── fonts/              # Roboto + Roboto Mono (self-hosted) + LICENSE.txt
 │   └── images/             # entry images, profile.jpg, og-cover.png
 ├── posts/                  # ← YOUR BLOG POSTS (Markdown)
@@ -462,6 +493,7 @@ portfolio/
 ├── .github/workflows/      # the "generated files up to date" check
 ├── robots.txt              # lets crawlers in, points at the sitemap
 ├── sitemap.xml             # generated: every page with its last-modified date
+├── 404.html                # generated: the "page not found" page
 ├── .nojekyll               # tells GitHub Pages to serve files as-is
 └── README.md               # this file
 ```

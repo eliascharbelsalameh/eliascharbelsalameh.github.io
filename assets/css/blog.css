@@ -24,8 +24,32 @@
   .site-nav.blog-nav { gap: .85rem; }
 }
 
+/* short pages (a blog with one post, the 404): the footer sits at the bottom
+   of the window instead of stopping halfway up it */
+.page-blog { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+.page-blog > main { flex: 1 0 auto; }
+
 .blog-main { padding: clamp(1.5rem, 4vw, 3rem) 0 clamp(2.5rem, 5vw, 4rem); }
 .blog-wrap { max-width: 46rem; }
+
+/* 404 (written by tools/build.mjs): a terminal that can't find the page */
+.nf { padding-top: clamp(.5rem, 5vw, 3rem); }
+.nf-code {
+  margin: 0; font-family: var(--font-mono); font-weight: 700; line-height: .9; letter-spacing: -.06em;
+  font-size: clamp(5rem, 18vw, 8.5rem); color: var(--accent);
+}
+.nf-title { font-size: var(--fs-h2); margin: 1.1rem 0 .1rem; }
+.nf-term {
+  margin: 1.4rem 0 0; padding: .75rem .95rem; border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: var(--fs-ui); line-height: 1.7; color: var(--text-muted);
+  background: var(--surface); border: 1px solid var(--border); overflow-wrap: anywhere;
+}
+.nf-term b { color: var(--text); font-weight: 600; }
+/* the cursor blinks a few times (under 5 seconds), then holds */
+.nf-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: .2em; vertical-align: -.22em; background: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .nf-caret { animation: caret-blink 1.1s steps(1) 4; } }
+@keyframes caret-blink { 50% { opacity: 0; } }
+.nf-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.6rem; }
 
 /* breadcrumb */
 .crumbs ol { list-style: none; margin: 0 0 1.4rem; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem; font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--text-muted); }

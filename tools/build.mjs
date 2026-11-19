@@ -17,6 +17,8 @@
       search engines, link previews and visitors without JavaScript.
       app.js replaces those regions with the interactive version as usual.
    3. sitemap.xml: home, blog and every post, each with its <lastmod>.
+   4. 404.html: the page GitHub Pages shows for any address that doesn't exist,
+      in the site's own header, footer and theme (not indexed).
 
    Output is deterministic (no build timestamps): running it twice in a row
    changes nothing the second time.
@@ -421,6 +423,14 @@ const ICON_MOON = `<svg class="icon-moon" viewBox="0 0 24 24" width="18" height=
    the two never drift apart; the plain text is only a fallback */
 const BRAND_MARK = (read("index.html").match(/<span class="brand-mark"[^>]*>[\s\S]*?<\/svg><\/span>/) || [`<span class="brand-mark" aria-hidden="true">ecs</span>`])[0];
 const ICON_FEED = `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8" stroke-linecap="round"/><circle cx="6" cy="18" r="1.3"/></svg>`;
+/* the contact buttons' icons, the same as app.js draws on the home page */
+const CONTACT_ICONS = {
+  mail: ICON_MAIL,
+  linkedin: `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4M11 17v-7" stroke="currentColor"/></svg>`,
+  github: `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5a4 4 0 0 1 1-2.7c-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7a4 4 0 0 1 1 2.7c0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>`,
+  phone: `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 4h3l1.5 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.5V18a2 2 0 0 1-2.2 2A15 15 0 0 1 4 6.2 2 2 0 0 1 5 4z"/></svg>`
+};
+const FAVICON = `<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b2a4a'/%3E%3Ctext x='50' y='63' font-family='Consolas,Menlo,monospace' font-size='36' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EECS%3C/text%3E%3C/svg%3E" />`;
 
 function pageHead(o, P) {
   const img = o.image || `${SITE}/${OG_IMAGE}`;
@@ -457,7 +467,7 @@ ${o.article.tags.map((t) => `  <meta property="article:tag" content="${esc(t)}" 
   <meta name="twitter:description" content="${esc(o.description)}" />
   <meta name="twitter:image" content="${esc(img)}" />
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231b2a4a'/%3E%3Ctext x='50' y='63' font-family='Consolas,Menlo,monospace' font-size='36' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EECS%3C/text%3E%3C/svg%3E" />
+  ${FAVICON}
   <link rel="preload" href="${o.rel}assets/fonts/roboto-mono-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="${o.rel}assets/fonts/roboto-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="${o.rel}assets/css/styles.css" />
@@ -499,7 +509,7 @@ function pageHeader(rel, current) {
 }
 
 function pageFooter(rel, P, year) {
-  const links = contactLinks(P).map((l) => `          <a class="btn btn-ghost" href="${esc(l.href)}"${l.ext ? ' rel="me"' : ""}>${esc(l.label)}</a>`).join("\n");
+  const links = contactLinks(P).map((l) => `          <a class="btn btn-ghost" href="${esc(l.href)}"${l.ext ? ' rel="me"' : ""}>${CONTACT_ICONS[l.kind]}<span>${esc(l.label)}</span></a>`).join("\n");
   return `  <footer class="site-footer" id="contact">
     <div class="wrap footer-inner">
       <div class="footer-cta">
@@ -523,10 +533,10 @@ ${links}
 
 function contactLinks(P, withPhone = true) {
   const out = [];
-  if (P.email) out.push({ href: "mailto:" + P.email, label: P.email });
-  if (P.linkedin) out.push({ href: P.linkedin, label: "LinkedIn", ext: true });
-  if (P.github) out.push({ href: P.github, label: "GitHub", ext: true });
-  if (withPhone && P.phone) out.push({ href: "tel:" + P.phone.replace(/\s+/g, ""), label: P.phone });
+  if (P.email) out.push({ kind: "mail", href: "mailto:" + P.email, label: P.email });
+  if (P.linkedin) out.push({ kind: "linkedin", href: P.linkedin, label: "LinkedIn", ext: true });
+  if (P.github) out.push({ kind: "github", href: P.github, label: "GitHub", ext: true });
+  if (withPhone && P.phone) out.push({ kind: "phone", href: "tel:" + P.phone.replace(/\s+/g, ""), label: P.phone });
   return out;
 }
 
@@ -783,6 +793,51 @@ ${list}
 ${pageFooter(rel, P, yearOf(D, posts))}`;
 }
 
+/* 404.html: GitHub Pages answers every address that doesn't exist with it, at
+   any depth, so its links and assets start at the site root ("/"). Not
+   indexed, no canonical address, not in the sitemap. site.js fills in the
+   address that was asked for. */
+function notFoundPage(D, P) {
+  const rel = "/";
+  return `<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <!-- ${GENERATED}. Edit that and re-run the build, not this file. -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page not found · ${esc(P.displayName)}</title>
+  <meta name="robots" content="noindex" />
+  <meta name="author" content="${esc(P.displayName)}" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" id="meta-theme-color" content="#f5f6f9" />
+  ${FAVICON}
+  <link rel="preload" href="${rel}assets/fonts/roboto-mono-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="${rel}assets/fonts/roboto-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="${rel}assets/css/styles.css" />
+  <link rel="stylesheet" href="${rel}assets/css/blog.css" />
+
+${THEME_SCRIPT}
+</head>
+<body class="page-blog page-404">
+${pageHeader(rel, "")}
+
+  <main id="main" class="blog-main">
+    <div class="wrap blog-wrap nf">
+      <p class="nf-code" aria-hidden="true">404</p>
+      <h1 class="nf-title">This page doesn't exist</h1>
+      <p class="section-sub">The link may be old, or mistyped. Everything on the site is one click away from here.</p>
+      <p class="nf-term" aria-hidden="true">$ open <b id="nf-path">this address</b><br />error: no such page<span class="nf-caret"></span></p>
+      <div class="nf-actions">
+        <a class="btn btn-primary" href="${rel}">Back to the portfolio</a>
+        <a class="btn btn-ghost" href="${rel}#timeline">Browse the timeline</a>
+        <a class="btn btn-ghost" href="${rel}${BLOG_DIR}/">Read the blog</a>
+      </div>
+    </div>
+  </main>
+
+${pageFooter(rel, P, yearOf(D, []))}`;
+}
+
 function feed(posts, P) {
   const updated = posts.reduce((m, p) => (p.updated > m ? p.updated : m), P.updated || "1970-01-01");
   const x = (s) => esc(s).replace(/&#39;/g, "&apos;");
@@ -846,6 +901,7 @@ function build() {
   out.set(`${BLOG_DIR}/index.html`, blogIndex(posts, D, P));
   out.set(`${BLOG_DIR}/feed.xml`, feed(posts, P));
   out.set("sitemap.xml", sitemap(posts, P));
+  out.set("404.html", notFoundPage(D, P));
 
   // pages of deleted or renamed posts (only ones this script generated)
   const stale = [];
