@@ -174,6 +174,15 @@ and one row per skill group with an abbreviation, the group name, a rating out o
 > The ratings in `data.js` are the site owner's own self-assessed ratings. Change
 > them there and the card and OVR update by themselves.
 
+**The back of the card.** A click on the card, or its **Stats** button, turns it
+over. Like the back of a trading card, it carries career numbers instead of
+ratings: how many entries the timeline holds, since when, and how many sit in
+each lane of the "At a glance" map. All of it is counted from `data.js`, so it
+needs no editing. "Since" is the start of the earliest entry ranked above Other
+activities (`importance` 3 or more) that isn't personal; an old school entry at
+importance 2 doesn't count. **Ratings** turns it back. Printing always prints the
+front.
+
 Each group in the Skills section also shows how many skills it lists; that count
 updates by itself when you add or remove skills.
 
@@ -203,6 +212,31 @@ to the contact block at the bottom. The header's **Blog** link and the footer's
 **Blog · Atom feed** links lead to the blog. The copy of your contact links in
 `index.html` (for visitors and crawlers without JavaScript) is written by
 `node tools/build.mjs`, so you only ever change them in `data.js`.
+
+In the footer, the email address has a **copy** button joined to it (a mail link
+needs a mail app the visitor may not have set up). It appears only where the
+browser lets a page write to the clipboard, which includes the live site.
+
+### The rendezvous (beside Contact)
+Next to the contact links, a live figure: six robots, each talking only to its two
+neighbours, agree on where to meet and close up into a hexagon there. It's the
+real thing, a consensus protocol: one robot hears the "leader" (the mouse, or the
+figure's centre) and the news travels round the ring, so the far robot reacts
+last and the hexagon stretches before it closes up. Visitors can lead them with
+the mouse, or click (tap) to scatter them; a stopwatch in the corner times how
+long they take to meet again (about 2 to 3 seconds). Then everything stops.
+
+- **Nothing to edit.** The robots take the colours of the first six categories in
+  `data.js`. The caption links to the first timeline entry with the tag
+  `Consensus` (currently the six-robot rendezvous project); with no such entry it
+  simply has no link.
+- **Plays once** when it first scrolls into view, pauses off screen or in a
+  hidden tab, and never keeps moving by itself for more than a few seconds.
+- **Reduced motion and search engines** get a still figure instead: one run,
+  already solved, each robot's whole path drawn. **Another run** draws a new one.
+- **Hidden** without JavaScript and when printing. The gains are at the top of
+  app.js's "THE RENDEZVOUS" section (`RDV`), if you ever want them faster or
+  slower.
 
 ### CV download (off by default)
 The timeline itself is the showcase, so there is no "Download CV" button unless you ask
@@ -345,8 +379,13 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
 
 ### The other animations
 - **Player card:** turns face-up into place on each page load, then the ratings
-  count up as their bars fill and a band of light crosses it. With a mouse, it
-  tilts toward the pointer.
+  count up as their bars fill and a band of light crosses it, and its Stats
+  button's icon turns once, a hint. With a mouse, it tilts toward the pointer.
+  Turned over, it swings edge-on, swaps faces out of sight and lands on its back
+  with the same band of light, as the career numbers tick up.
+- **The rendezvous:** see "The rendezvous" above.
+- **Copying the address:** the copy icon turns into a tick that draws itself and a
+  small "Copied" rises above it.
 - **Key figures** count up alongside the ratings (on phones, when you first scroll
   to them). Screen readers hear the real values throughout, and search engines
   never see a half-counted number.
@@ -377,10 +416,14 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   blurs the rest of the timeline, without the lift, and the mirror just fades in.
 
 All of it is plain CSS and JavaScript (styles.css "Card motion", "Player card",
-"The projection", "The mirror" and "Theme switch"; app.js `showPeek`, `project`,
-`renderMirror`, `mirrorPlace`,
+"The back of the card", "The projection", "The mirror", "The rendezvous" and
+"Theme switch"; app.js `showPeek`, `project`, `renderMirror`, `mirrorPlace`,
 `animateLayout`, `morphLevel`, `dealIn`, `revealCard`, `revealStats`,
-`initCardTilt`, `initSpotlight`, `drawMapOnce`, `switchTheme`, `placeInk`).
+`initCardTilt`, `flipCard`, `initSpotlight`, `drawMapOnce`, `switchTheme`,
+`placeInk`, `copyButton`, and the "THE RENDEZVOUS" section).
+
+Anyone who opens the browser's developer console is greeted with a short hello
+and the two things to try (app.js `greet`).
 
 ---
 

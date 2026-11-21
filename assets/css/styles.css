@@ -448,6 +448,56 @@ html[data-theme="dark"] .pcard-sweep {
   font-family: var(--font-mono); font-size: var(--fs-micro); line-height: 1.4; letter-spacing: .02em; color: var(--text-muted);
 }
 
+/* The back of the card. Like a trading card's, it carries career numbers
+   where the front has ratings: how many entries the timeline holds, since
+   when, and how many in each lane of the "At a glance" map, all counted by
+   app.js (cardBack). A click on the card, or its Stats button, turns it over
+   (app.js flipCard): it swings edge-on, the faces swap out of sight, and it
+   lands with the reveal's band of light while the numbers tick up. The front
+   keeps the card's size (its parts just turn invisible), and the back is laid
+   over the same area, so turning it never moves the page. The button stays
+   visible on both faces, in the same place, so keyboard focus never drops. */
+.pcard.can-flip { cursor: pointer; }
+.pcard-note, .pb-note { display: flex; align-items: center; gap: .6rem; min-height: calc(28px + .6rem); }
+.pcard-note > span { flex: 1; min-width: 0; }
+.pcard-flip {
+  display: inline-flex; align-items: center; gap: .3rem; flex: none; min-height: 28px; margin: 0;
+  padding: .15rem .55rem .15rem .65rem; border-radius: 999px; cursor: pointer;
+  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600; letter-spacing: .02em;
+  color: var(--text-muted); background: var(--surface); border: 1px solid var(--border-strong);
+  position: relative; z-index: 1;   /* above the back, which is laid over the front */
+  visibility: visible;              /* shown on both faces */
+  transition: color .15s, border-color .15s;
+}
+.pcard-flip:hover, .pcard.can-flip:hover .pcard-flip { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.pcard-flip svg { width: 13px; height: 13px; stroke-width: 2.1; }
+/* once, after the reveal: the icon turns over, a hint that the card does too */
+.pcard-flip.is-hinting svg { animation: flip-hint .9s var(--ease-out); }
+@keyframes flip-hint { 40% { transform: rotate(-200deg); } to { transform: rotate(-360deg); } }
+.pcard.is-back > .pcard-top, .pcard.is-back > .pcard-attrs, .pcard.is-back > .pcard-note { visibility: hidden; }
+.pcard-back {
+  position: absolute; inset: 1.15rem 1.25rem 1rem; z-index: 0;
+  display: flex; flex-direction: column;
+}
+.pcard-back[hidden] { display: none; }
+.pcard-back .pcard-ovr-lbl { text-transform: uppercase; }
+/* the "ecs" mark where the photo is on the front */
+.pb-mark { display: grid; place-items: center; background: var(--primary); color: var(--primary-ink); }
+.pb-mark svg { width: 64%; height: auto; fill: currentColor; stroke: none; }
+.pb-lanes {
+  list-style: none; margin: 0; padding: .2rem 0; flex: 1;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: 1.05rem 1rem;
+}
+.pb-lanes li { display: grid; grid-template-columns: 1rem 2.1ch minmax(0, 1fr); align-items: baseline; column-gap: .5rem; min-width: 0; }
+.pb-ico { align-self: center; display: inline-flex; }
+.pb-ico svg { width: 15px; height: 15px; stroke: var(--accent); stroke-width: 2.1; }
+.pb-num { font-family: var(--font-mono); font-size: var(--fs-title); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; text-align: right; }
+.pb-lbl { font-size: var(--fs-meta); line-height: 1.3; color: var(--text-muted); overflow-wrap: break-word; }
+.pb-note {
+  padding-top: .6rem; padding-right: 6.5rem; border-top: 1px dashed var(--border-strong);
+  font-family: var(--font-mono); font-size: var(--fs-micro); line-height: 1.4; letter-spacing: .02em; color: var(--text-muted);
+}
+
 /* ------------------------------ Sections ---------------------------------- */
 .section-head { margin: 0 0 1.6rem; }
 .section-head h2 { font-size: var(--fs-h2); }
@@ -1007,6 +1057,92 @@ html[data-theme="dark"] .pcard-sweep {
 .footer-cta h2 { font-size: var(--fs-h2); }
 .footer-links { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.3rem; }
 .footer-note { margin-top: 2.5rem; color: var(--text-muted); font-size: var(--fs-meta); }
+/* links inside a line of text are underlined: the blue alone sits at about
+   1.1:1 against the grey around it, so colour can't be the only cue (WCAG
+   1.4.1). Also the blog's intro lines, which share .section-sub. */
+.footer-note a, .section-sub a {
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em;
+  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+}
+.footer-note a:hover, .section-sub a:hover { text-decoration-color: currentColor; }
+
+/* the address and its copy button, joined into one pill (app.js renderHero):
+   mailto needs a mail app the visitor may not have set up; copying doesn't */
+.split { display: inline-flex; }
+.split > .btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.copy-btn {
+  position: relative; margin-left: -1.5px; padding-inline: .8rem;
+  border-top-left-radius: 0; border-bottom-left-radius: 0;
+  transition: background .15s, border-color .2s, color .2s;
+}
+.copy-btn svg { display: block; }
+.copy-btn .ico-check { display: none; }
+.copy-btn.is-copied { color: color-mix(in srgb, var(--ok) var(--ink-mix), var(--text)); border-color: color-mix(in srgb, var(--ok) 60%, var(--border-strong)); }
+.copy-btn.is-copied .ico-copy { display: none; }
+.copy-btn.is-copied .ico-check { display: block; }
+/* the tick draws itself, and a small "Copied" rises over the button; both
+   sit outside the row's flow, so nothing beside it moves */
+.copy-btn .ico-check path { stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+.copy-btn.is-copied .ico-check path { animation: tick-draw .34s var(--ease-out) .04s both; }
+@keyframes tick-draw { from { stroke-dashoffset: 1; } }
+.copy-btn::after {
+  content: attr(data-done); position: absolute; left: 50%; bottom: calc(100% + 6px);
+  padding: .2rem .5rem; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600;
+  background: var(--primary); color: var(--primary-ink);
+  opacity: 0; transform: translate(-50%, 4px);
+}
+.copy-btn.is-copied::after { animation: copied-tip 1.7s var(--ease-out) both; }
+@keyframes copied-tip {
+  0%   { opacity: 0; transform: translate(-50%, 4px); }
+  14%, 78% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 0); }
+}
+
+/* ---------------------------- The rendezvous ------------------------------ */
+/* Beside Contact, a live figure (app.js, "THE RENDEZVOUS"): six robots that
+   agree on where to meet. A plot well on the page's own background, the
+   canvas filling it, a stopwatch in its corner and a caption under it, like
+   a figure in a paper. On wide screens it takes the right-hand column, next
+   to the contact links; below 861px it follows them. app.js unhides it and
+   marks the footer .has-rdv. */
+@media (min-width: 861px) {
+  .footer-inner.has-rdv {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 27rem); grid-template-rows: auto 1fr;
+    grid-template-areas: "cta fig" "note fig"; column-gap: clamp(2rem, 5vw, 4rem);
+  }
+  .has-rdv .footer-cta { grid-area: cta; }
+  .has-rdv .rdv { grid-area: fig; margin: 0; }
+  .has-rdv .footer-note { grid-area: note; align-self: end; margin-bottom: 0; }
+}
+.rdv { margin: 2.25rem 0 0; }
+.rdv[hidden] { display: none; }
+.rdv-plot {
+  position: relative; height: 15rem; overflow: hidden;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: crosshair; touch-action: manipulation; -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.rdv.is-still .rdv-plot { cursor: pointer; }
+.rdv-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.rdv-read {
+  position: absolute; left: .65rem; top: .45rem; pointer-events: none;
+  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600; line-height: 1.4;
+  font-variant-numeric: tabular-nums; color: var(--text-muted);
+  transition: color .3s var(--ease);
+}
+.rdv-read.is-met { color: color-mix(in srgb, var(--ok) var(--ink-mix), var(--text)); }
+.rdv-cap { margin-top: .65rem; font-size: var(--fs-meta); line-height: 1.55; color: var(--text-muted); }
+.rdv-cap p { margin: 0; }
+.rdv-cap b { font-family: var(--font-mono); font-weight: 700; color: var(--text); }
+.rdv-cap a {
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em;
+  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+}
+.rdv-cap a:hover { text-decoration-color: currentColor; }
+.rdv-hint { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .1rem .8rem; margin-top: .3rem !important; }
+.rdv-btn { margin-right: -.5rem; font-size: var(--fs-meta); }
+@media (max-width: 560px) { .rdv-plot { height: 12.5rem; } }
 
 /* ----------------------------- Highlights --------------------------------- */
 /* the featured links: the one card type that stays raised (border + shadow) */
@@ -1236,13 +1372,17 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   /* the mirror just fades in; its lit bar and band are there, not drawn */
   .mirror.is-in:not(.is-leaving) { animation: fade-in .15s ease-out; }
   .mirror-band, .mirror-mark.is-focus, .mirror-mark.is-point.is-focus { animation: none; }
+  /* the flip hint stays still; "Copied" fades in place; the tick is just there */
+  .pcard-flip.is-hinting svg, .copy-btn.is-copied .ico-check path { animation: none; }
+  .copy-btn::after { transform: translate(-50%, 0); }
 }
 @keyframes fade-in { from { opacity: 0; } }
 
 /* ------------------------- Touch: 44px hit areas -------------------------- */
 @media (pointer: coarse) {
   .btn, .link-btn, .ctl-btn, .seg-btn, .qbtn, .chip, .tl-more, .tl-full, .tl-link, .skill-link,
-  .hero-explore, .site-nav a, .search { min-height: 44px; }
+  .hero-explore, .site-nav a, .search, .pcard-flip { min-height: 44px; }
+  .pcard-note, .pb-note { min-height: calc(44px + .6rem); }
   .theme-toggle, .menu-toggle, .lang-toggle { height: 44px; min-width: 44px; }
   .seg-ico { width: 44px; }
 }
@@ -1295,6 +1435,7 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   .pcard-ovr { padding-right: .75rem; }
   .pcard-photo { width: 4.25rem; }
   .pcard-attrs { margin-top: .75rem; gap: .55rem; }
+  .pcard-back { inset: 1rem 1rem .9rem; }
   .tl-title, .tl-org { hyphens: auto; }
   .by-date.view-list .tl-item { grid-template-columns: 40px minmax(0, 1fr); }
   .by-date.view-list .tl-item::before { left: 19px; }
@@ -1323,6 +1464,16 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   .header-actions { gap: .3rem; }
   .header-contact { padding-inline: .7rem; }
   .seg-btn { padding: 0 .6rem; }
+}
+@media (max-width: 359px) {
+  /* the smallest phones (320px): the Contact button becomes its icon, as on
+     the blog, or the header ran 2px wider than the screen and the whole page
+     scrolled sideways (WCAG 1.4.10). Its label stays its accessible name. */
+  .header-contact span {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+  .header-contact { min-width: 38px; justify-content: center; padding-inline: .6rem; }
 }
 
 /* ---------------------------- Intro splash -------------------------------- */
@@ -1465,6 +1616,9 @@ html[data-theme="dark"].splash-on .splash {
   /* the player card keeps its frame and bars (backgrounds are usually off in print) */
   .pcard { filter: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .pcard.is-filling .pa-seg i { animation: none !important; }
+  /* the front, whichever face is up on screen; no live figure */
+  .pcard-back, .pcard-flip, .rdv { display: none !important; }
+  .pcard.is-back > * { visibility: visible !important; }
   /* a filtered-down screen view shouldn't produce a filtered-down printout */
   .tl-item[hidden] { display: block !important; }
   .by-date.view-list .tl-item[hidden] { display: grid !important; }

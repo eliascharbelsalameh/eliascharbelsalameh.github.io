@@ -24,6 +24,21 @@
       card_attrs_label: "Skill ratings",
       card_note: "Self-assessed ratings, out of 99",
       card_photo_alt: function (name) { return "Portrait of " + name; },
+      card_flip: "Stats", card_flip_aria: "Stats, turn the card over",
+      card_unflip: "Ratings", card_unflip_aria: "Ratings, turn the card back over",
+      card_entries: "entries", card_career: "Career",
+      card_since: function (d) { return "Since " + d; },
+      card_lanes_label: "Entries by kind", card_counted: "Counted from the timeline",
+      copy: "Copy the address", copied: "Address copied", copied_tip: "Copied",
+      rdv_title: "Rendezvous.",
+      rdv_text: "Six robots, each talking only to its two neighbours, agree on where to meet (a consensus protocol",
+      rdv_asin: ", as in ", rdv_link: "my rendezvous project",
+      rdv_mouse: "Point to lead them, click to scatter them.", rdv_touch: "Tap to scatter them.",
+      rdv_still: "One run, solved: each line is a robot's path.",
+      rdv_scatter: "Scatter them", rdv_again: "Another run",
+      rdv_t: function (s) { return "t = " + s + " s"; },
+      rdv_met: function (s) { return "met in " + s + " s"; },
+      rdv_follow: "following you",
       hl_h: "Highlights",
       hl_sub: "The work I'd show first. Open one to see it in context in the timeline.",
       hl_open: "View in timeline", hl_star: "In Highlights",
@@ -78,6 +93,21 @@
       card_attrs_label: "Notes par compétence",
       card_note: "Notes auto-évaluées, sur 99",
       card_photo_alt: function (name) { return "Portrait " + (/^[aeiouyàâéèêîôh]/i.test(name) ? "d'" : "de ") + name; },
+      card_flip: "Stats", card_flip_aria: "Stats, retourner la carte",
+      card_unflip: "Notes", card_unflip_aria: "Notes, remettre la carte à l'endroit",
+      card_entries: "entrées", card_career: "Parcours",
+      card_since: function (d) { return "Depuis " + d; },
+      card_lanes_label: "Entrées par type", card_counted: "D'après le parcours",
+      copy: "Copier l'adresse", copied: "Adresse copiée", copied_tip: "Copiée",
+      rdv_title: "Rendez-vous.",
+      rdv_text: "Six robots, chacun ne parlant qu'à ses deux voisins, s'accordent sur un point de rencontre (un protocole de consensus",
+      rdv_asin: ", comme dans ", rdv_link: "mon projet de rendez-vous",
+      rdv_mouse: "Pointez pour les guider, cliquez pour les disperser.", rdv_touch: "Touchez pour les disperser.",
+      rdv_still: "Un essai, résolu : chaque trait est le trajet d'un robot.",
+      rdv_scatter: "Les disperser", rdv_again: "Un autre essai",
+      rdv_t: function (s) { return "t = " + s + " s"; },
+      rdv_met: function (s) { return "réunis en " + s + " s"; },
+      rdv_follow: "ils vous suivent",
       hl_h: "Points forts",
       hl_sub: "Les travaux à voir en premier. Ouvrez-en un pour le retrouver dans le parcours.",
       hl_open: "Voir dans le parcours", hl_star: "Dans les points forts",
@@ -466,7 +496,10 @@
     // footer
     var fl = $("#footer-links");
     empty(fl);
-    if (p.email)    fl.appendChild(iconLink("btn btn-ghost", "mailto:" + p.email, SOCIAL.mail, p.email));
+    if (p.email) {
+      var mail = iconLink("btn btn-ghost", "mailto:" + p.email, SOCIAL.mail, p.email);
+      fl.appendChild(canCopy() ? h("span", { class: "split" }, mail, copyButton(p.email)) : mail);
+    }
     if (p.linkedin) fl.appendChild(iconLink("btn btn-ghost", p.linkedin, SOCIAL.linkedin, "LinkedIn", true));
     if (p.github)   fl.appendChild(iconLink("btn btn-ghost", p.github, SOCIAL.github, "GitHub", true));
     if (p.phone)    fl.appendChild(iconLink("btn btn-ghost", "tel:" + p.phone.replace(/\s+/g, ""), SOCIAL.phone, p.phone));
@@ -480,6 +513,38 @@
     $("#footer-copy").textContent = "© " + now.getFullYear() + " " + (p.name || "");
     $("#footer-built").textContent = T.footer_built;
     $("#footer-date").textContent = updated;
+  }
+
+  /* The footer's address gets a copy button beside it (styles.css .split):
+     a mailto link needs a mail app the visitor may not have set up. On
+     success the icon turns into a tick that draws itself, a small "Copied"
+     rises over it, and assistive tech hears "Address copied". Only where the
+     clipboard can be written (https or localhost). */
+  var COPY_ICONS =
+    '<svg class="ico-copy" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg>' +
+    '<svg class="ico-check" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function canCopy() { return !!(window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText); }
+  function copyButton(text) {
+    var b = h("button", { class: "btn btn-ghost copy-btn", type: "button", "aria-label": T.copy, title: T.copy,
+                          "data-done": T.copied_tip, html: COPY_ICONS });
+    b.addEventListener("click", function () {
+      navigator.clipboard.writeText(text).then(function () {
+        b.classList.remove("is-copied");
+        void b.offsetWidth;                          // a second copy replays the tick
+        b.classList.add("is-copied");
+        announce(T.copied);
+        clearTimeout(b.doneTimer);
+        b.doneTimer = setTimeout(function () { b.classList.remove("is-copied"); }, 2000);
+      }, function () {});
+    });
+    return b;
+  }
+  /* one polite live region for short confirmations */
+  var liveBox = null;
+  function announce(msg) {
+    if (!liveBox) { liveBox = h("span", { class: "sr-only", "aria-live": "polite" }); document.body.appendChild(liveBox); }
+    liveBox.textContent = "";
+    setTimeout(function () { liveBox.textContent = msg; }, 60);
   }
 
   /* ----------------------------- PLAYER CARD ------------------------------ */
@@ -558,7 +623,11 @@
           h("span", { class: "sr-only" }, T.card_attr(name, v)),
           cardBar(v));
       })));
-      card.appendChild(h("figcaption", { class: "pcard-note" }, T.card_note));
+      card.appendChild(h("figcaption", { class: "pcard-note" }, h("span", {}, T.card_note),
+        h("button", { class: "pcard-flip", type: "button", html: FLIP_ICON }, h("span", { class: "pcard-flip-lbl" }))));
+      card.appendChild(cardBack());
+      card.classList.add("can-flip");
+      setFace(card, cardFlipped);   // a language switch keeps the face that was up
     }
     // the light on the card (shade and glare for the tilt, the reveal's sweep):
     // decorative layers above the content, in the card's clipped shape
@@ -580,6 +649,125 @@
     }
   }
 
+  /* ---- The back of the card (styles.css "The back of the card") ----
+     Career numbers, as on the back of a trading card: every entry in the
+     timeline, since the first notable one that isn't personal, and how many sit in
+     each lane of the "At a glance" map (the same laneOf, so the two always
+     agree). Counted from data.js, so they follow it with no editing. */
+  var cardFlipped = false;   // the face that's up, kept across language switches
+  var FLIP_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 13a8 8 0 0 0 14.6 4.5" stroke-linecap="round"/><path d="M5 3v3.8h3.8M19 21v-3.8h-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function cardBack() {
+    var counts = {}, total = 0, first = null;
+    (DATA.timeline || []).forEach(function (it) {
+      var lane = laneOf(it);
+      total++;
+      counts[lane] = (counts[lane] || 0) + 1;
+      // the career starts with the first entry the timeline ranks above
+      // "Other activities" (a school-leaving exam doesn't count)
+      if (lane !== "personal" && tierOf(it) !== "other" && it.start !== "upcoming" && (!first || key(it.start) < key(first))) first = it.start;
+    });
+    // a number that ticks up when the back turns over: the visible digits,
+    // and the real value for assistive tech
+    function num(cls, n) {
+      return h("span", { class: cls }, h("span", { class: "pb-count", "aria-hidden": "true" }, String(n)), h("span", { class: "sr-only" }, String(n)));
+    }
+    var mark = $(".site-header .brand-mark svg");
+    return h("div", { class: "pcard-back", hidden: "" },
+      h("div", { class: "pcard-top" },
+        h("p", { class: "pcard-ovr" }, num("pcard-ovr-num", total), h("span", { class: "pcard-ovr-lbl" }, T.card_entries)),
+        h("div", { class: "pcard-id" },
+          h("p", { class: "pcard-name" }, T.card_career),
+          first ? h("p", { class: "pcard-pos" }, T.card_since(fmt(first))) : null),
+        h("div", { class: "pcard-photo pb-mark", "aria-hidden": "true" }, mark ? mark.cloneNode(true) : null)),
+      h("ul", { class: "pb-lanes", "aria-label": T.card_lanes_label }, LANES.filter(function (n) { return counts[n]; }).map(function (n) {
+        return h("li", {}, h("span", { class: "pb-ico", html: icon(LANE_ICON[n]) }), num("pb-num", counts[n]), h("span", { class: "pb-lbl" }, T.lanes[n]));
+      })),
+      h("p", { class: "pb-note" }, T.card_counted));
+  }
+  /* which face is up, at once: the parts of the other face turn invisible
+     (the front keeps the card's size), and the button says what it shows next */
+  function setFace(card, back) {
+    cardFlipped = back;
+    card.classList.toggle("is-back", back);
+    var b = card.querySelector(".pcard-back"), btn = card.querySelector(".pcard-flip");
+    if (b) b.hidden = !back;
+    if (btn) {
+      btn.querySelector(".pcard-flip-lbl").textContent = back ? T.card_unflip : T.card_flip;
+      btn.setAttribute("aria-label", back ? T.card_unflip_aria : T.card_flip_aria);
+    }
+  }
+  /* The turn: the card swings edge-on (ease-in), the faces swap while it
+     can't be seen, and it swings back in from the other side (ease-out),
+     ending exactly on the tilt it started from, so the mouse's tilt takes
+     over without a jump; the reveal's band of light crosses it as it lands,
+     and the back's numbers tick up. About .6s. Clicks during a turn are
+     ignored. Reduced motion: a short cross-fade, no turn. */
+  function flipCard(card) {
+    if (card.flipping) return;
+    var back = !card.classList.contains("is-back");
+    if (!card.animate) { setFace(card, back); return; }
+    card.flipping = true;
+    card.classList.add("is-flipping");
+    function done() { card.flipping = false; card.classList.remove("is-flipping"); }
+    if (reduceMotion()) {
+      var out = card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 110, easing: "ease-in", fill: "forwards" });
+      out.onfinish = function () {
+        setFace(card, back);
+        card.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: "ease-out" }).onfinish = done;
+        out.cancel();
+      };
+      return;
+    }
+    var cs = window.getComputedStyle(card);
+    var rest = "perspective(900px) rotateX(" + (cs.getPropertyValue("--rx").trim() || "0deg") + ") rotateY(" + (cs.getPropertyValue("--ry").trim() || "0deg") + ")";
+    var dir = back ? 1 : -1;
+    function edge(s) { return "perspective(900px) rotateX(0deg) rotateY(" + (90 * s * dir) + "deg) scale(.95)"; }
+    var away = card.animate([{ transform: rest }, { transform: edge(1) }], { duration: 210, easing: "cubic-bezier(.5, 0, .9, .45)", fill: "forwards" });
+    away.onfinish = function () {
+      setFace(card, back);
+      var land = card.animate([{ transform: edge(-1) }, { transform: rest }], { duration: 420, easing: "cubic-bezier(.16, 1, .3, 1)" });
+      away.cancel();
+      land.onfinish = land.oncancel = done;
+      // the band of light, as it lands
+      card.classList.remove("is-gleaming");
+      card.style.setProperty("--gleam-delay", "60ms");
+      void card.offsetWidth;
+      card.classList.add("is-gleaming");
+      clearTimeout(card.gleamTimer);
+      card.gleamTimer = setTimeout(function () { card.classList.remove("is-gleaming"); }, 1000);
+      if (back) tickBack(card);
+    };
+  }
+  /* the back's numbers count up from zero as it lands, one after another */
+  function tickBack(card) {
+    var els = Array.prototype.slice.call(card.querySelectorAll(".pcard-back .pb-count"));
+    if (!els.length || !window.requestAnimationFrame) return;
+    var goal = els.map(function (el) { return +el.textContent || 0; }), t0 = 0, D = 520;
+    els.forEach(function (el) { el.textContent = "0"; });
+    function step(now) {
+      if (!t0) t0 = now;
+      var more = false;
+      els.forEach(function (el, i) {
+        var p = Math.max(0, Math.min(1, (now - t0 - i * 55) / D));
+        if (p < 1) more = true;
+        el.textContent = String(Math.round(goal[i] * (1 - Math.pow(1 - p, 3))));
+      });
+      if (more && els[0].isConnected) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  /* Set up once (the card element survives re-renders): the button, and a
+     click anywhere else on the card (not while selecting its text). */
+  function initCardFlip() {
+    var card = $("#player-card");
+    if (!card) return;
+    card.addEventListener("click", function (ev) {
+      if (!card.classList.contains("can-flip") || card.classList.contains("is-revealing")) return;
+      if (!ev.target.closest(".pcard-flip") && window.getSelection && String(window.getSelection())) return;
+      flipCard(card);
+    });
+  }
+
   /* The card's entrance (styles.css, "the reveal"): turned face-up into place,
      the ratings fill as their numbers count up, then a band of light runs
      across the finished card. Under reduced motion it is simply there, filled. */
@@ -594,6 +782,13 @@
     revealStats(fill + 120);   // the key figures tick up with the ratings
     setTimeout(function () { card.classList.remove("is-revealing"); }, delay + 950);   // the turn is over: the tilt may start
     setTimeout(function () { card.classList.remove("is-gleaming"); }, gleam + 1000);
+    // then, once, the Stats button's icon turns over: a hint that the card does too
+    setTimeout(function () {
+      var b = card.querySelector(".pcard-flip");
+      if (!b || reduceMotion()) return;
+      b.classList.add("is-hinting");
+      b.addEventListener("animationend", function () { b.classList.remove("is-hinting"); }, { once: true });
+    }, gleam + 700);
   }
 
   /* The key figures under the hero count up once per page load, alongside the
@@ -622,6 +817,14 @@
       showStat(it, 0);
       return it;
     }).filter(Boolean);
+    window.addEventListener("beforeprint", finishStats);
+  }
+  /* printed before they've counted up (a phone that hasn't scrolled to them
+     yet), the figures print their real values, never zeros */
+  function finishStats() {
+    if (!stats) return;
+    stats.started = true;
+    stats.forEach(function (it) { if (it.vis.isConnected) it.el.textContent = it.full; });
   }
   function showStat(it, p) {
     it.vis.textContent = it.pre + (it.goal * (1 - Math.pow(1 - p, 3))).toFixed(it.dec).replace(".", it.sep) + it.post;
@@ -658,7 +861,8 @@
   /* the visible numbers tick up with their bars; assistive tech reads the
      real values from the sr-only text all along */
   function countUp(card, delay) {
-    var els = Array.prototype.slice.call(card.querySelectorAll(".pcard-ovr-num, .pa-val"));
+    // the front's numbers only: the back counts its own when it turns over
+    var els = Array.prototype.slice.call(card.querySelectorAll(":scope > .pcard-top .pcard-ovr-num, .pa-val"));
     if (!els.length || !window.requestAnimationFrame) return;
     var goal = els.map(function (el) { return +el.textContent || 0; });
     var lag = els.map(function (el) {
@@ -689,7 +893,9 @@
     var card = $("#player-card");
     if (!card || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     var box = null, x = 0.5, y = 0.5, raf = 0;
-    function canTilt(ev) { return ev.pointerType === "mouse" && !reduceMotion() && !card.classList.contains("is-revealing"); }
+    function canTilt(ev) {
+      return ev.pointerType === "mouse" && !reduceMotion() && !card.classList.contains("is-revealing") && !card.classList.contains("is-flipping");
+    }
     function start() { box = card.getBoundingClientRect(); card.classList.add("is-tilting"); }
     function paint() {
       raf = 0;
@@ -701,6 +907,7 @@
     }
     card.addEventListener("pointerenter", function (ev) { if (canTilt(ev)) start(); });
     card.addEventListener("pointermove", function (ev) {
+      if (card.classList.contains("is-flipping")) return;   // the turn ends on the tilt it started from
       if (!box) { if (!canTilt(ev)) return; start(); }   // e.g. the reveal ended under the pointer
       x = Math.max(0, Math.min(1, (ev.clientX - box.left) / box.width));
       y = Math.max(0, Math.min(1, (ev.clientY - box.top) / box.height));
@@ -2197,10 +2404,462 @@
     });
   }
 
+  /* ---------------------------- THE RENDEZVOUS ---------------------------- */
+  /* A live figure beside Contact: six robots, each talking only to its two
+     neighbours (a ring), agree on where to meet and close up into a hexagon
+     there. It is the real thing, in two layers:
+     - each robot keeps an estimate of the meeting point and pulls it toward
+       its two neighbours' estimates (a consensus protocol); robot 0 alone
+       also hears the leader: the mouse, or the figure's centre. So news of a
+       new meeting point travels round the ring: robot 0 moves first, its
+       neighbours next, the robot opposite it last, and the hexagon stretches
+       before it closes up again;
+     - each robot drives to its corner of the hexagon around its own estimate
+       (a damped tracker with a top speed, plus a light pull toward keeping
+       the shape), heading where it goes, its fading track behind it. A
+       hollow ring shows where it currently thinks its corner is.
+     The gains were tuned offline: a full scatter meets in about 2 to 3 s,
+     then the loop stops, so nothing moves on its own for more than 5 s
+     (WCAG 2.2.2). The mouse leads them; a click or tap, or the Scatter button,
+     scatters them and the stopwatch in the corner times how long they take to
+     meet again. It plays the first time it scrolls into view, and pauses off
+     screen or in a hidden tab. Colours come from the theme, the robots' from
+     the first six categories. Reduced motion (and crawlers) get a still
+     figure instead: one run, already solved, each robot's whole path drawn.
+     Decorative: the canvas is hidden from assistive tech, the caption says
+     what it shows and links to the timeline entry tagged "Consensus". */
+  var RDV = {
+    n: 6, step: 1 / 120,
+    ke: 12, kp: 16,                // estimate: pull toward each neighbour's, and (robot 0) toward the leader
+    w: 6, z: 0.85, kf: 1.5,        // tracker: natural frequency, damping, pull toward the shape
+    vmax: 3.2, vrun: 7,            // top speed regrouping / scattering, in hexagon radii per second
+    scatter: 420,                  // ms the robots spend scattering before they regroup
+    trail: 44,                     // frames of track kept behind each robot
+    meet: 0.03, rest: 0.002        // "met" (stopwatch), and "at rest" (loop stops), in radii
+  };
+  var rdv = null;
+
+  function rdvStill() { return reduceMotion() || BOT || !window.requestAnimationFrame; }
+  function rdvNum(s) { var t = s.toFixed(1); return LANG === "fr" ? t.replace(".", ",") : t; }
+  /* the timeline entry the caption links to: the first one tagged "Consensus" */
+  function rdvEntry() {
+    var tl = DATA.timeline || [];
+    for (var i = 0; i < tl.length; i++) {
+      if ((tl[i].tags || []).some(function (t) { return /^consensus$/i.test(String(t).trim()); })) return ENTRY_IDS[i];
+    }
+    return null;
+  }
+  /* the caption (re-written on a language switch; the robots carry on) */
+  function renderRendezvous() {
+    var fig = $("#rendezvous"), cap = fig && fig.querySelector(".rdv-cap");
+    if (!cap) return;
+    empty(cap);
+    var id = rdvEntry(), still = rdvStill();
+    var touch = !(window.matchMedia && window.matchMedia("(hover: hover)").matches);
+    cap.appendChild(h("p", {}, h("b", {}, T.rdv_title), " ", T.rdv_text,
+      id ? [T.rdv_asin, h("a", { href: "#" + id, onclick: jumpHandler(id) }, T.rdv_link)] : null, ")."));
+    cap.appendChild(h("p", { class: "rdv-hint" },
+      h("span", {}, still ? T.rdv_still : touch ? T.rdv_touch : T.rdv_mouse),
+      h("button", { class: "link-btn rdv-btn", type: "button", onclick: function () { rdvScatter(null); } },
+        still ? T.rdv_again : T.rdv_scatter)));
+    if (rdv) { rdv.fig.classList.toggle("is-still", still); rdv.label = null; rdvRead(performance.now()); }
+  }
+
+  /* a small seeded generator, so the still figure is the same run each load */
+  function rdvRand(seed) {
+    var s = (seed * 9301 + 49297) % 233280 || 1;
+    return function () { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  }
+  function rdvClamp(q) {
+    var r = rdv, mx = Math.max(0, r.bx - 1), my = Math.max(0, r.by - 1);
+    return [Math.max(-mx, Math.min(mx, q[0])), Math.max(-my, Math.min(my, q[1]))];
+  }
+  /* a pointer event's place, in hexagon radii from the figure's centre */
+  function rdvWorld(ev) {
+    var b = rdv.plot.getBoundingClientRect();
+    return [(ev.clientX - b.left - b.width / 2) / rdv.R, (ev.clientY - b.top - b.height / 2) / rdv.R];
+  }
+  /* scattered across the figure, a little apart; each robot's first guess at
+     the meeting point is simply where it stands */
+  function rdvSpread(rnd) {
+    var r = rdv, i, k, q, ok;
+    r.p = []; r.v = []; r.x = []; r.head = []; r.tr = [];
+    for (i = 0; i < r.n; i++) {
+      for (k = 0; k < 30; k++) {
+        q = [(rnd() * 2 - 1) * (r.bx - 0.4), (rnd() * 2 - 1) * (r.by - 0.4)];
+        ok = r.p.every(function (o) { return Math.hypot(o[0] - q[0], o[1] - q[1]) > 1.1; });
+        if (ok) break;
+      }
+      r.p.push(q);
+      r.v.push([0, 0]);
+      r.x.push([q[0] - r.d[i][0], q[1] - r.d[i][1]]);
+      r.head.push(Math.atan2(-q[1], -q[0]));
+      r.tr.push([[q[0], q[1]]]);
+    }
+  }
+  /* one step of the two layers (see above), h seconds */
+  function rdvStep(hs) {
+    var r = rdv, n = r.n, i, a, j, k;
+    var scattering = r.mode === "scatter";
+    if (!scattering) {
+      var nx = [];
+      for (i = 0; i < n; i++) {
+        var l = (i + n - 1) % n, rr = (i + 1) % n, o = [r.x[i][0], r.x[i][1]];
+        for (a = 0; a < 2; a++) {
+          var du = -RDV.ke * ((r.x[i][a] - r.x[l][a]) + (r.x[i][a] - r.x[rr][a]));
+          if (i === 0) du -= RDV.kp * (r.x[i][a] - r.L[a]);
+          o[a] += du * hs;
+        }
+        nx.push(o);
+      }
+      r.x = nx;
+    }
+    var w2 = RDV.w * RDV.w, c = 2 * RDV.z * RDV.w, vmax = scattering ? RDV.vrun : RDV.vmax;
+    for (i = 0; i < n; i++) {
+      var p = r.p[i], v = r.v[i], d = r.d[i];
+      for (a = 0; a < 2; a++) {
+        var target = scattering ? r.wp[i][a] : r.x[i][a] + d[a];
+        var u = w2 * (target - p[a]) - c * v[a];
+        if (!scattering) for (k = -1; k <= 1; k += 2) {
+          j = (i + k + n) % n;
+          u += RDV.kf * ((r.p[j][a] - r.d[j][a]) - (p[a] - d[a]));
+        }
+        v[a] += u * hs;
+      }
+      var sp = Math.hypot(v[0], v[1]);
+      if (sp > vmax) { v[0] *= vmax / sp; v[1] *= vmax / sp; }
+    }
+    for (i = 0; i < n; i++) { r.p[i][0] += r.v[i][0] * hs; r.p[i][1] += r.v[i][1] * hs; }
+  }
+  /* how far the formation is from closed up around the leader, in radii */
+  function rdvErr() {
+    var r = rdv, e = 0;
+    for (var i = 0; i < r.n; i++) e = Math.max(e, Math.hypot(r.p[i][0] - r.d[i][0] - r.L[0], r.p[i][1] - r.d[i][1] - r.L[1]));
+    return e;
+  }
+  function rdvOnCorner(i) {
+    var r = rdv;
+    return Math.hypot(r.p[i][0] - r.L[0] - r.d[i][0], r.p[i][1] - r.L[1] - r.d[i][1]) < 0.15;
+  }
+  function rdvAtRest() {
+    var r = rdv;
+    if (r.mode !== "run") return false;
+    for (var i = 0; i < r.n; i++) {
+      if (Math.hypot(r.v[i][0], r.v[i][1]) > 0.01) return false;
+      if (Math.hypot(r.x[i][0] - r.L[0], r.x[i][1] - r.L[1]) > RDV.rest) return false;
+    }
+    return rdvErr() < RDV.rest * 4;
+  }
+
+  /* the figure's size: the canvas at the screen's pixel density, one hexagon
+     radius (the unit everything is counted in) a fifth of its height */
+  function rdvSize() {
+    var r = rdv, W = r.plot.clientWidth, H = r.plot.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!W || !H) return false;
+    r.W = W; r.H = H; r.dpr = dpr;
+    r.canvas.width = Math.round(W * dpr);
+    r.canvas.height = Math.round(H * dpr);
+    r.R = Math.max(26, Math.min(54, Math.min(W, H) * 0.2));
+    r.bx = (W / 2 - 14) / r.R;
+    r.by = (H / 2 - 14) / r.R;
+    r.L = rdvClamp(r.L);
+    return true;
+  }
+  function rdvColors() {
+    var r = rdv, cs = window.getComputedStyle(r.fig);
+    function v(name, fb) { return (cs.getPropertyValue(name) || "").trim() || fb; }
+    r.ink = { text: v("--text", "#16202e"), accent: v("--accent", "#2563eb"), bg: v("--bg", "#f5f6f9") };
+  }
+
+  /* -- drawing -- */
+  function rdvDraw() {
+    var r = rdv, g = r.ctx, R = r.R, W = r.W, H = r.H, cx = W / 2, cy = H / 2, i, k, ink = r.ink;
+    if (!W) return;
+    function X(q) { return cx + q[0] * R; }
+    function Y(q) { return cy + q[1] * R; }
+    g.setTransform(r.dpr, 0, 0, r.dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    // the floor: a sparse lattice, one dot per radius, centred on home
+    g.fillStyle = ink.text;
+    g.globalAlpha = 0.13;
+    var x0 = cx - Math.floor(cx / R) * R, y0 = cy - Math.floor(cy / R) * R;
+    for (var gx = x0; gx < W; gx += R) for (var gy = y0; gy < H; gy += R) g.fillRect(gx - 0.75, gy - 0.75, 1.5, 1.5);
+    g.lineCap = "round"; g.lineJoin = "round";
+    // tracks: the whole run (still figure), or the last moments (live), fading out
+    for (i = 0; i < r.n; i++) {
+      var path = r.paths ? r.paths[i] : r.tr[i];
+      g.strokeStyle = r.cols[i];
+      g.lineWidth = 1.6;
+      if (r.paths) {
+        g.globalAlpha = 0.42;
+        g.beginPath();
+        path.forEach(function (q, m) { if (m) g.lineTo(X(q), Y(q)); else g.moveTo(X(q), Y(q)); });
+        g.stroke();
+        g.globalAlpha = 0.6; g.lineWidth = 1.2;   // where it started: a small hollow dot
+        g.beginPath(); g.arc(X(path[0]), Y(path[0]), 2.6, 0, 7); g.stroke();
+      } else {
+        for (k = 1; k < path.length; k++) {
+          g.globalAlpha = 0.5 * k / path.length;
+          g.beginPath(); g.moveTo(X(path[k - 1]), Y(path[k - 1])); g.lineTo(X(path[k]), Y(path[k])); g.stroke();
+        }
+      }
+    }
+    // the ring: who talks to whom (it closes into the hexagon's outline)
+    g.strokeStyle = ink.text; g.lineWidth = 1; g.globalAlpha = 0.24;
+    g.beginPath();
+    for (i = 0; i <= r.n; i++) { var q = r.p[i % r.n]; if (i) g.lineTo(X(q), Y(q)); else g.moveTo(X(q), Y(q)); }
+    g.stroke();
+    // each robot's current idea of its corner (only while it's off it)
+    g.lineWidth = 1.2;
+    for (i = 0; i < r.n; i++) {
+      if (r.mode === "scatter") break;
+      var t = [r.x[i][0] + r.d[i][0], r.x[i][1] + r.d[i][1]];
+      var off = Math.hypot(t[0] - r.p[i][0], t[1] - r.p[i][1]);
+      if (off < 0.12) continue;
+      g.strokeStyle = r.cols[i]; g.globalAlpha = Math.min(0.55, off);
+      g.beginPath(); g.arc(X(t), Y(t), 3.2, 0, 7); g.stroke();
+    }
+    // the leader, and the one link to it (robot 0's)
+    var lx = X(r.L), ly = Y(r.L);
+    g.strokeStyle = ink.accent;
+    var link = Math.hypot(r.p[0][0] - r.L[0], r.p[0][1] - r.L[1]);
+    if (link > 0.15) {
+      g.globalAlpha = 0.6; g.setLineDash([3, 4]);
+      g.beginPath(); g.moveTo(X(r.p[0]), Y(r.p[0])); g.lineTo(lx, ly); g.stroke();
+      g.setLineDash([]);
+    }
+    g.globalAlpha = r.lead ? 0.95 : 0.5; g.lineWidth = 1.3;
+    g.beginPath(); g.arc(lx, ly, 5.5, 0, 7);
+    g.moveTo(lx - 10, ly); g.lineTo(lx - 7.5, ly); g.moveTo(lx + 7.5, ly); g.lineTo(lx + 10, ly);
+    g.moveTo(lx, ly - 10); g.lineTo(lx, ly - 7.5); g.moveTo(lx, ly + 7.5); g.lineTo(lx, ly + 10);
+    g.stroke();
+    // the robots: a dart pointing where each one heads, outlined in the floor's colour
+    g.globalAlpha = 1;
+    for (i = 0; i < r.n; i++) {
+      var p = r.p[i], a = r.head[i], s = Math.sin(a), co = Math.cos(a);
+      var pts = [[8, 0], [-5.5, -5.5], [-2.6, 0], [-5.5, 5.5]].map(function (o) { return [X(p) + o[0] * co - o[1] * s, Y(p) + o[0] * s + o[1] * co]; });
+      g.beginPath();
+      pts.forEach(function (o, m) { if (m) g.lineTo(o[0], o[1]); else g.moveTo(o[0], o[1]); });
+      g.closePath();
+      g.lineWidth = 3; g.strokeStyle = ink.bg; g.stroke();
+      g.fillStyle = r.cols[i]; g.fill();
+    }
+    g.globalAlpha = 1;
+  }
+  /* the stopwatch in the corner (text only changes when it needs to) */
+  function rdvRead(now) {
+    var r = rdv, txt = "", met = false;
+    if (r.lead) txt = T.rdv_follow;
+    else if (r.met != null) { txt = T.rdv_met(rdvNum(r.met)); met = true; }
+    else if (r.t0) txt = T.rdv_t(rdvNum(r.mode === "scatter" ? 0 : Math.max(0, (now - r.t0) / 1000)));
+    if (txt === r.label) return;
+    r.label = txt;
+    r.read.textContent = txt;
+    r.read.classList.toggle("is-met", met);
+  }
+
+  /* -- the loop -- */
+  function rdvGo() {
+    var r = rdv;
+    if (!r || r.raf || !r.seen || !r.onScreen || document.hidden || rdvStill()) return;
+    if (r.pausedAt) {   // the stopwatch doesn't count time spent off screen
+      var gap = performance.now() - r.pausedAt;
+      if (r.t0) r.t0 += gap;
+      r.dispUntil += gap;
+      r.pausedAt = 0;
+    }
+    r.last = 0;
+    r.quiet = 0;
+    r.raf = requestAnimationFrame(rdvFrame);
+  }
+  function rdvFrame(now) {
+    var r = rdv, i;
+    r.raf = 0;
+    if (!r.onScreen || document.hidden) { r.pausedAt = performance.now(); return; }
+    var dt = r.last ? Math.min(0.05, (now - r.last) / 1000) : 1 / 60;
+    r.last = now;
+    if (r.mode === "scatter" && now >= r.dispUntil) {
+      // regroup: every robot starts again from its own guess, and the clock starts
+      r.mode = "run";
+      for (i = 0; i < r.n; i++) r.x[i] = [r.p[i][0] - r.d[i][0], r.p[i][1] - r.d[i][1]];
+      if (!r.lead) r.t0 = now;
+    }
+    for (var k = Math.max(1, Math.round(dt / RDV.step)); k > 0; k--) rdvStep(RDV.step);
+    for (i = 0; i < r.n; i++) {
+      // each one turns toward where it's going, quickly but not at once; once
+      // it's on its corner, it turns to face the meeting point: they've met
+      var v = r.v[i], sp = Math.hypot(v[0], v[1]), want = null;
+      if (sp > 0.12) want = Math.atan2(v[1], v[0]);
+      else if (r.mode === "run" && rdvOnCorner(i)) want = Math.atan2(r.L[1] - r.p[i][1], r.L[0] - r.p[i][0]);
+      if (want != null) {
+        var diff = Math.atan2(Math.sin(want - r.head[i]), Math.cos(want - r.head[i]));
+        r.head[i] += diff * Math.min(1, dt * (sp > 0.12 ? 14 : 7));
+      }
+      r.tr[i].push([r.p[i][0], r.p[i][1]]);
+      if (r.tr[i].length > RDV.trail) r.tr[i].shift();
+    }
+    if (r.mode === "run" && r.met == null && r.t0 && !r.lead && rdvErr() < RDV.meet) r.met = (now - r.t0) / 1000;
+    // at rest: let the tracks run out behind them, then stop
+    if (rdvAtRest()) r.quiet++; else r.quiet = 0;
+    var done = r.quiet > RDV.trail;
+    if (done) {
+      for (i = 0; i < r.n; i++) {
+        r.p[i] = [r.L[0] + r.d[i][0], r.L[1] + r.d[i][1]]; r.v[i] = [0, 0]; r.x[i] = [r.L[0], r.L[1]];
+        r.tr[i] = [r.p[i].slice()]; r.head[i] = Math.atan2(-r.d[i][1], -r.d[i][0]);
+      }
+    }
+    rdvDraw();
+    rdvRead(now);
+    if (!done) r.raf = requestAnimationFrame(rdvFrame);
+  }
+
+  /* Scatter (a click or tap, at that point; the button, round the centre):
+     each robot dashes off outward, then they regroup from scratch and the
+     stopwatch times it. Still figure: another run, solved at once. */
+  function rdvScatter(at) {
+    var r = rdv;
+    if (!r) return;
+    if (rdvStill()) { r.seed++; rdvSolve(); return; }
+    var c = [0, 0], i;
+    r.p.forEach(function (q) { c[0] += q[0] / r.n; c[1] += q[1] / r.n; });
+    r.wp = r.p.map(function (q) {
+      var a = Math.atan2(q[1] - c[1], q[0] - c[0]) + (Math.random() - 0.5) * 1.8, len = 1.6 + Math.random() * 2;
+      return [Math.max(-r.bx + 0.3, Math.min(r.bx - 0.3, q[0] + Math.cos(a) * len)),
+              Math.max(-r.by + 0.3, Math.min(r.by - 0.3, q[1] + Math.sin(a) * len))];
+    });
+    for (i = 0; i < r.n; i++) r.tr[i] = [r.p[i].slice()];
+    r.L = at ? rdvClamp(at) : [0, 0];
+    r.lead = false;                        // timed, until the mouse moves again
+    r.mode = "scatter";
+    r.dispUntil = performance.now() + RDV.scatter;
+    r.paths = null;
+    r.met = null;
+    r.t0 = performance.now();
+    r.seen = true;
+    rdvGo();
+  }
+  /* The still figure: a scatter, solved offline, with every robot's whole
+     path (reduced motion, crawlers). Same seed, same figure. */
+  function rdvSolve() {
+    var r = rdv, i, k;
+    if (r.raf) { cancelAnimationFrame(r.raf); r.raf = 0; }
+    rdvSpread(rdvRand(r.seed));
+    r.L = [0, 0]; r.lead = false; r.mode = "run";
+    var paths = r.p.map(function (q) { return [q.slice()]; }), t = 0, met = null;
+    for (k = 1; k <= 8 * 120; k++) {
+      rdvStep(RDV.step);
+      t += RDV.step;
+      if (k % 3 === 0) for (i = 0; i < r.n; i++) paths[i].push(r.p[i].slice());
+      for (i = 0; i < r.n; i++) if (Math.hypot(r.v[i][0], r.v[i][1]) > 0.12) r.head[i] = Math.atan2(r.v[i][1], r.v[i][0]);
+      if (met == null && rdvErr() < RDV.meet) met = t;
+      if (met != null && t > met + 0.6) break;
+    }
+    for (i = 0; i < r.n; i++) {
+      r.p[i] = [r.d[i][0], r.d[i][1]]; r.v[i] = [0, 0]; r.x[i] = [0, 0];
+      r.head[i] = Math.atan2(-r.d[i][1], -r.d[i][0]);   // met: facing each other
+      paths[i].push(r.p[i].slice());
+    }
+    r.paths = paths;
+    r.met = met;
+    r.t0 = 1;
+    rdvDraw();
+    rdvRead(0);
+  }
+
+  function initRendezvous() {
+    var fig = $("#rendezvous"), plot = fig && fig.querySelector(".rdv-plot");
+    if (!plot) return;
+    var canvas = h("canvas", { class: "rdv-canvas", "aria-hidden": "true" });
+    var ctx = canvas.getContext && canvas.getContext("2d");
+    if (!ctx) return;   // no canvas: the figure stays hidden
+    var read = h("span", { class: "rdv-read", "aria-hidden": "true" });
+    plot.appendChild(canvas);
+    plot.appendChild(read);
+    fig.hidden = false;
+    var inner = fig.closest(".footer-inner");
+    if (inner) inner.classList.add("has-rdv");
+    var cols = (DATA.categories || []).slice(0, RDV.n).map(function (c) { return c.color; });
+    while (cols.length < RDV.n) cols.push("#64748b");
+    rdv = { fig: fig, plot: plot, canvas: canvas, ctx: ctx, read: read, cols: cols, n: RDV.n,
+            d: [], p: [], v: [], x: [], head: [], tr: [], wp: null, paths: null,
+            L: [0, 0], lead: false, mode: "run", t0: 0, met: null, label: null,
+            raf: 0, last: 0, quiet: 0, seen: false, onScreen: false, pausedAt: 0, dispUntil: 0, seed: 7,
+            W: 0, H: 0, R: 30, bx: 4, by: 3, dpr: 1, ink: null };
+    for (var i = 0; i < RDV.n; i++) {   // the hexagon, robot 0 at the top
+      var a = -Math.PI / 2 + i * Math.PI / 3;
+      rdv.d.push([Math.cos(a), Math.sin(a)]);
+    }
+    rdvColors();
+    rdvSize();
+    fig.classList.toggle("is-still", rdvStill());
+    // until it's seen, the robots wait where they are, scattered
+    if (rdvStill()) rdvSolve(); else { rdvSpread(rdvRand(rdv.seed)); rdvDraw(); }
+
+    // the mouse leads them (touch has no hover: a tap scatters them there)
+    plot.addEventListener("pointermove", function (ev) {
+      if (ev.pointerType === "touch" || rdvStill()) return;
+      var q = rdvClamp(rdvWorld(ev));
+      if (rdv.lead && Math.hypot(q[0] - rdv.L[0], q[1] - rdv.L[1]) < 0.02) return;
+      rdv.L = q;
+      rdv.lead = true;
+      rdv.met = null;
+      rdv.seen = true;
+      rdvGo();
+      rdvRead(performance.now());
+    });
+    plot.addEventListener("pointerleave", function (ev) {
+      if (ev.pointerType === "touch" || !rdv.lead) return;
+      rdv.lead = false;                    // back home, timed
+      rdv.L = [0, 0];
+      rdv.met = null;
+      rdv.t0 = performance.now();
+      rdvGo();
+    });
+    plot.addEventListener("click", function (ev) { rdvScatter(rdvWorld(ev)); });
+
+    // plays the first time most of it is in view; pauses off screen, resumes on return
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        var e = entries[entries.length - 1];
+        rdv.onScreen = e.isIntersecting;
+        if (!rdv.seen && e.intersectionRatio >= 0.45) { rdv.seen = true; rdv.t0 = performance.now(); }
+        if (rdv.onScreen) rdvGo();
+      }, { threshold: [0, 0.45] }).observe(plot);
+    } else { rdv.onScreen = true; rdv.seen = true; rdv.t0 = performance.now(); rdvGo(); }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) rdvGo(); });
+    // a new size or theme redraws it (also mid-transition: the theme's circle
+    // reveal captures the redrawn canvas); a change of the motion setting
+    // swaps between the live and the still figure
+    if ("ResizeObserver" in window) new ResizeObserver(function () { if (rdvSize()) rdvDraw(); }).observe(plot);
+    new MutationObserver(function () { rdvColors(); rdvDraw(); })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    var mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq && mq.addEventListener) mq.addEventListener("change", function () {
+      renderRendezvous();
+      if (rdvStill()) rdvSolve();
+      else { rdv.paths = null; rdvSpread(rdvRand(rdv.seed)); rdv.t0 = performance.now(); rdv.met = null; rdvDraw(); rdvGo(); }
+    });
+  }
+
+  /* A hello for whoever opens the browser's console, with two things to try. */
+  function greet() {
+    var p = DATA.profile || {}, user = String(p.github || "").replace(/\/+$/, "").split("/").pop();
+    if (BOT || !window.console || !console.log) return;
+    try {
+      console.log("%cecs%c  Hi, and thanks for looking under the hood.\n\n" +
+        "This page is plain HTML, CSS and JavaScript, with no framework.\n" +
+        "Two things to try: turn the player card over, and lead the robots beside the contact links.\n" +
+        (user ? "\nSource: https://github.com/" + user + "/" + user + ".github.io" : ""),
+        "font: 700 15px/1.6 'Roboto Mono', monospace; color: #fff; background: #1b2a4a; padding: 2px 9px; border-radius: 6px;",
+        "font: 13px/1.6 'Roboto Mono', monospace;");
+    } catch (e) {}
+  }
+
   /* -------------------------------- INIT ---------------------------------- */
   /* Motion, in one place: the intro hands over to the header mark (index.html);
      the player card is revealed, its ratings and the key figures count up,
-     then it tilts under the mouse (renderCard, revealStats, initCardTilt);
+     then it tilts under the mouse (renderCard, revealStats, initCardTilt)
+     and turns over to its career numbers (flipCard);
      cards rise in 3D as they scroll in (pure CSS, styles.css "Card motion");
      resting on a card projects it, blurring the rest (showPeek, project); a
      card's details unfold when opened (morphLevel); filtering, searching,
@@ -2210,7 +2869,9 @@
      cross-fades (switchTheme, initLang); the header's underline follows the
      section you're in (placeInk) and a hairline under it shows how far down
      the page you are (CSS); a light follows the mouse over the Highlights
-     (initSpotlight). Every piece has a reduced-motion path. */
+     (initSpotlight); six robots meet beside Contact ("THE RENDEZVOUS"); the
+     footer's copy button ticks (copyButton). Every piece has a reduced-motion
+     path. */
   /* Everything that reads content out of data.js, re-run on a language swap.
      Anything rendered into a container here must also be in setLang()'s
      list of containers to empty. */
@@ -2222,6 +2883,7 @@
     renderHighlights();   // these two read the records renderTimeline builds
     renderMap();
     renderSkills();
+    renderRendezvous();
   }
 
   initTheme();
@@ -2237,8 +2899,11 @@
     updateExpandAll();
   }
   initCardTilt();
+  initCardFlip();
   initSpotlight();
   initChrome();
+  initRendezvous();
+  greet();
   // the page body was kept unpainted until now (html.app-pending in styles.css):
   // it appears already rendered, with no static-to-interactive swap or layout shift
   document.documentElement.classList.remove("app-pending");
