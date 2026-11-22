@@ -543,6 +543,15 @@ layout stops a French version later.
 
 ---
 
+## License
+
+The code (HTML, CSS, JavaScript, build tools) is MIT-licensed. The personal
+content is all rights reserved: the portfolio text in `assets/js/data.js`, the
+images in `assets/images/`, the blog posts and the "ecs" mark. The fonts keep
+their own SIL Open Font License. Details in [`LICENSE`](LICENSE).
+
+---
+
 ## File map
 
 ```
@@ -569,6 +578,7 @@ portfolio/
 ├── sitemap.xml             # generated: every page with its last-modified date
 ├── 404.html                # generated: the "page not found" page
 ├── .nojekyll               # tells GitHub Pages to serve files as-is
+├── LICENSE                 # MIT for the code, all rights reserved for the content
 └── README.md               # this file
 ```
 
