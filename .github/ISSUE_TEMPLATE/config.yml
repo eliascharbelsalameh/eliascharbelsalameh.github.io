@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/eliascharbelsalameh/eliascharbelsalameh.github.io/security/policy
+    about: Please report it privately, not in a public issue.
+  - name: Get in touch
+    url: https://eliascharbelsalameh.github.io/#contact
+    about: For anything else, such as work or a collaboration, the contact links are at the bottom of the site.

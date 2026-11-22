@@ -1,0 +1,50 @@
+name: Report a problem
+description: A broken link, a typo, something that displays wrongly, or an accessibility barrier.
+title: "Problem: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. For a security problem, please don't use this form: see the [security policy](https://github.com/eliascharbelsalameh/eliascharbelsalameh.github.io/security/policy).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem?
+      options:
+        - Broken link or missing image
+        - Typo or wrong information
+        - Display or layout problem
+        - Animation or interaction problem
+        - Accessibility barrier
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page where it happens.
+      placeholder: https://eliascharbelsalameh.github.io/
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead. A screenshot helps.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      description: Include any assistive technology, such as a screen reader or zoom.
+      placeholder: e.g. Firefox on Windows 11, Safari on iPhone with VoiceOver
+  - type: checkboxes
+    id: settings
+    attributes:
+      label: Settings that were on (if you know)
+      options:
+        - label: Dark theme
+        - label: French
+        - label: Reduce motion

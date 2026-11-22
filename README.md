@@ -550,6 +550,10 @@ content is all rights reserved: the portfolio text in `assets/js/data.js`, the
 images in `assets/images/`, the blog posts and the "ecs" mark. The fonts keep
 their own SIL Open Font License. Details in [`LICENSE`](LICENSE).
 
+Problem reports are welcome; see [`CONTRIBUTING.md`](.github/CONTRIBUTING.md),
+the [security policy](.github/SECURITY.md) and the
+[accessibility statement](ACCESSIBILITY.md).
+
 ---
 
 ## File map
@@ -573,7 +577,14 @@ portfolio/
 ├── tools/
 │   ├── build.mjs           # node tools/build.mjs: blog + static copy + sitemap
 │   └── og-cover.html       # source of the link-preview image
-├── .github/workflows/      # the "generated files up to date" check
+├── .github/
+│   ├── workflows/          # the "generated files up to date" check
+│   ├── ISSUE_TEMPLATE/     # the "Report a problem" form
+│   ├── CONTRIBUTING.md     # how to report problems; code PRs only, no content PRs
+│   ├── CODE_OF_CONDUCT.md  # Contributor Covenant 2.1, in short
+│   ├── SECURITY.md         # report vulnerabilities privately, by email
+│   └── pull_request_template.md
+├── ACCESSIBILITY.md        # accessibility statement: what works, known limits, how to report
 ├── robots.txt              # lets crawlers in, points at the sitemap
 ├── sitemap.xml             # generated: every page with its last-modified date
 ├── 404.html                # generated: the "page not found" page
