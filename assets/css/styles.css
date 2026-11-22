@@ -62,6 +62,8 @@
   /* the light that follows the mouse over a Highlights tile: at its brightest,
      the faintest text on a tile keeps 4.5:1 with any category colour */
   --glow: 8%;
+  /* the dot grid under every page ("Grid paper") */
+  --grid-dot: color-mix(in srgb, var(--text) 10%, transparent);
 
   --shadow-sm: 0 1px 2px rgba(16, 28, 46, .06), 0 2px 8px rgba(16, 28, 46, .05);
   --shadow-md: 0 6px 22px rgba(16, 28, 46, .10);
@@ -97,6 +99,7 @@ html[data-theme="dark"] {
   --accent-ink: #0d1220;
   --ink-mix: 55%;
   --glow: 13%;
+  --grid-dot: color-mix(in srgb, var(--text) 8%, transparent);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3), 0 2px 10px rgba(0, 0, 0, .25);
   --shadow-md: 0 8px 28px rgba(0, 0, 0, .4);
   --shadow-lift: 0 28px 60px -16px rgba(0, 0, 0, .7), 0 10px 24px -10px rgba(0, 0, 0, .5);
@@ -130,6 +133,9 @@ button, input { font: inherit; }
 h1, h2, h3, h4 { font-family: var(--font-mono); line-height: 1.2; letter-spacing: -.02em; margin: 0; }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
+/* links inside a line of text are underlined: next to grey text, colour
+   alone doesn't tell them apart (WCAG 1.4.1) */
+.footer-note a, .section-sub a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
 img { max-width: 100%; display: block; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.9; }
 
@@ -262,7 +268,9 @@ html.vt-theme::view-transition-new(root) { animation: theme-reveal .62s cubic-be
 }
 
 /* -------------------------------- Hero ------------------------------------ */
-.hero { padding: clamp(2rem, 5vw, 4rem) 0 clamp(2rem, 4vw, 3rem); }
+.hero { position: relative; isolation: isolate; overflow: clip; padding: clamp(2rem, 5vw, 4rem) 0 clamp(2rem, 4vw, 3rem); }
+/* Hero rover: the canvas assets/js/rover.js draws on, behind everything in the hero */
+.hero-fx { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
 .hero-inner {
   display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   grid-template-areas: "text visual" "stats stats";
@@ -275,6 +283,13 @@ html.vt-theme::view-transition-new(root) { animation: theme-reveal .62s cubic-be
 }
 .hero-stats { grid-area: stats; }
 .hero-name { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -.035em; line-height: 1.1; margin-bottom: .55rem; }
+/* the name, letter by letter, so it can settle like a split-flap board
+   (app.js flapName). Roboto Mono: every glyph is the same width, so nothing
+   moves while they flip. The sr-only copy is what assistive tech reads, and
+   it stays out of a copy-paste of the visible name. */
+.flap-word { white-space: nowrap; }
+.flap-ch { display: inline-block; transform-origin: 50% 55%; }
+.hero-name .sr-only { -webkit-user-select: none; user-select: none; }
 /* the role, right under the name: who, then what, read as one statement */
 .hero-role {
   margin: 0 0 .6rem; font-weight: 600; font-size: var(--fs-body); line-height: 1.45;
@@ -1007,6 +1022,150 @@ html[data-theme="dark"] .pcard-sweep {
 .footer-cta h2 { font-size: var(--fs-h2); }
 .footer-links { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.3rem; }
 .footer-note { margin-top: 2.5rem; color: var(--text-muted); font-size: var(--fs-meta); }
+.footer-lead { margin: .55rem 0 0; font-size: var(--fs-lead); font-weight: 500; line-height: 1.4; color: var(--text); }
+
+/* ----------------------------- Footer finale ------------------------------ */
+/* Home page: beside the contact links, a step response (index.html .settle):
+   the output y(t) overshoots, rings and settles on its setpoint, within the
+   ±2% band from t_s on. It draws itself as the footer scrolls into view
+   (tied to the scroll, so it never plays on its own), and the end point
+   lights up as it settles. Where unsupported, or under reduced motion, it's
+   simply there, drawn. */
+.page-home .footer-inner {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 1.5rem clamp(1.5rem, 5vw, 4rem); align-items: center;
+}
+.page-home .footer-note { grid-column: 1 / -1; margin-top: 1.5rem; }
+.settle { margin: 0; color: var(--text-muted); min-width: 0; }
+.settle svg { display: block; width: 100%; height: auto; overflow: visible; }
+.settle-axis { stroke: var(--border-strong); stroke-width: 1.2; }
+.settle-ref, .settle-ts { stroke: var(--text-muted); stroke-width: 1.2; stroke-dasharray: 4 5; opacity: .7; }
+.settle-band { fill: color-mix(in srgb, var(--ok) 26%, transparent); stroke: none; }
+.settle-y { stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+.settle-end { fill: var(--accent); stroke: var(--surface); stroke-width: 3; }
+.settle-lbl { fill: var(--text-muted); stroke: none; font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+.settle-lbl-y { fill: var(--accent); }
+@keyframes settle-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes settle-pop { from { opacity: 0; transform: scale(.2); } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .settle-y { stroke-dasharray: 1 1; animation: settle-draw linear both; animation-timeline: --foot; animation-range: entry 5% entry 85%; }
+    .settle-end, .settle-band, .settle-ts, .settle-lbl-ts {
+      transform-box: fill-box; transform-origin: center;
+      animation: settle-pop linear both; animation-timeline: --foot; animation-range: entry 70% entry 92%;
+    }
+  }
+}
+@media (max-width: 860px) {
+  .page-home .footer-inner { grid-template-columns: minmax(0, 1fr); }
+  .settle { max-width: 34rem; }
+}
+
+/* the e-mail address and its copy button, one split pill */
+.mail-pair { display: inline-flex; }
+.mail-pair .btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right-width: 0; }
+.copy-btn {
+  position: relative; padding-inline: .8rem; border-top-left-radius: 0; border-bottom-left-radius: 0;
+}
+.copy-btn svg { transition: transform .25s var(--ease-out), opacity .2s; }
+.copy-btn .ico-done { position: absolute; left: 50%; top: 50%; margin: -8px 0 0 -8px; opacity: 0; transform: scale(.4); color: var(--ok); }
+.copy-btn.is-done .ico-copy { opacity: 0; transform: scale(.4); }
+.copy-btn.is-done .ico-done { opacity: 1; transform: none; }
+/* "Copied", floating up over the button for a moment (the status region says it to assistive tech) */
+.copy-btn::after {
+  content: attr(data-done); position: absolute; left: 50%; bottom: calc(100% + 8px); translate: -50% 4px;
+  padding: .2rem .55rem; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  background: var(--primary); color: var(--primary-ink); font-size: var(--fs-micro); font-weight: 700;
+  opacity: 0; transition: opacity .2s var(--ease), translate .3s var(--ease-out);
+}
+.copy-btn.is-done::after { opacity: 1; translate: -50% 0; }
+
+/* the way into the terminal (footer) */
+.term-open-wrap[hidden] { display: none; }
+.term-open {
+  display: inline-flex; align-items: center; gap: .4rem; min-height: 28px; padding: .1rem .2rem;
+  background: none; border: 0; color: var(--accent); cursor: pointer;
+  font-family: var(--font-mono); font-size: var(--fs-meta); font-weight: 600;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em;
+}
+.term-open .term-prompt { text-decoration: none; }
+.term-open kbd {
+  font-family: var(--font-mono); font-size: var(--fs-micro); line-height: 1; color: var(--text-muted);
+  background: var(--surface-2); border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 5px; padding: .12rem .34rem;
+}
+@media (hover: none) { .term-open kbd { display: none; } }
+
+/* -------------------------------- Terminal -------------------------------- */
+/* A real little shell over the page (app.js "TERMINAL"): commands read the
+   same data.js as the page. It is dark in both themes, like a terminal, in
+   its own fixed colours, every one 4.5:1 or better on its background. */
+.term {
+  --t-bg: #0a0f1c; --t-bar: #141b2d; --t-fg: #dbe5ff; --t-dim: #8d9bb8; --t-acc: #82a8ff;
+  --t-ok: #4ade80; --t-err: #fb8c8c; --t-warn: #facc15;
+  width: min(44rem, calc(100vw - 2rem)); max-height: min(34rem, calc(100dvh - 2rem));
+  padding: 0; border: 1px solid #2a3550; border-radius: 12px; background: var(--t-bg); color: var(--t-fg);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .03);
+  overflow: hidden;
+}
+.term::backdrop { background: rgba(5, 8, 16, .55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.term-win { display: flex; flex-direction: column; height: min(34rem, calc(100dvh - 2rem)); }
+.term-bar { display: flex; align-items: center; gap: .8rem; padding: .55rem .6rem .55rem .9rem; background: var(--t-bar); border-bottom: 1px solid #222c44; }
+.term-lights { display: inline-flex; gap: 6px; }
+.term-lights i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.term-lights i:nth-child(2) { background: #febc2e; }
+.term-lights i:nth-child(3) { background: #28c840; }
+.term-title { flex: 1; margin: 0; text-align: center; font-size: var(--fs-meta); font-weight: 600; letter-spacing: .02em; color: var(--t-dim); }
+.term-x {
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; flex: none; cursor: pointer;
+  background: none; border: 0; color: var(--t-dim);
+}
+.term-x:hover { background: rgba(255, 255, 255, .08); color: var(--t-fg); }
+.term :focus-visible { outline-color: var(--t-acc); }
+.term-out {
+  flex: 1; overflow-y: auto; padding: .9rem 1.1rem .4rem; overscroll-behavior: contain;
+  font-family: var(--font-mono); font-size: var(--fs-ui); line-height: 1.6;
+  scrollbar-color: #36425e var(--t-bg);
+}
+.term-l { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.term-l.is-in { animation: term-in .18s var(--ease-out); }
+@keyframes term-in { from { opacity: 0; transform: translateY(3px); } }
+.term-cmd { color: var(--t-fg); }
+.term-cmd .term-ps { color: var(--t-ok); }
+.term-dim { color: var(--t-dim); }
+.term-acc { color: var(--t-acc); }
+.term-ok { color: var(--t-ok); }
+.term-err { color: var(--t-err); }
+.term-warn { color: var(--t-warn); }
+.term-out a { color: var(--t-acc); text-decoration: underline; text-underline-offset: .18em; }
+/* the ratings, as bars ("skills") */
+.term-meter {
+  display: inline-block; width: 12ch; height: .55em; vertical-align: .05em; border-radius: 2px;
+  background: linear-gradient(90deg, var(--t-acc) calc(var(--v) * 1%), #26314b 0);
+}
+.term-line { display: flex; align-items: center; gap: .6rem; padding: .55rem 1.1rem .9rem; font-family: var(--font-mono); font-size: var(--fs-ui); }
+.term-ps1 { color: var(--t-ok); white-space: nowrap; }
+.term-in {
+  flex: 1; min-width: 0; border: 0; outline: none; background: none; padding: .25rem 0;
+  color: var(--t-fg); caret-color: var(--t-acc); font-family: var(--font-mono); font-size: var(--fs-ui);
+}
+.term:not([open]) { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .term[open] { animation: term-open .32s var(--ease-out); }
+  .term[open]::backdrop { animation: fade-in .3s var(--ease); }
+}
+@keyframes term-open { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+@media (max-width: 560px) {
+  .term-out, .term-line { font-size: var(--fs-meta); }
+  .term-ps1 { display: none; }
+  .term-line::before { content: "$"; color: var(--t-ok); }
+}
+
+/* ------------------------------ Page changes ------------------------------ */
+/* moving between the home page and the blog cross-fades instead of flashing
+   white (a cross-document view transition; browsers without them just load) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
 
 /* ----------------------------- Highlights --------------------------------- */
 /* the featured links: the one card type that stays raised (border + shadow) */
@@ -1056,6 +1215,23 @@ html[data-theme="dark"] .pcard-sweep {
 }
 .hl-go-ico { display: inline-flex; transition: transform .25s var(--ease-out); }
 .hl-tile:hover .hl-go-ico { transform: translateX(4px); }
+/* with a mouse, a tile also tips toward the pointer, like the player card,
+   and a light runs round its border where the pointer is (app.js
+   initSpotlight sets --mx / --my and the tilt) */
+.hl-tile::after {
+  content: ""; position: absolute; inset: -1px; z-index: 1; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(11rem circle at var(--mx, 50%) var(--my, 0%), var(--cat), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hl-grid { perspective: 1300px; }
+  .hl-tile { transition: rotate .6s var(--ease-out), box-shadow .2s var(--ease), border-color .2s; }
+  .hl-tile.is-tilting { transition: rotate .12s linear, box-shadow .2s var(--ease), border-color .2s; }
+  .hl-tile:hover::after { opacity: 1; }
+}
 
 /* ----------------------------- Career map --------------------------------- */
 /* sits on the page background between two hairlines: no box of its own */
@@ -1138,6 +1314,23 @@ html[data-theme="dark"] .pcard-sweep {
 }
 .map-tip strong { display: block; font-family: var(--font-mono); margin-bottom: .1rem; }
 .map-tip span { opacity: .8; }
+/* The time scrubber (app.js initScrub): with a mouse over the map, a
+   playhead follows the pointer along the time axis, naming the month and
+   how many entries were running then; those light up, the rest dim. */
+.map-scrub { grid-column: 2; position: relative; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .2s var(--ease); }
+.map.is-scrub .map-scrub { opacity: 1; }
+.map-scrub-line {
+  position: absolute; top: 1.4rem; bottom: 1.3rem; left: var(--sx, 0); width: 1.5px; margin-left: -.75px;
+  background: var(--accent); box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+.map-scrub-tag {
+  position: absolute; top: .05rem; left: var(--sx, 0); transform: translateX(var(--tx, -50%));
+  padding: .08rem .5rem; border-radius: 999px; white-space: nowrap;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.map.is-scrub .map-mark { opacity: .2; }
+.map.is-scrub .map-mark.is-live { opacity: 1; box-shadow: 0 0 0 2px var(--bg), 0 0 12px color-mix(in srgb, var(--c) 70%, transparent); }
 
 /* ---------------------------- Back to top --------------------------------- */
 .to-top {
@@ -1179,6 +1372,80 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
 /* small feed link (footer of every page) */
 .feed-link { white-space: nowrap; }
 .feed-link svg { display: inline-block; vertical-align: -2px; margin-right: .25rem; }
+
+/* ------------------------------- Grid paper ------------------------------- */
+/* A faint dot grid under every page, like engineering paper; with a mouse,
+   the dots around the pointer light up in the accent colour (app.js /
+   site.js move .grid-glow and line its dots up with the grid). Both sit
+   under all content, too faint and fine to cost any text its contrast, and
+   nothing moves unless the pointer does. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle at 12px 12px, var(--grid-dot) 1px, transparent 1.6px);
+  background-size: 24px 24px;
+}
+.grid-glow {
+  --s: 380px;
+  position: fixed; left: calc(var(--s) / -2); top: calc(var(--s) / -2); z-index: -1;
+  width: var(--s); height: var(--s); pointer-events: none;
+  background-image: radial-gradient(circle at 12px 12px, color-mix(in srgb, var(--accent) 75%, transparent) 1.2px, transparent 1.8px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(closest-side, #000, rgba(0, 0, 0, .35) 55%, transparent);
+          mask-image: radial-gradient(closest-side, #000, rgba(0, 0, 0, .35) 55%, transparent);
+  opacity: 0; transition: opacity .4s var(--ease); will-change: transform;
+}
+.grid-glow.is-on { opacity: 1; }
+
+/* ---------------------------- Section headings ---------------------------- */
+/* Home page: each section's heading carries its number (01, 02…, counted
+   by CSS, so a hidden section drops out), and is typed onto the page as it
+   scrolls in: a block cursor runs across it, revealing it, then goes. It is
+   tied to the scroll position, so nothing plays on its own; where that
+   isn't supported, or under reduced motion, the headings are simply there. */
+.page-home { counter-reset: sec; }
+.page-home .section-head h2, .page-home .footer-cta h2 { counter-increment: sec; position: relative; width: fit-content; max-width: 100%; }
+.page-home .section-head h2::before, .page-home .footer-cta h2::before {
+  content: counter(sec, decimal-leading-zero);
+  content: counter(sec, decimal-leading-zero) / "";
+  display: block; width: fit-content; margin-bottom: .6rem; padding-right: 2.9rem;
+  font-size: var(--fs-meta); font-weight: 600; letter-spacing: .16em; line-height: 1.2; color: var(--accent);
+  background: linear-gradient(var(--accent), var(--accent)) right 50% / 2.2rem 1px no-repeat;
+}
+@property --type { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+@property --caret { syntax: "<number>"; inherits: true; initial-value: 0; }
+@keyframes sec-type {
+  from { --type: 0%; --caret: 1; }
+  90%  { --type: 100%; --caret: 1; }
+  to   { --type: 100%; --caret: 0; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page-home .section-head h2, .page-home .footer-cta h2 {
+      clip-path: inset(-.3em calc(100% - var(--type)) -.3em -.3em);
+      animation: sec-type linear both; animation-timeline: view(); animation-range: cover 3% cover 30%;
+    }
+    /* the footer is the end of the page: its heading must finish before the page does */
+    .page-home .site-footer { view-timeline: --foot block; }
+    .page-home .footer-cta h2 { animation-timeline: --foot; animation-range: entry 0% entry 55%; }
+    .page-home .section-head h2::after, .page-home .footer-cta h2::after {
+      content: ""; position: absolute; left: var(--type); bottom: .1em; width: .55em; height: 1em;
+      translate: -100% 0; background: var(--accent); opacity: var(--caret); pointer-events: none;
+    }
+  }
+}
+
+/* --------------------------- Skills, dealt in ----------------------------- */
+/* each skill pops in as it scrolls into view, a beat after the one before
+   it (--i, set by app.js), so a group fills in reading order */
+@keyframes chip-in { from { opacity: 0; transform: translateY(12px) scale(.9); } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .skill-group li {
+      animation: chip-in linear backwards; animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 7px) entry calc(70px + var(--i, 0) * 7px);
+    }
+  }
+}
 
 /* ------------------------------ Card motion ------------------------------- */
 /* Timeline cards and Highlight tiles rise onto the page as they scroll in:
@@ -1233,6 +1500,8 @@ html:not(.js) .controls, html:not(.js) .map, html:not(.js) .footer-js { display:
   .map.is-pending .map-mark, .map.is-pending .map-mark.is-point { transform: none; }
   .map.is-drawing .map-mark { animation: none; }
   .brand-mark.is-landing { animation: none; }
+  .hl-tile { rotate: none !important; }
+  .copy-btn svg, .copy-btn::after { transition: none; }
   /* the mirror just fades in; its lit bar and band are there, not drawn */
   .mirror.is-in:not(.is-leaving) { animation: fade-in .15s ease-out; }
   .mirror-band, .mirror-mark.is-focus, .mirror-mark.is-point.is-focus { animation: none; }
@@ -1449,7 +1718,11 @@ html[data-theme="dark"].splash-on .splash {
   }
   .site-header, .controls, .theme-toggle, .lang-toggle, .hero-cta, .footer-links, .skip-link, .to-top,
   .highlights-section, .map, .tl-more, .tl-full, .tl-fold,
-  .pcard-shade, .pcard-glare, .pcard-sweep, .tl-ghost, .mirror, .timeline::before { display: none !important; }
+  .pcard-shade, .pcard-glare, .pcard-sweep, .tl-ghost, .mirror, .timeline::before,
+  .hero-fx, .grid-glow, body::before { display: none !important; }
+  .section-head h2, .footer-cta h2 { clip-path: none !important; animation: none !important; }
+  .term-open-wrap, .copy-btn { display: none !important; }
+  .settle-y, .settle-end, .settle-band, .settle-ts, .settle-lbl-ts { animation: none !important; stroke-dasharray: none !important; }
   .tl-item { transform: none !important; transition: none !important; }
   /* cards print flat and fully there, wherever the scroll-linked rise stood */
   .tl-card, .hl-tile, .pcard { animation: none !important; opacity: 1 !important; transform: none !important; }

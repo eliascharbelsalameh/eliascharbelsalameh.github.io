@@ -45,6 +45,25 @@
     try { explicit = localStorage.getItem("theme"); } catch (err) {}
     if (!explicit) setTheme(e.matches ? "dark" : "light");
   });
+  // the grid paper's light: the dots around the mouse pointer light up (the
+  // same as app.js initGridGlow on the home page; styles.css "Grid paper")
+  if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    var glow = document.createElement("div"), gx = 0, gy = 0, graf = 0, half = 190;
+    glow.className = "grid-glow";
+    glow.setAttribute("aria-hidden", "true");
+    document.body.appendChild(glow);
+    document.addEventListener("pointermove", function (ev) {
+      if (ev.pointerType !== "mouse") return;
+      gx = ev.clientX; gy = ev.clientY;
+      if (!graf) graf = requestAnimationFrame(function () {
+        graf = 0;
+        glow.style.transform = "translate3d(" + gx + "px," + gy + "px,0)";
+        glow.style.backgroundPosition = (half - gx) + "px " + (half - gy) + "px";
+        glow.classList.add("is-on");
+      });
+    }, { passive: true });
+    document.addEventListener("mouseout", function (ev) { if (!ev.relatedTarget) glow.classList.remove("is-on"); });
+  }
   // the 404 page names the address that wasn't found (as text, never as markup)
   var miss = document.getElementById("nf-path");
   if (miss) miss.textContent = location.pathname;

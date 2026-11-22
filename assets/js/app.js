@@ -63,6 +63,10 @@
       to_top: "Back to top",
       theme_toggle: "Toggle dark / light",
       footer_built: "Built as a living timeline, last updated on",
+      contact_sub: "Steady state reached. Let's talk.",
+      copy_email: "Copy the e-mail address", copied: "Copied", copied_long: "E-mail address copied",
+      map_live: function (n) { return n + " active"; },
+      term_open: "Terminal", term_close: "Close the terminal", term_label: "Command", term_out: "Terminal output",
       months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
       shown: function (a, b) { return a + " of " + b + " shown"; }
     },
@@ -117,6 +121,10 @@
       to_top: "Haut de page",
       theme_toggle: "Basculer clair / sombre",
       footer_built: "Conçu comme une frise vivante, dernière mise à jour le",
+      contact_sub: "Régime permanent atteint. Parlons-en.",
+      copy_email: "Copier l'adresse e-mail", copied: "Copié", copied_long: "Adresse e-mail copiée",
+      map_live: function (n) { return n + " en cours"; },
+      term_open: "Terminal", term_close: "Fermer le terminal", term_label: "Commande", term_out: "Sortie du terminal",
       months: ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."],
       shown: function (a, b) { return a + " sur " + b + " affichées"; }
     }
@@ -260,7 +268,9 @@
     link:     '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7l-1.4 1.4"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0L5 13.3a4 4 0 0 0 5.7 5.7l1.4-1.4"/></svg>',
     doc:      '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
     video:    '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 9.2l4.5 2.8-4.5 2.8z"/></svg>',
-    pin:      '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>'
+    pin:      '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>',
+    copy:     '<svg class="ico-copy" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></svg>',
+    done:     '<svg class="ico-done" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"/></svg>'
   };
   /* pick an icon from the destination rather than always showing GitHub's */
   function linkIcon(l) {
@@ -435,7 +445,7 @@
   function renderHero() {
     var p = DATA.profile || {};
     $("#hero-role").textContent = tf(p, "role") || "";
-    $("#hero-name").textContent = p.name || "";
+    setName($("#hero-name"), p.name || "");
     $("#hero-tagline").textContent = tf(p, "tagline") || "";
     $("#hero-summary").textContent = tf(p, "summary") || "";
 
@@ -461,12 +471,13 @@
     (p.stats || []).forEach(function (s) {
       box.appendChild(h("li", {}, h("span", { class: "stat-value" }, tf(s, "value")), h("span", { class: "stat-label" }, tf(s, "label"))));
     });
-    if (firstHero) { firstHero = false; prepStats(); }
+    if (firstHero) { firstHero = false; prepStats(); initFlap(); }
 
     // footer
     var fl = $("#footer-links");
     empty(fl);
-    if (p.email)    fl.appendChild(iconLink("btn btn-ghost", "mailto:" + p.email, SOCIAL.mail, p.email));
+    if (p.email)    fl.appendChild(h("span", { class: "mail-pair" },
+                      iconLink("btn btn-ghost", "mailto:" + p.email, SOCIAL.mail, p.email), copyButton(p.email)));
     if (p.linkedin) fl.appendChild(iconLink("btn btn-ghost", p.linkedin, SOCIAL.linkedin, "LinkedIn", true));
     if (p.github)   fl.appendChild(iconLink("btn btn-ghost", p.github, SOCIAL.github, "GitHub", true));
     if (p.phone)    fl.appendChild(iconLink("btn btn-ghost", "tel:" + p.phone.replace(/\s+/g, ""), SOCIAL.phone, p.phone));
@@ -480,6 +491,100 @@
     $("#footer-copy").textContent = "© " + now.getFullYear() + " " + (p.name || "");
     $("#footer-built").textContent = T.footer_built;
     $("#footer-date").textContent = updated;
+  }
+
+  /* The name settles like a split-flap departure board: each letter flips
+     through a few glyphs before landing, left to right. Once per page load
+     (as the intro hands over, if it plays), and again, quicker, when a mouse
+     comes onto it. Assistive tech reads the real name from an sr-only copy
+     (the letters are aria-hidden), and Roboto Mono gives every glyph the
+     same width, so nothing on the line moves while they flip. Not under
+     reduced motion, nor for crawlers. styles.css .flap-ch. */
+  function setName(el, name) {
+    empty(el);
+    el.appendChild(h("span", { class: "sr-only" }, name));
+    var vis = h("span", { class: "flap", "aria-hidden": "true" });
+    name.split(" ").forEach(function (word, i) {
+      if (i) vis.appendChild(document.createTextNode(" "));
+      vis.appendChild(h("span", { class: "flap-word" }, word.split("").map(function (ch) {
+        return h("span", { class: "flap-ch", "data-ch": ch }, ch);
+      })));
+    });
+    el.appendChild(vis);
+  }
+  var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=<>/";
+  var flapping = false, flappedAt = 0;
+  function flapName(quick) {
+    var el = $("#hero-name");
+    if (!el || flapping || reduceMotion() || BOT || !el.animate) return;
+    var cells = Array.prototype.slice.call(el.querySelectorAll(".flap-ch")), left = cells.length;
+    if (!left) return;
+    flapping = true;
+    cells.forEach(function (c, i) {
+      var goal = c.getAttribute("data-ch"), lower = goal !== goal.toUpperCase();
+      var n = (quick ? 3 : 5) + Math.floor(Math.random() * (quick ? 3 : 5)), k = 0;
+      function flip(ch) {
+        c.textContent = ch;
+        c.animate([{ transform: "perspective(300px) rotateX(-75deg)", opacity: .35 }, { transform: "none", opacity: 1 }],
+          { duration: quick ? 70 : 95, easing: "cubic-bezier(.2, .7, .3, 1)" });
+      }
+      function tick() {
+        if (!c.isConnected) { if (--left === 0) flapping = false; return; }   // re-rendered (language switch)
+        if (k++ < n) {
+          var g = GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length));
+          flip(lower ? g.toLowerCase() : g);
+          setTimeout(tick, quick ? 40 : 55);
+        } else {
+          flip(goal);
+          if (--left === 0) { flapping = false; flappedAt = Date.now(); }
+        }
+      }
+      setTimeout(tick, i * (quick ? 20 : 34));
+    });
+  }
+  function initFlap() {
+    var cl = document.documentElement.classList;
+    if (cl.contains("splash-on") && !cl.contains("splash-out")) {
+      document.addEventListener("ecs:intro-end", function (ev) {
+        setTimeout(function () { flapName(false); }, ev.detail && ev.detail.flying ? 260 : 60);
+      }, { once: true });
+    } else {
+      setTimeout(function () { flapName(false); }, 150);
+    }
+    var el = $("#hero-name");
+    if (el) el.addEventListener("pointerenter", function (ev) {
+      if (ev.pointerType === "mouse" && Date.now() - flappedAt > 900) flapName(true);
+    });
+  }
+
+  /* Beside the footer's e-mail address: copy it in one click. The icon turns
+     into a tick and "Copied" floats up for a moment; the status region
+     tells assistive tech. Falls back to a hidden textarea where the
+     Clipboard API isn't available (e.g. plain http). */
+  function copyButton(text) {
+    var b = h("button", { class: "btn btn-ghost copy-btn", type: "button", "aria-label": T.copy_email, title: T.copy_email,
+                          "data-done": T.copied, html: SOCIAL.copy + SOCIAL.done });
+    function ok() {
+      b.classList.add("is-done");
+      var st = $("#copy-status");
+      if (st) { st.textContent = ""; setTimeout(function () { st.textContent = T.copied_long; }, 30); }
+      clearTimeout(b.doneTimer);
+      b.doneTimer = setTimeout(function () { b.classList.remove("is-done"); }, 1800);
+    }
+    function fallback() {
+      var ta = h("textarea", { readonly: "", "aria-hidden": "true", style: "position:fixed;top:0;left:-9999px;opacity:0" });
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { if (document.execCommand("copy")) ok(); } catch (e) {}
+      document.body.removeChild(ta);
+      b.focus();
+    }
+    b.addEventListener("click", function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+      else fallback();
+    });
+    return b;
   }
 
   /* ----------------------------- PLAYER CARD ------------------------------ */
@@ -1712,6 +1817,13 @@
   /* With a mouse, a soft light follows the pointer across a Highlights tile
      (styles.css .hl-tile::before): one listener on the grid, one update of
      two CSS variables per frame. The grid survives re-renders. */
+  /* With a mouse, a soft light follows the pointer across a Highlights tile
+     (styles.css .hl-tile::before), a brighter one runs round its border
+     (::after), and the tile tips toward the pointer a few degrees, like the
+     player card (not under reduced motion). One listener on the grid, one
+     update per frame; the tilt is the `rotate` property, so it never fights
+     the scroll-linked rise, which owns `transform`. The grid survives
+     re-renders. */
   function initSpotlight() {
     var grid = $("#highlights-grid");
     if (!grid || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -1719,14 +1831,47 @@
     grid.addEventListener("pointermove", function (ev) {
       var t = ev.target.closest && ev.target.closest(".hl-tile");
       if (!t || ev.pointerType === "touch") return;
+      if (tile && tile !== t) settle(tile);
       tile = t; x = ev.clientX; y = ev.clientY;
       if (!raf) raf = requestAnimationFrame(function () {
         raf = 0;
-        var b = tile.getBoundingClientRect();
+        if (!tile) return;
+        var b = tile.getBoundingClientRect(), u = (x - b.left) / b.width - 0.5, v = (y - b.top) / b.height - 0.5;
         tile.style.setProperty("--mx", (x - b.left).toFixed(0) + "px");
         tile.style.setProperty("--my", (y - b.top).toFixed(0) + "px");
+        if (reduceMotion()) return;
+        // rotateX(-v·k) and rotateY(u·k) as one rotation about the axis (-v, u)
+        var ax = -v * 9, ay = u * 11, ang = Math.sqrt(ax * ax + ay * ay);
+        tile.classList.add("is-tilting");
+        tile.style.rotate = ang > 0.05 ? (ax / ang).toFixed(3) + " " + (ay / ang).toFixed(3) + " 0 " + ang.toFixed(2) + "deg" : "";
       });
     });
+    function settle(t) { t.classList.remove("is-tilting"); t.style.rotate = ""; }
+    grid.addEventListener("pointerout", function (ev) {
+      var t = ev.target.closest && ev.target.closest(".hl-tile");
+      if (t && !(ev.relatedTarget && t.contains(ev.relatedTarget))) { settle(t); if (tile === t) tile = null; }
+    });
+  }
+
+  /* The grid paper's light (styles.css "Grid paper"): the dots around the
+     mouse pointer light up. One fixed element, moved with a transform, its
+     dots kept on the page's grid by shifting its background the other way.
+     Mouse only; nothing moves unless the pointer does. */
+  function initGridGlow() {
+    if (!window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    var g = h("div", { class: "grid-glow", "aria-hidden": "true" }), half = 190, x = 0, y = 0, raf = 0;
+    document.body.appendChild(g);
+    document.addEventListener("pointermove", function (ev) {
+      if (ev.pointerType !== "mouse") return;
+      x = ev.clientX; y = ev.clientY;
+      if (!raf) raf = requestAnimationFrame(function () {
+        raf = 0;
+        g.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+        g.style.backgroundPosition = (half - x) + "px " + (half - y) + "px";
+        g.classList.add("is-on");
+      });
+    }, { passive: true });
+    document.addEventListener("mouseout", function (ev) { if (!ev.relatedTarget) g.classList.remove("is-on"); });
   }
 
   /* ------------------------------ CAREER MAP ------------------------------ */
@@ -1758,6 +1903,7 @@
     var lanes = {};
     records.forEach(function (r) {
       var it = r.it, sp = { r: r, kind: "bar" };
+      r.span = sp;   // its place in time, for the map's scrubber
       if (it.start === "upcoming") { sp.s = Math.floor(NOW) + 1; sp.e = TO; sp.kind = "upcoming"; }
       else {
         sp.s = monthIdx(it.start);
@@ -1838,6 +1984,10 @@
     });
     inner.appendChild(h("div", { class: "map-foot", style: "grid-row:" + (used.length + 2) },
       h("span", { style: "left:" + pct(M.NOW) + "%" }, T.map_today)));
+    inner.appendChild(h("div", { class: "map-scrub", style: "grid-row:1 / span " + (used.length + 2) },
+      h("span", { class: "map-scrub-line" }), h("span", { class: "map-scrub-tag" })));
+    mapM = M;
+    initScrub();
     // where the map has to scroll (phones), start at the recent end, not in 2021
     inner.parentNode.scrollLeft = inner.parentNode.scrollWidth;
     updateMapEdges();
@@ -1864,6 +2014,50 @@
       setTimeout(function () { map.classList.remove("is-drawing"); }, 1600);
     }, { threshold: 0.3 });
     mapIO.observe(map);
+  }
+  /* The time scrubber (styles.css .map-scrub): with a mouse over the map, a
+     playhead follows the pointer along the time axis, naming the month and
+     how many entries were running then, which light up while the rest dim.
+     Mouse only (on phones the map scrolls sideways under a finger). Set up
+     once; the map is rebuilt by a language switch, so it reads mapM. */
+  var mapM = null, scrubOn = false;
+  function initScrub() {
+    var inner = $("#map-inner"), map = $("#career-map");
+    if (scrubOn || !inner || !map || !window.matchMedia || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    scrubOn = true;
+    var raf = 0, px = 0, lit = [];
+    function end() {
+      map.classList.remove("is-scrub");
+      lit.forEach(function (m) { m.classList.remove("is-live"); });
+      lit = [];
+    }
+    function paint() {
+      raf = 0;
+      var axis = inner.querySelector(".map-axis"), scrub = inner.querySelector(".map-scrub");
+      if (!axis || !scrub || !mapM) return;
+      var b = axis.getBoundingClientRect(), f = (px - b.left) / b.width;
+      if (f < 0 || f > 1) { end(); return; }
+      var m = mapM.FROM + f * (mapM.TO - mapM.FROM), live = 0, now = [];
+      records.forEach(function (r) {
+        var sp = r.span;
+        if (!sp || !r.mark) return;
+        if (sp.kind === "point" ? Math.abs(sp.s - m) <= 1 : sp.s <= m && m <= sp.e) { now.push(r.mark); if (!r.mark.classList.contains("is-dim")) live++; }
+      });
+      lit.forEach(function (x) { if (now.indexOf(x) === -1) x.classList.remove("is-live"); });
+      now.forEach(function (x) { x.classList.add("is-live"); });
+      lit = now;
+      var mi = Math.floor(m);
+      scrub.style.setProperty("--sx", (f * 100).toFixed(2) + "%");
+      scrub.style.setProperty("--tx", f < 0.07 ? "0%" : f > 0.93 ? "-100%" : "-50%");
+      scrub.querySelector(".map-scrub-tag").textContent = T.months[mi % 12] + " " + Math.floor(mi / 12) + " · " + T.map_live(live);
+      map.classList.add("is-scrub");
+    }
+    inner.addEventListener("pointermove", function (ev) {
+      if (ev.pointerType !== "mouse") return;
+      px = ev.clientX;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    inner.addEventListener("pointerleave", function () { if (raf) { cancelAnimationFrame(raf); raf = 0; } end(); });
   }
   /* fade the side(s) of the map that have more to scroll to */
   function updateMapEdges() {
@@ -2181,15 +2375,15 @@
     var grid = $("#skills-grid");
     empty(grid);   // drops the static copy from index.html
     (DATA.skills || []).forEach(function (g) {
-      var n = (g.items || []).length;
+      var n = (g.items || []).length, order = 0;
       grid.appendChild(h("div", { class: "skill-group" },
         h("h3", {},
           h("span", {}, tf(g, "group")),
           h("span", { class: "skill-count" }, String(n), h("span", { class: "sr-only" }, " " + T.skills_word))),
         h("ul", {}, (tf(g, "items") || []).map(function (label, i) {
-          var key = (g.items || [])[i], s = g.link !== false && SKILL_INDEX[key];
-          if (!s) return h("li", {}, label);
-          return h("li", { class: "is-link" }, h("button", {
+          var key = (g.items || [])[i], s = g.link !== false && SKILL_INDEX[key], at = "--i:" + order++;
+          if (!s) return h("li", { style: at }, label);
+          return h("li", { class: "is-link", style: at }, h("button", {
             class: "skill-link", type: "button", dataset: { skill: key },
             "aria-pressed": activeSkill === key ? "true" : "false",
             title: T.skill_show(s.count, label),
@@ -2197,6 +2391,237 @@
           }, label));
         }))));
     });
+  }
+
+  /* ------------------------------- TERMINAL ------------------------------- */
+  /* A small shell over the page, for the curious (index.html #term), opened
+     from the footer's ">_ Terminal" button or the ` key. Its commands read
+     the same data.js as the page (whoami, ls, grep, skills, stats…) and can
+     drive it: open jumps to an entry, theme and lang switch them. A native
+     modal dialog: focus stays inside, Esc closes it, and focus goes back to
+     where it was. The output is a polite live region; every line is built
+     as text nodes, so nothing from data.js is ever parsed as markup. */
+  var TERM = {
+    en: {
+      boot: ["ecs-os 1.0 (tty1)", "Welcome, visitor. Type 'help' to see what this can do."],
+      help: "Commands:",
+      cmds: [["whoami", "who I am"], ["about", "the short version"], ["ls [all]", "key work, numbered (all: every entry)"],
+             ["open <n>", "jump to entry n of the last list"], ["grep <word>", "search the timeline"], ["skills", "the ratings, as bars"],
+             ["stats", "key figures"], ["contact", "how to reach me"], ["rover", "what the robot up top is doing"],
+             ["theme [light|dark]", "switch the theme"], ["lang [en|fr]", "switch the language"], ["blog", "go to the blog"],
+             ["clear", "clear the screen"], ["exit", "close the terminal"]],
+      tip: "Tab completes a command; the arrow keys go through your history.",
+      nf: function (c) { return "command not found: " + c + ". Type 'help'."; },
+      noList: "No list yet: run 'ls' or 'grep <word>' first.",
+      noEntry: function (n) { return "There's no entry " + n + " in the last list."; },
+      opening: function (t) { return "Opening " + t + "…"; },
+      grepNone: function (q) { return "No entry mentions '" + q + "'."; },
+      grepUsage: "usage: grep <word>", openUsage: "usage: open <n>",
+      listKey: "Key work ('open <n>' to see one, 'ls all' for everything):",
+      listAll: "Every entry, most important first:",
+      found: function (n, q) { return n + (n === 1 ? " entry mentions '" : " entries mention '") + q + "':"; },
+      theme: function (t) { return "Theme: " + t + "."; },
+      lang: "Language: English.",
+      rover: ["The rover behind the hero runs a small navigation stack:",
+              "  · A* plans a path on an occupancy grid (the dashed line);",
+              "  · a sampling MPC tracks it: 55 predicted paths over a 1.1 s",
+              "    horizon, colliding ones dropped, the best one driven (the dots);",
+              "  · a 2D lidar maps the obstacles it can't otherwise see.",
+              "Point anywhere in the hero to give it a goal."],
+      sudo: ["visitor is not in the sudoers file. This incident will be reported…", "…to Elias, who'd be glad to hear from you:"],
+      self: "Self-assessed, out of 99.", bye: "Bye."
+    },
+    fr: {
+      boot: ["ecs-os 1.0 (tty1)", "Bienvenue. Tapez 'help' pour voir ce que ce terminal sait faire."],
+      help: "Commandes :",
+      cmds: [["whoami", "qui je suis"], ["about", "la version courte"], ["ls [all]", "travaux clés, numérotés (all : toutes les entrées)"],
+             ["open <n>", "aller à l'entrée n de la dernière liste"], ["grep <mot>", "chercher dans le parcours"], ["skills", "les notes, en barres"],
+             ["stats", "chiffres clés"], ["contact", "me joindre"], ["rover", "ce que fait le robot en haut de page"],
+             ["theme [light|dark]", "changer de thème"], ["lang [en|fr]", "changer de langue"], ["blog", "aller au blog"],
+             ["clear", "effacer l'écran"], ["exit", "fermer le terminal"]],
+      tip: "Tab complète une commande ; les flèches parcourent l'historique.",
+      nf: function (c) { return "commande introuvable : " + c + ". Tapez 'help'."; },
+      noList: "Pas encore de liste : lancez d'abord 'ls' ou 'grep <mot>'.",
+      noEntry: function (n) { return "Pas d'entrée " + n + " dans la dernière liste."; },
+      opening: function (t) { return "Ouverture de « " + t + " »…"; },
+      grepNone: function (q) { return "Aucune entrée ne mentionne « " + q + " »."; },
+      grepUsage: "usage : grep <mot>", openUsage: "usage : open <n>",
+      listKey: "Travaux clés ('open <n>' pour en voir un, 'ls all' pour tout) :",
+      listAll: "Toutes les entrées, les plus importantes d'abord :",
+      found: function (n, q) { return n + (n === 1 ? " entrée mentionne « " : " entrées mentionnent « ") + q + " » :"; },
+      theme: function (t) { return "Thème : " + (t === "dark" ? "sombre" : "clair") + "."; },
+      lang: "Langue : français.",
+      rover: ["Le rover derrière l'en-tête fait tourner une petite pile de navigation :",
+              "  · A* planifie un chemin sur une grille d'occupation (les pointillés) ;",
+              "  · une MPC par échantillonnage le suit : 55 trajectoires prédites sur",
+              "    1,1 s, celles qui heurtent un obstacle écartées, la meilleure suivie ;",
+              "  · un lidar 2D cartographie les obstacles qu'il ne voit pas autrement.",
+              "Pointez n'importe où dans l'en-tête pour lui donner un but."],
+      sudo: ["visitor n'est pas dans le fichier sudoers. Cet incident sera signalé…", "…à Elias, qui serait ravi d'avoir de vos nouvelles :"],
+      self: "Auto-évaluées, sur 99.", bye: "À bientôt."
+    }
+  };
+  function initTerm() {
+    var dlg = $("#term"), out = $("#term-out"), inp = $("#term-in"), form = $("#term-form"), wrap = $(".term-open-wrap");
+    if (!dlg || !out || !inp || !form || typeof dlg.showModal !== "function") return;
+    if (wrap) wrap.hidden = false;
+    var hist = [], hpos = 0, booted = false, opener = null, lastList = [], pendingEntry = null;
+    var NAMES = ["help", "whoami", "about", "ls", "open", "grep", "skills", "stats", "contact", "rover", "theme", "lang",
+                 "blog", "clear", "exit", "date", "echo", "pwd", "history", "sudo"];
+    function S() { return TERM[LANG] || TERM.en; }
+    function line(kids, cls) {
+      var p = h("p", { class: "term-l is-in" + (cls ? " " + cls : "") }, kids);
+      out.appendChild(p);
+      out.scrollTop = out.scrollHeight;
+      return p;
+    }
+    function span(cls, text) { return h("span", { class: cls }, text); }
+    function link(href, text, ext) {
+      var a = h("a", { href: href }, text);
+      if (ext) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener"); }
+      return a;
+    }
+    function pad(s, n) { s = String(s); while (s.length < n) s += " "; return s; }
+    function list(recs, title) {
+      lastList = recs;
+      line(title, "term-dim");
+      recs.forEach(function (r, i) {
+        line([span("term-dim", pad("[" + (i + 1) + "]", 5)), span("term-acc", dateRange(r.it)), "  ", tf(r.it, "title"),
+              tf(r.it, "org") ? span("term-dim", " · " + tf(r.it, "org")) : null]);
+      });
+    }
+    var RUN = {
+      help: function () {
+        line(S().help, "term-dim");
+        S().cmds.forEach(function (c) { line([span("term-acc", pad(c[0], 20)), c[1]]); });
+        line(S().tip, "term-dim");
+      },
+      whoami: function () {
+        var p = DATA.profile || {};
+        line(span("term-ok", p.name || ""));
+        line(tf(p, "role") || "");
+        if (tf(p, "location")) line(tf(p, "location"), "term-dim");
+      },
+      about: function () { var p = DATA.profile || {}; line(tf(p, "tagline") || ""); line(tf(p, "summary") || "", "term-dim"); },
+      ls: function (a) {
+        if (a[0] === "all" || a[0] === "-a") list(sortRecords(), S().listAll);
+        else list(sortRecords().filter(function (r) { return tierOf(r.it) === "key"; }), S().listKey);
+      },
+      open: function (a) {
+        var n = parseInt(a[0], 10);
+        if (!a.length || !isFinite(n)) { line(S().openUsage, "term-err"); return; }
+        if (!lastList.length) { line(S().noList, "term-err"); return; }
+        var r = lastList[n - 1];
+        if (!r) { line(S().noEntry(n), "term-err"); return; }
+        line(S().opening(tf(r.it, "title")), "term-ok");
+        pendingEntry = r.id;
+        setTimeout(function () { dlg.close(); }, 260);
+      },
+      grep: function (a) {
+        var q = a.join(" ").trim();
+        if (!q) { line(S().grepUsage, "term-err"); return; }
+        var nq = norm(q), hits = sortRecords().filter(function (r) { return r.text.indexOf(nq) !== -1; });
+        if (!hits.length) { line(S().grepNone(q), "term-warn"); return; }
+        list(hits, S().found(hits.length, q));
+      },
+      skills: function () {
+        (DATA.skills || []).forEach(function (g) {
+          var v = ratingOf(g);
+          if (v === null) return;
+          line([span("term-acc", pad(tf(g, "abbr") || "", 4)), pad(tf(g, "group"), 26),
+                h("span", { class: "term-meter", "aria-hidden": "true", style: "--v:" + v }), " " + v]);
+        });
+        line(S().self, "term-dim");
+      },
+      stats: function () {
+        ((DATA.profile || {}).stats || []).forEach(function (st) { line([span("term-acc", pad(tf(st, "value"), 10)), tf(st, "label")]); });
+      },
+      contact: function () {
+        var p = DATA.profile || {};
+        if (p.email) line([span("term-dim", pad("email", 10)), link("mailto:" + p.email, p.email)]);
+        if (p.linkedin) line([span("term-dim", pad("linkedin", 10)), link(p.linkedin, p.linkedin.replace(/^https?:\/\/(www\.)?/, ""), true)]);
+        if (p.github) line([span("term-dim", pad("github", 10)), link(p.github, p.github.replace(/^https?:\/\//, ""), true)]);
+      },
+      rover: function () { S().rover.forEach(function (t, i) { line(t, i ? "" : "term-ok"); }); },
+      theme: function (a) {
+        var cur = document.documentElement.getAttribute("data-theme"), next = a[0] === "light" || a[0] === "dark" ? a[0] : (cur === "dark" ? "light" : "dark");
+        if (next !== cur) { switchTheme(next, $("#theme-toggle")); try { localStorage.setItem("theme", next); } catch (e) {} }
+        line(S().theme(next), "term-ok");
+      },
+      lang: function (a) {
+        var next = a[0] === "en" || a[0] === "fr" ? a[0] : (LANG === "fr" ? "en" : "fr");
+        if (next !== LANG) setLang(next);
+        line(S().lang, "term-ok");
+      },
+      blog: function () { location.href = "blog/"; },
+      clear: function () { empty(out); },
+      exit: function () { line(S().bye, "term-dim"); setTimeout(function () { dlg.close(); }, 200); },
+      date: function () { line(new Date().toLocaleString(LANG === "fr" ? "fr-FR" : "en-GB")); },
+      echo: function (a, raw) { line(raw.replace(/^\s*echo\s?/, "")); },
+      pwd: function () { line("/home/visitor"); },
+      history: function () { hist.forEach(function (c, i) { line([span("term-dim", pad(i + 1, 5)), c]); }); },
+      sudo: function () {
+        var p = DATA.profile || {};
+        line(S().sudo[0], "term-warn");
+        line(S().sudo[1]);
+        if (p.email) line(link("mailto:" + p.email, p.email));
+      }
+    };
+    function run(raw) {
+      var text = raw.trim();
+      line([span("term-ps", "visitor@ecs:~$ "), text], "term-cmd");
+      if (!text) return;
+      hist.push(text); hpos = hist.length;
+      var parts = text.split(/\s+/), cmd = parts[0].toLowerCase();
+      if (cmd === "hire" || cmd === "hire-me") cmd = "sudo";
+      if (cmd === "cls") cmd = "clear";
+      if (cmd === "quit" || cmd === "q") cmd = "exit";
+      if (cmd === "man" || cmd === "?") cmd = "help";
+      if (RUN[cmd]) RUN[cmd](parts.slice(1), text);
+      else line(S().nf(parts[0]), "term-err");
+    }
+    function open() {
+      opener = document.activeElement;
+      hidePeek();
+      if (!dlg.open) dlg.showModal();
+      if (!booted) { booted = true; line(S().boot[0], "term-dim"); line(S().boot[1]); }
+      inp.focus();
+    }
+    dlg.addEventListener("close", function () {
+      if (pendingEntry) {   // "open <n>": go to that entry instead of back to where we came from
+        var id = pendingEntry;
+        pendingEntry = null;
+        setTimeout(function () { focusEntry(id); }, 30);
+      } else if (opener && opener.focus && opener.isConnected) {
+        opener.focus({ preventScroll: true });
+      }
+    });
+    $("#term-x").addEventListener("click", function () { dlg.close(); });
+    dlg.addEventListener("click", function (ev) { if (ev.target === dlg) dlg.close(); });   // the backdrop
+    form.addEventListener("submit", function (ev) { ev.preventDefault(); run(inp.value); inp.value = ""; });
+    inp.addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowUp" || ev.key === "ArrowDown") {
+        if (!hist.length) return;
+        ev.preventDefault();
+        hpos = Math.max(0, Math.min(hist.length, hpos + (ev.key === "ArrowUp" ? -1 : 1)));
+        inp.value = hist[hpos] || "";
+      } else if (ev.key === "Tab" && inp.value && inp.value.indexOf(" ") === -1) {
+        // complete the command (an empty line lets Tab move focus as usual)
+        ev.preventDefault();
+        var v = inp.value.toLowerCase(), m = NAMES.filter(function (n) { return n.indexOf(v) === 0; });
+        if (m.length === 1) inp.value = m[0] + " ";
+        else if (m.length > 1) line(m.join("  "), "term-dim");
+      }
+    });
+    $("#term-open").addEventListener("click", open);
+    document.addEventListener("keydown", function (ev) {
+      if ((ev.key !== "`" && ev.key !== "~") || ev.ctrlKey || ev.metaKey || ev.altKey || dlg.open) return;
+      var el = document.activeElement;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      ev.preventDefault();
+      open();
+    });
+    try { console.log("%c>_ Hello, fellow developer. Press ` (or click Terminal in the footer) for a shell.", "font: 600 12px ui-monospace, monospace; color: #6f9bff"); } catch (e) {}
   }
 
   /* -------------------------------- INIT ---------------------------------- */
@@ -2211,8 +2636,15 @@
      (drawMapOnce); the theme spreads from its button and the language
      cross-fades (switchTheme, initLang); the header's underline follows the
      section you're in (placeInk) and a hairline under it shows how far down
-     the page you are (CSS); a light follows the mouse over the Highlights
-     (initSpotlight). Every piece has a reduced-motion path. */
+     the page you are (CSS); a light follows the mouse over the Highlights,
+     which tip toward it (initSpotlight). Added on top: the name settles like
+     a split-flap board (flapName); the dot grid lights up around the mouse
+     (initGridGlow); section headings type on, skills pop in and the footer's
+     step response draws as they scroll in (pure CSS); a playhead scrubs the
+     map (initScrub); the e-mail copies in a click (copyButton); a terminal
+     waits behind the ` key (initTerm); and the hero's rover (rover.js, a
+     separate file) plans, drives and maps where you point. Every piece has a
+     reduced-motion path. */
   /* Everything that reads content out of data.js, re-run on a language swap.
      Anything rendered into a container here must also be in setLang()'s
      list of containers to empty. */
@@ -2240,6 +2672,8 @@
   }
   initCardTilt();
   initSpotlight();
+  initGridGlow();
+  initTerm();
   initChrome();
   // the page body was kept unpainted until now (html.app-pending in styles.css):
   // it appears already rendered, with no static-to-interactive swap or layout shift

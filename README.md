@@ -198,7 +198,8 @@ or a status.
 
 ### Contact buttons
 The hero's first button is **Email me** (from `profile.email`), followed by
-LinkedIn and GitHub. The header has a **Contact** button at every width that jumps
+LinkedIn and GitHub. In the footer, the e-mail address has a **copy** button
+beside it (a tick and "Copied" confirm it; screen readers hear it too). The header has a **Contact** button at every width that jumps
 to the contact block at the bottom. The header's **Blog** link and the footer's
 **Blog · Atom feed** links lead to the blog. The copy of your contact links in
 `index.html` (for visitors and crawlers without JavaScript) is written by
@@ -343,7 +344,50 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   colours for each theme. To turn it off, delete the `#splash` block and the two
   scripts marked "Intro splash".
 
+### The rover (the hero's background)
+Behind the hero lives a small robot that drives to wherever the visitor points
+(or taps, on a phone). It runs a real, if tiny, navigation stack:
+
+- **A\* global planner** on an occupancy grid of the hero, shortened to the
+  corners that matter: the dashed line.
+- **Sampling MPC** that tracks that plan: every frame it predicts 55 (speed,
+  turn rate) commands over a 1.1 s horizon with the motors' lag, drops those
+  that would hit something, and drives the one that best follows a reference
+  moving along the plan (full speed, slower into corners, braking onto the
+  goal). The faint fan is the candidates, the dots the chosen prediction.
+- **2D lidar mapping**: rays from the robot hit hidden obstacles, and every hit
+  becomes a point of the map, so their outlines appear as it explores. The
+  player card is one of the obstacles: the robot drives round it and the lidar
+  traces its edges.
+- A readout under the hero shows it live (paths kept, map points, speed).
+
+On page load it drives once across the hero (about 3 seconds) and parks; after
+that it only moves when the visitor points somewhere, and stops when it gets
+there (it backs off and replans once if it's stuck, then gives up), so nothing
+keeps moving on its own. Under reduced motion it shows a still, already-scanned
+map; crawlers, print and visitors without JavaScript don't get it at all. It is
+all in `assets/js/rover.js` (plus the canvas in `index.html` and "Hero rover" in
+`styles.css`) and reads nothing from `data.js`. To remove it, delete the
+`<canvas id="hero-fx">` and the `rover.js` script tag.
+
+### The terminal (for the curious)
+Press `` ` `` anywhere (or **>_ Terminal** in the footer) for a small shell over
+the page. Its commands read the same `data.js`: `whoami`, `about`, `ls` / `ls
+all` (numbered entries), `open <n>` (jumps to that entry), `grep <word>`,
+`skills` (the ratings as bars), `stats`, `contact`, `rover` (explains the robot),
+`theme`, `lang`, `blog`, `clear`, `exit`, and a reply to `sudo`. Tab completes,
+the arrow keys go through the history. It's a real modal dialog (Esc closes it
+and focus goes back), in both languages, and its output is read out by screen
+readers. app.js "TERMINAL"; styles.css "Terminal".
+
 ### The other animations
+- **The name** settles like a split-flap departure board: each letter flips
+  through a few glyphs before landing, once per page load and again, quicker,
+  when a mouse passes over it. Screen readers hear the plain name.
+- **Grid paper:** a faint dot grid lies under every page (the blog too), and with
+  a mouse the dots around the pointer light up in the accent colour.
+- **Section headings** carry their number (01, 02…) and are typed onto the
+  page as they scroll in: a block cursor runs across, revealing them, then goes.
 - **Player card:** turns face-up into place on each page load, then the ratings
   count up as their bars fill and a band of light crosses it. With a mouse, it
   tilts toward the pointer.
@@ -361,6 +405,15 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   band across the lanes draw along the time axis, like the big map's. Moving to
   another card makes the mirror glide across to it rather than blink out and back.
 - **The map** draws its bars along the time axis the first time it comes into view.
+  With a mouse over it, a **playhead** follows the pointer along the time axis,
+  naming the month and how many entries were running then; those light up and
+  the rest dim.
+- **Skills** pop in one after another as they scroll into view.
+- **The footer** ends the page on a step response, the textbook picture of a
+  control loop: the curve draws itself as you scroll down to it, overshoots,
+  rings and settles on its setpoint ("Steady state reached. Let's talk.").
+- **Moving between the home page and the blog** cross-fades instead of
+  flashing (browsers with cross-document view transitions).
 - **Theme and language:** the new theme spreads from the toggle in a circle as its
   icon turns; switching language cross-fades the page instead of flashing it. Both
   need a browser with view transitions (recent Chrome, Edge, Safari and Firefox);
@@ -369,18 +422,25 @@ or tabbed into; a click, `Esc`, `Enter` or `Space` ends it early with a short fa
   reading, and a hairline under the header fills as you scroll down the page
   (also on the blog, where it shows how far through a post you are).
 - **Highlights:** with a mouse, a soft light in the tile's category colour
-  follows the pointer.
+  follows the pointer, a brighter one runs round the tile's border, and the
+  tile tips a few degrees toward the pointer.
 - **"Ongoing" badges** send out two pulses from a small live dot, then rest
   (nothing on the page keeps moving for more than 5 seconds).
 - **Reduced motion:** visitors who ask their system for less motion get none of
   the movement, only short fades where they show a change. The projection still
   blurs the rest of the timeline, without the lift, and the mirror just fades in.
 
+Every one of them has a reduced-motion path, and the ones tied to scrolling
+(card rises, headings, skills, the footer curve) simply show their end state in
+browsers without scroll-driven animations.
+
 All of it is plain CSS and JavaScript (styles.css "Card motion", "Player card",
-"The projection", "The mirror" and "Theme switch"; app.js `showPeek`, `project`,
+"The projection", "The mirror", "Theme switch", "Grid paper", "Section
+headings", "Footer finale" and "Terminal"; app.js `showPeek`, `project`,
 `renderMirror`, `mirrorPlace`,
 `animateLayout`, `morphLevel`, `dealIn`, `revealCard`, `revealStats`,
-`initCardTilt`, `initSpotlight`, `drawMapOnce`, `switchTheme`, `placeInk`).
+`initCardTilt`, `initSpotlight`, `initGridGlow`, `flapName`, `initScrub`,
+`initTerm`, `drawMapOnce`, `switchTheme`, `placeInk`; and `assets/js/rover.js`).
 
 ---
 
@@ -494,8 +554,9 @@ portfolio/
 │   │   └── blog.css        # blog reading layout
 │   ├── js/
 │   │   ├── data.js         # ← YOUR CONTENT lives here
-│   │   ├── app.js          # renders + filters (rarely edited)
-│   │   └── site.js         # theme toggle on the blog and 404 pages
+│   │   ├── app.js          # renders + filters + the terminal (rarely edited)
+│   │   ├── rover.js        # the hero's robot: A* + MPC + lidar mapping (standalone)
+│   │   └── site.js         # theme toggle and grid light on the blog and 404 pages
 │   ├── fonts/              # Roboto + Roboto Mono (self-hosted) + LICENSE.txt
 │   └── images/             # entry images, profile.jpg, og-cover.png
 ├── posts/                  # ← YOUR BLOG POSTS (Markdown)
