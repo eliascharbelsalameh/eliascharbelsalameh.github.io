@@ -1764,6 +1764,8 @@
         if (it.end === "present") sp.e = NOW;
         else if (it.end) sp.e = monthIdx(it.end) + 1;
         else { sp.kind = "point"; sp.s += 0.5; sp.e = sp.s; }
+        // an ongoing entry whose start month hasn't come yet: drawn as upcoming
+        if (it.end === "present" && sp.s > NOW) { sp.e = TO; sp.kind = "upcoming"; }
       }
       var name = laneOf(it);
       (lanes[name] = lanes[name] || []).push(sp);

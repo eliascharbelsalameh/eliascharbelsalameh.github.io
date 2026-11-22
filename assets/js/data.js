@@ -110,8 +110,8 @@ window.PORTFOLIO = {
     name: "Elias Charbel SALAMEH",
     initials: "ecs",                       // shown (in capitals) on the player card only if the photo can't load
     photo: "assets/images/profile.jpg",   // square photo on the player card in the hero
-    role: "R&D Engineer at ADERA · Incoming PhD Candidate at Stellantis / IMS",
-    role_fr: "Ingénieur R&D chez ADERA · Futur doctorant CIFRE chez Stellantis / IMS",
+    role: "CIFRE PhD Candidate at Stellantis",
+    role_fr: "Doctorant CIFRE chez Stellantis",
     tagline: "Combining model-based control and data-driven solutions to provide low consumption and certifiable smart automotive algorithms.",
     tagline_fr: "Alliant commande basée modèle et solutions pilotées par les données pour des algorithmes automobiles intelligents, certifiables et à faible consommation.",
     // One line under the tagline. The role and tagline already say where you
@@ -119,18 +119,18 @@ window.PORTFOLIO = {
     summary: "Hands-on experience across control systems, computer vision, SLAM and deep learning.",
     summary_fr: "Compétences pratiques en commande, vision par ordinateur, SLAM et apprentissage profond.",
     // Short "position" line on the player card in the hero, under your name.
-    position: "R&D engineer · control & AI",
-    position_fr: "Ingénieur R&D · automatique & IA",
+    position: "PhD candidate · control & AI",
+    position_fr: "Doctorant · automatique & IA",
     location: "Bordeaux, France",
     // Browser-tab title and search-engine description. `node tools/build.mjs`
     // copies the English pair into <title> and <meta name="description"> in
     // index.html (crawlers read those without JavaScript); the French pair is
     // swapped in when the page is shown in French.
-    pageTitle: "Elias Charbel Salameh · R&D Engineer & Incoming CIFRE PhD",
-    pageTitle_fr: "Elias Charbel Salameh · Ingénieur R&D et futur doctorant CIFRE",
-    pageDescription: "R&D engineer at ADERA, incoming CIFRE PhD candidate with Stellantis / IMS, working on robotics, control and AI for certifiable, low-consumption automotive algorithms.",
-    pageDescription_fr: "Ingénieur R&D chez ADERA, futur doctorant CIFRE avec Stellantis / IMS : robotique, automatique et IA pour des algorithmes automobiles certifiables et à faible consommation.",
-    updated: "2026-11-16",   // "last updated on" date in the footer and the home page's sitemap <lastmod>; bump it when you edit the site
+    pageTitle: "Elias Charbel Salameh · CIFRE PhD Candidate at Stellantis",
+    pageTitle_fr: "Elias Charbel Salameh · Doctorant CIFRE chez Stellantis",
+    pageDescription: "CIFRE PhD candidate at Stellantis, working on robotics, control and AI for certifiable, low-consumption automotive algorithms.",
+    pageDescription_fr: "Doctorant CIFRE chez Stellantis : robotique, automatique et IA pour des algorithmes automobiles certifiables et à faible consommation.",
+    updated: "2026-11-22",   // "last updated on" date in the footer and the home page's sitemap <lastmod>; bump it when you edit the site
     // Contacts: edit freely. Set any to "" to hide it.
     email: "esalameh@proton.me",
     phone: "+33 7 83 75 76 69",
@@ -238,7 +238,7 @@ window.PORTFOLIO = {
       title_fr: "Doctorat CIFRE : approches hybrides IA / automatique pour l'automobile embarquée",
       org: "Stellantis / IMS Bordeaux",
       location: "Talence, France",
-      start: "upcoming",
+      start: "2026-12", end: "present",
       kind: "research",
       importance: 5,
       categories: ["research", "academic", "technical"],
@@ -267,7 +267,7 @@ window.PORTFOLIO = {
       title_fr: "Ingénieur R&D, IA embarquée & automatique (CDD)",
       org: "ADERA",
       location: "Bordeaux, France",
-      start: "2026-09", end: "present",
+      start: "2026-09", end: "2026-11",
       kind: "experience",
       importance: 5,
       categories: ["research", "technical"],
@@ -279,10 +279,10 @@ window.PORTFOLIO = {
         "Approches hybrides IA / automatique pour la synthèse d'algorithmes embarqués " +
         "intelligents, certifiables et à faible consommation pour l'automobile.",
       highlights: [
-        "Same supervisors and same research project as the upcoming CIFRE doctorate with Stellantis and IMS: the thesis work, started ahead of time."
+        "Same supervisors and same research project as the CIFRE doctorate with Stellantis and IMS that followed it: the thesis work, started ahead of time."
       ],
       highlights_fr: [
-        "Mêmes encadrants et même projet de recherche que le doctorat CIFRE à venir avec Stellantis et l'IMS : les travaux de thèse, engagés en amont."
+        "Mêmes encadrants et même projet de recherche que le doctorat CIFRE avec Stellantis et l'IMS qui a suivi : les travaux de thèse, engagés en amont."
       ],
       tags: ["Embedded AI", "Certifiability", "Automotive", "Energy Efficiency", "Control Systems"],
       tags_fr: ["IA embarquée", "Certifiabilité", "Automobile", "Efficacité énergétique", "Automatique"]
